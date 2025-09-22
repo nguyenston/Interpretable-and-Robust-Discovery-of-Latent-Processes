@@ -1,0 +1,7 @@
+PWD /home/nguyenston/Projects/tex-documents/overleaf-robust-model-selection/writing
+INPUT /nix/store/9sjskpds0xji0nm5wbx02wpsdzwsl81c-texlive-2024-env/share/texmf-var/web2c/texmf.cnf
+INPUT /nix/store/9sjskpds0xji0nm5wbx02wpsdzwsl81c-texlive-2024-env/share/texmf-var/web2c/pdftex/pdflatex.fmt
+INPUT appendix.tex
+OUTPUT appendix.log
+INPUT /nix/store/2sj9avray1nkj5i85hn6fm65xs5jpd31-texlive-2024-env-texmfdist/fonts/map/fontname/texfonts.map
+INPUT /nix/store/2sj9avray1nkj5i85hn6fm65xs5jpd31-texlive-2024-env-texmfdist/fonts/tfm/public/cm/cmbx10.tfm

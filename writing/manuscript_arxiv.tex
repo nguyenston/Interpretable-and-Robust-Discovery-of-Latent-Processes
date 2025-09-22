@@ -1,0 +1,133 @@
+%\documentclass[imslayout,preprint]{imsart} 
+%\def\journal@name{} 
+\documentclass[12pt]{extarticle}
+\usepackage[linenumbers,preprint]{imsart}
+
+%\let\document\latexdocument
+%\let\enddocument\latexenddocument
+%%\AtEndDocument{\printhistory}
+%\let\arabic\latexarabic
+%\def\rm{}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb,amsthm,mathtools}
+\usepackage{mathtools}
+\usepackage{bm}
+\usepackage[unicode,colorlinks,citecolor=blue,urlcolor=black,linkcolor=blue,pdfborder={0 0 0}]{hyperref}
+\usepackage[capitalize,sort,compress]{cleveref} % nice reference package for automatically choosing names for references
+\usepackage{comment}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{framed}
+\usepackage{dcolumn}
+%%% UNCOMMENT WHEN SUBMITTING TO ARXIV %%%
+\usepackage{chngcntr}
+%\usepackage{subcaption}
+\usepackage{dsfont} % doublestroke fonts (for things like reals, nats, complex numbers, etc)
+
+
+\usepackage{url} % nice URL typesetting
+\usepackage[usenames]{color} % for using colored text
+\usepackage{subfig}
+\usepackage[sort]{natbib}
+%\usepackage[style=numeric-comp,
+%       minnames=1,
+%       maxnames=99,
+%       maxcitenames=3,
+%       natbib=true,
+%       firstinits=true,
+%       backend=bibtex]{biblatex}
+
+\usepackage{datetime}
+\usepackage[normalem]{ulem}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+
+\usepackage{autonum}
+\usepackage{microtype} % microtypesetting improvements for latex
+\usepackage{booktabs} % professional quality tables
+\usepackage{graphicx}
+\usepackage{thmtools}
+
+
+\newtheorem{assumption}{Assumption}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{example}{Example}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newenvironment{contexample}{
+   \addtocounter{example}{-1} \begin{example}[continued]}{
+   \end{example}}
+
+\crefname{theorem}{Theorem}{Theorems}
+\crefname{lemma}{Lemma}{Lemmas}
+\crefname{proposition}{Proposition}{Propositions}
+\crefname{corollary}{Corollary}{Corollaries}
+\crefname{conjecture}{Conjecture}{Conjectures}
+\crefname{definition}{Definition}{Definitions}
+\crefname{assumption}{Assumption}{Assumptions}
+\crefname{example}{Example}{Examples}
+\crefname{remark}{Remark}{Remarks}
+\crefname{algocf}{Algorithm}{Algorithms}
+
+
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.9}
+\captionsetup[figure]{font=small,labelfont=small}
+
+\AtBeginDocument{ %necessary to stop clash with autonum package
+\def\[#1\]{\begin{align}#1\end{align}}
+}
+
+\input{shortcuts}
+
+%\setlength{\marginparwidth}{25mm} % remember to comment out this line
+\graphicspath{{./figures/}}
+\setcounter{tocdepth}{2}
+%\suppresscomments
+
+\begin{document}
+
+\begin{frontmatter}
+	%% Here are the title, author names and addresses
+	%\title{Structurally Aware Robust Model \\ Selection for Latent Causal Factors}
+	%\runtitle{~Structurally Aware Robust Model Selection}
+	\title{Beyond Predictive Accuracy: Enabling Interpretable and Robust Discovery
+		of Latent Processes in Complex Systems}
+	\runtitle{~Interpretable \& Robust Discovery of Latent Processes}
+	\runauthor{N.\ Nguyen}
+
+	\begin{aug}
+		% \author[MS]{\fnms{Jiawei} \snm{Li}\ead[label=jl]{jwli@bu.edu}\thanksref{A}},
+		\author[SE]{\fnms{Nguyen} \snm{Nguyen}\ead[label=nn]{nguyenpn@bu.edu}\thanksref{A}},
+		% \author[CDS]{\fnms{Meng} \snm{Lai}\ead[label=ml]{menglai@bu.edu}}, \\
+		\author[SE,CDS]{\fnms{Ioannis Ch.} \snm{Paschalidis}\ead[label=yp]{yannisp@bu.edu}}
+		\and
+		\author[MS,CDS]{\fnms{Jonathan H.} \snm{Huggins}\ead[label=jh]{huggins@bu.edu}}
+		\address[MS]{Department of Mathematics \& Statistics, Boston University, USA \printead{jl,jh}}
+		\address[SE]{Division of Systems Engineering, Boston University, USA \printead{nn,yp}}
+		% \address[CDS]{Faculty of Computing \& Data Sciences, Boston University, USA \printead{ml}}
+	\end{aug}
+	\thankstext{A}{Equal contribution.}
+
+	\maketitle
+
+	\input{abstract}
+
+\end{frontmatter}
+
+%\tableofcontents
+
+%\doublespacing
+
+\input{content}
+
+\bibliographystyle{imsart-nameyear}
+\bibliography{paper-ref}
+
+\newpage
+\appendix
+\input{appendix}
+
+\end{document}
