@@ -1,5 +1,5 @@
 % !TEX root =  manuscript_arxiv.tex
-
+\section{Introduction}
 \section{Introduction}
 \label{sec:introduction}
 Hierarchical Reinforcement Learning (HRL) seeks to address the scalability problem of Reinforcement Learning (RL) by introducing layers of abstraction over the decision process, enabling  general sweeping decisions over large epochs and smaller specific decisions on finer (more granular) epochs \citep{SUTTON1999181, Barto2003}. The success of HRL relies on discovering suitable abstractions. 
@@ -241,7 +241,7 @@ We then may define the surrogate moments
 \]
 for $a \in \mathcal{A}$ and 
 \[\label{eq:mathcalM_sum}
-    \bm{\hat{M}} = \sum_{a\in\mathcal{A}}\b\citep{Bauer:2007}m{\hat{M}}_a
+    \bm{\hat{M}} = \sum_{a\in\mathcal{A}}\bm{\hat{M}}_a
 \]
 that do not depend on the transition dynamics where $\bm{\hat{M}}_a$ and $\bm{\hat{M}}$ have the same dimensions as $\bm{M}_a$.
 
@@ -428,7 +428,7 @@ The last equality holds because we chose $\bm{w}_{s'}$ such that $\sum_s \bm{w}_
 
 \subsection{Proposed Method of Moments for HIL}
 Given the observed sequence $\{(s_t,a_t)\}_{t = 1}^T$, our method of moments to learn the policies $\pi_{lo}$ and $\pi_{hi}$ is:
-\begin{enumerate}[Step 1:]
+\begin{enumerate}[leftmargin=2cm, label=Step \arabic*:]
     \item Estimate $\bm{M}_a$, $\bm{K}_s$, and $\bm{\Phi}^A_a$ from data via:
     \[
         &\bm{M}_a\lrb{s_2\zeta+s_1,s_3\alpha+a_3}\\
