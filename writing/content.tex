@@ -1,8 +1,24 @@
 % !TEX root =  manuscript_arxiv.tex
 \section{Introduction}
+Many critical real-world applications in areas such as healthcare, autonomous systems, and scientific discoveryare fundamentally driven by unobserved, or latent, processes. 
+For example, processes might correspond to subpopulations that cannot be directly observed such as
+types of cells \citep{Gorsky:2020,Prabhakaran:2016}, behavioral genotypes \citep{Stevens:2019}, or
+groups with canonical patterns of IQ development \citep{Bauer:2007}.
+Also, processes could correspond to a variety of scientifically important objects such cell programs \citep{Kotliar_Identify_Cell_Idendity_Activity_NMF_2019,Buettner_FscLVM_ScalableVersatile_FA_2017,Risso_General_Flexible_Signal_Extract_2018},
+mutational processes in tumors %(e.g., using whole genome sequencing data) 
+\citep{Levitin_DeNovo_Gene_Signature_Identification_2019,Kinker_Pan_Cancer_2020,Seplyarskiy_PopulationSequencingData_2021},
+or material types
+\citep{Fevotte_NonlinearHyperspectralUnmixing_2015,Rajabi_SpectralUnmixingHyperspectral_2015}.
+
+
+For example,
+Hierarchical Reinforcement Learning (HRL) seeks to make Reinforcement Learning (RL) more interpretable 
+by introducing layers of abstraction over the decision process, 
+enabling general sweeping decisions over large epochs and 
+smaller specific decisions on finer (more granular) epochs \citep{SUTTON1999181, Barto2003}. 
+The success of HRL relies on discovering suitable abstractions. 
 \section{Introduction}
 \label{sec:introduction}
-Hierarchical Reinforcement Learning (HRL) seeks to address the scalability problem of Reinforcement Learning (RL) by introducing layers of abstraction over the decision process, enabling  general sweeping decisions over large epochs and smaller specific decisions on finer (more granular) epochs \citep{SUTTON1999181, Barto2003}. The success of HRL relies on discovering suitable abstractions. 
 In the literature, the problem of discovering suitable abstractions has been tackled both separately and in conjunction (in a single end-to-end process) with learning the optimal policy \citep{Barto2003}.
 In specific instances where expert demonstrations are available, the process of discovering abstractions and learning optimal policies can be accelerated via \emph{Hierarchical Imitation Learning} (HIL).
 Specifically, HIL involves computing a hierarchy of policies from expert demonstrations and is the extension of \emph{Imitation Learning} (IL) to HRL.
