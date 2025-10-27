@@ -9,6 +9,12 @@
 \renewcommand{\thetheorem}{\Alph{section}.\arabic{theorem}}
 \counterwithin{lemma}{section}
 \renewcommand{\thelemma}{\Alph{section}.\arabic{lemma}}
+\counterwithin{assumption}{section}
+\renewcommand{\theassumption}{\Alph{section}.\arabic{assumption}}
+\counterwithin{definition}{section}
+\renewcommand{\thedefinition}{\Alph{section}.\arabic{definition}}
+\counterwithin{proposition}{section}
+\renewcommand{\theproposition}{\Alph{section}.\arabic{proposition}}
 
 
 \begin{center}
@@ -21,32 +27,35 @@
 %\end{lemma}
 
 
-\section{[out-of-date] Robust Model Selection Consistency} % of Structurally Aware Robust Model Selection
+\section{Robust Consistency of \methodname} 
 \label{sec:theory}
 
-\PROBLEM{TODO: integrate material from this section into the appendix}
 
-We now show that, under reasonable assumptions, our model selection procedure is robustly consistent.
-Then, in light of our results, we discuss some specific choices of discrepancy measure.
-Here we emphasize the assumptions required in the mixture modeling case, since the probabilistic matrix factorization assumptions are similar but require more notation to state;
-see \cref{sec:PMF-consistency-proof} for details.
+We now show that, under reasonable assumptions, \methodname is robustly consistent.
+%Then, in light of our results, we discuss some specific choices of discrepancy measure.
+We first cover the mixture modeling case, then probabilistic matrix factorization.
+%assumptions are similar but require more notation to state.
+% The details of the probabilistic matrix factorization case are covered in \cref{sec:PMF-consistency-proof}.
 
-\subsection{Assumptions}
-
+\subsection{General Theory for Mixture Modeling}
 
 %We now show that our model selection procedure consistently estimates $K_{o}$ under reasonable assumptions.
-
 %Let $\mcX$ and $\paramspace$ be spaces for observations and parameters, respectively. Assume family of distributions $\mathcal{F} = \{f_{\param}: \param \in \paramspace\}$ where $f_{\param}$ are absolutely continuous with respect to some base measure $\lambda$ on $\paramspace$.
 %Denote the true number of components as $\numcomps_o$ and $F_{ok}$ as the true underlying distribution for component $k = 1, \ldots, \numcomps_o$. 
 %We show that  structurally aware model selection rule achieves the consistency of number of components.
 %Our assumptions are mild. 
-First, we consider the requirements for the discrepancy $\discr{\cdot}{\cdot}$ and, when applicable, the discrepancy estimator $\discrest{\cdot}{\cdot}$
+We will develop a general theory, then discuss how \cref{thm:mixture-model-robust-consistency} follows 
+as a corollary.
+Proofs of all mixture model-related results are in \cref{sec:mixture-model-consistency}. 
+First, we consider the requirements for the distribution-level discrepancy $\distDisc(\cdot, \cdot)$
+(assumed to be a metric), the discrepancy $\discr{\cdot}{\cdot}$ used to construct the component-level
+discrepancy, and the discrepancy estimator $\discrest{\cdot}{\cdot}$
 -- noting that sometimes it will be possible to take $\discrest{\cdot}{\cdot} = \discr{\cdot}{\cdot}$.
 %We require the smoothness and the existence of a consistent estimator for discrepancies $\discr{P}{Q}$.
-For some discrepancies such as the Kullback--Leibler divergence, $\discr{P}{Q} < \infty$ only if $P$ is absolutely continuous with respect to $Q$.
-However, since we require an empirical estimate of each component distribution, absolute continuity may not hold.
-Therefore, we introduce a possibly weaker metric $d$ on probability measures that detects convergence of empirical measures.
-%satisfies $d(P, Q_{N}) \to 0$ as $N \to \infty$
+% For some discrepancies such as the Kullback--Leibler divergence, $\discr{P}{Q} < \infty$ only if $P$ is absolutely continuous with respect to $Q$.
+% However, since we require an empirical estimate of each component distribution, absolute continuity may not hold.
+% Therefore, we introduce a possibly weaker metric $d$ on probability measures that detects convergence of empirical measures.
+%satisfies $\distDisc(P, Q_{N}) \to 0$ as $N \to \infty$
 %whenever $Q_{N} \to P$ in distribution. %   such which converges to zero whenever $Q$ converges to $P$ in distribution and can be bounded by a function of $\discr{P}{Q}$. 
 %We also require some other modest regularity conditions on $d$ and $\mcD$, presented in \cref{assump:metric-discr-conditions}.
 \begin{assumption} 	\label{assump:metric-discr-conditions}
@@ -54,30 +63,30 @@ Therefore, we introduce a possibly weaker metric $d$ on probability measures tha
 	For $y_{\numobs n} \in \mathcal{X}$ $(\numobs = 1,2,\dots; n = 1,\dots,\numobs)$,
 	define the empirical distribution $\widehat{P}_{\numobs} = \numobs^{-1}\sum_{n=1}^{\numobs}\delta_{y_{N,n}}$
 	and assume $\widehat{P}_{\numobs} \rightarrow P$ in distribution.
-	The metric $d$, discrepancy $\mcD$, and estimator $\widehat{\mcD}$ satisfy the following conditions:
+	The distribution-level and component-level discrepancies satisfy the following conditions:
 	%\begin{enumerate}[(a)]
 	\begin{enumerate}[label=\textnormal{(\alph*)}]
-		\item \emph{The metric detects empirical convergence:} $d(\widehat{P}_\numobs, P) \to 0$ as $\numobs \to \infty$.
-		\item  \emph{The metric is jointly convex in its arguments:} for all $w \in (0, 1)$ and distributions $P$, $P'$, $Q$, $Q'$,
+		\item \emph{The distribution-level discrepancy metric detects empirical convergence:} $\distDisc(\widehat{P}_\numobs, P) \to 0$ as $\numobs \to \infty$.
+		\item  \emph{The distribution-level discrepancy metric is jointly convex in its arguments:} for all $w \in (0, 1)$ and distributions $P$, $P'$, $Q$, $Q'$,
 		      \[
-			      d(wP + (1 - w)P', wQ + (1 - w)Q') \le w\,d(P, Q) + (1 - w)\,d(P', Q').
+			      \distDisc(wP + (1 - w)P', wQ + (1 - w)Q') \le w\,\distDisc(P, Q) + (1 - w)\,\distDisc(P', Q').
 		      \]
-		      %$d(\sum_{i=1}^{n}w_i P_i, \sum_{i=1}^{n}w_i Q_i) \leq \sum_{i=1}^{n} w_i d(P_i, Q_i)$ for $0\leq w_i \leq 1$ and $\sum_{i = 1}^n w_i = 1$;
+		      %$\distDisc(\sum_{i=1}^{n}w_i P_i, \sum_{i=1}^{n}w_i Q_i) \leq \sum_{i=1}^{n} w_i \distDisc(P_i, Q_i)$ for $0\leq w_i \leq 1$ and $\sum_{i = 1}^n w_i = 1$;
 		      %	\item  \emph{The metric is bounded:} there exists a constant $M < \infty$ such that
-		      %	$d(P,Q) \le M$ for all distributions $P, Q$. 
+		      %	$\distDisc(P,Q) \le M$ for all distributions $P, Q$. 
 		\item  \emph{The discrepancy estimator is consistent:} For any distributions $P, Q$,
 		      if $\discr{P}{Q} < \infty$ and $\widehat P_{N} \to P$ in distribution,
 		      then $\discrest{\widehat{P}_{\numobs}}{Q} \to \discr{P}{Q}$ as $\numobs \to \infty$.
 		\item \emph{Smoothness of the discrepancy estimator:} The map $\param \mapsto \discrest{\widehat{P}_{\numobs}}{F_{\param}}$ is continuous.
 		\item  \emph{The discrepancy bounds the metric:} There exists a continuous,
-		      non-decreasing function $\kappa: \reals \to \reals$ such that
-		      $d(P,Q) \leq \kappa(\discr{P}{Q})$ for all distributions $P, Q$.
-		\item \emph{The metric between components is finite:} For all $\param, \param' \in \Theta$,
-		      we have $d(F_{\param}, F_{\param'}) < \infty$.
+		      non-decreasing function $\widetilde{\kappa}: \reals \to \reals$ such that
+		      $\distDisc(P,Q) \leq \widetilde{\kappa}(\discr{P}{Q})$ for all distributions $P, Q$.
+		\item \emph{The distribution-level discrepancy metric between components is finite:} For all $\param, \param' \in \Theta$,
+		      it holds that $\distDisc(F_{\param}, F_{\param'}) < \infty$.
 	\end{enumerate}
 \end{assumption}
 
-A wide variety of metrics satisfy \cref{assump:metric-discr-conditions}(a), including the bounded Lipschitz metric,
+\begin{remark}[Discussion of \cref{assump:metric-discr-conditions}] A wide variety of metrics satisfy \cref{assump:metric-discr-conditions}(a), including the bounded Lipschitz metric,
 the Kolmogorov metric, maximum mean discrepancies with sufficiently regular bounded kernels, and the Wasserstein metric with a bounded cost function \citep{Vaart:1996,Sriperumbudur:2010,SimonGabriel:2018,Villani:2009}.
 %requires metric $d$ to characterize the convergence of empirical process. For example, all metrics fall into the Glivenko--Cantelli class are able to provide the uniform convergence of empirical average to the true distribution in probability. This generally holds for a range of metrics including bounded Lipschitz and Kolmogorov metrics by \citep{Vaart:1996}.
 %\cref{assump:metric-discr-conditions}(b) and \cref{assump:metric-discr-conditions}(c) admit the joint convexity and the boundedness of the metric, respectively. 
@@ -86,7 +95,7 @@ the Kolmogorov metric, maximum mean discrepancies with sufficiently regular boun
 %For example, define integral probability metrics as 
 %$\gamma_{\mathcal{H}}(P,Q) = \sup\{\vert \int_S f dP - \int_S f dQ \vert: f \in \mathcal{H} \}$, where $P$ and $Q$ are probability measures defined on space $S$ and $\mathcal{H}$ is a class of real-valued bounded measurable functions on $S$. 
 For example, it is easy to show that all integral probability metrics -- which includes the bounded Lipschitz
-metric, maximum mean discrepancy, and 1-Wasserstein distance -- are jointly convex (see \cref{lem:ipm-joint-convex} in the Appendix).
+metric, maximum mean discrepancy, and 1-Wasserstein distance -- are jointly convex (see \cref{lem:ipm-joint-convex}).
 \cref{assump:metric-discr-conditions}(c) is a natural requirement that the limiting divergence can be estimated consistently.
 Such estimators are well-studied for many common discrepancies.
 %We discuss consistent estimation of the Kullback--Leibler divergence in \cref{sec:kl-estimation}.
@@ -100,9 +109,10 @@ to be continuous for $P_{o}$-almost every $x$.
 %. See \citet{Gibbs:2002} for a extensive overview
 %of the relationships between common metrics and divergences.
 \cref{assump:metric-discr-conditions}(f) trivially holds for bounded metrics such as the bounded Lipschitz metric and integral probability measures with uniformly bounded test functions.
+\end{remark}
 
 Our second assumption requires the parameter estimation procedure to be sufficiently well-behaved,
-in the sense that, for each fixed number of components $\numcomps$, it should consistently estimate an asymptotic parameter $\allparam_{\star}^{(K)}$.
+in the sense that, for each fixed number of components $\numcomps \le \numcomps_{o}$, it should consistently estimate an asymptotic parameter $\allparam_{\star}^{(K)}$.
 We do not make any explicit assumptions that such parameters are, in any sense, ``optimal.''
 % quantifies the regularity of the inference algorithm and provides guarantees on contracting the convergence of empirical distribution to its limiting distribution.
 
@@ -111,7 +121,8 @@ We do not make any explicit assumptions that such parameters are, in any sense, 
 	$\widehat\theta^{(K)} \to \theta_{\star}^{(K)}$ in probability as $N \rightarrow \infty$,
 	after possibly reordering of components.
 \end{assumption}
-To simplify notation, we will write $F^{(K)}_{\star k} = F_{\param^{(K)}_{\star k}}$ and $G^{(K)}_{\star k} = G_{\allparam^{(K)}_{\star k}}$, and similarly for their densities.
+
+\begin{remark}[Discussion of \cref{assump:inference-regularity}]
 \Cref{assump:inference-regularity} holds for most reasonable algorithms, including expectation--maximization, point estimates based on the posterior distribution,
 and variational inference \citep{Balakrishnan:2017,Walker:2001,Wang:2019}.
 Note that we assume that consistency holds for parameters in the equivalence class induced by component reordering, although we keep
@@ -129,11 +140,14 @@ converges to a limiting distribution
 	\widetilde{F}^{(K)}_{k}(\dee x) & = \frac{p_{\star}^{(K)}(k\mid x)P_o(\dee x) }{\int p_{\star}^{(K)}(k\mid y)P_o(\dee y)}, \label{eq:phat-def}
 \end{align}
 where $p_{\star}^{(K)}(k \mid x) = \eta^{(K)}_{\star k}f_{\star k}^{(K)}(x)/p^{(K)}_{\star}(x)$ is the
-conditional component probability under the limiting model distribution.
+conditional component probability under the limiting model distribution
+ and $f_{\star k}^{(K)}$ denotes the density of $F_{\param^{(K)}_{\star k}}$.
 %The limiting distribution $\widetilde{P}^{(K)}_k$ depends on the optimal parameter from the inference algorithm. 
+\end{remark}
 
 %Denote the model optimal weights and distributions as $\eta_k^\star$ and $F^{\star}_{k}  (k=1, \ldots, \numcomps)$. 
 
+\begin{comment}
 Our third assumption concerns the regularity of the data distribution and model.
 \begin{assumption} \label{assump:model-conditions}
 	The data-generating distribution $P_o$ and component model family $\mcF$ satisfy the following conditions:
@@ -144,7 +158,7 @@ Our third assumption concerns the regularity of the data distribution and model.
 		      such that for each $k \in \{1, \ldots, \numcomps_o\}$, it holds that
 		      $\discr{\widetilde{F}_{k}^{(K_{o})}}{F^{(K_{o})}_{\star k}} < \rho$.
 		\item \emph{Poor model fit when $\numcomps$ is too small:} For the same $\rho$ as part (b),
-		      for any $\numcomps < \numcomps_o$, it holds that $d(P_o, P_{\star}^{(\numcomps)}) > \kappa(\rho) $.
+		      for any $\numcomps < \numcomps_o$, it holds that $\distDisc(P_o, P_{\star}^{(\numcomps)}) > \kappa(\rho) $.
 	\end{enumerate}
 \end{assumption}
 
@@ -166,20 +180,24 @@ and the relationship between $\mcD$ and $d$ (which is described by $\phi$).
 % and the mismatch between the 
 %true component probabilities (as measured by $\bar{\eta} = \sum_{k=1}^{\numcomps_{o}} |\eta_{ok} - \eta_{\star k}| = \|\eta_{o} - \eta_{\star}\|_{1}$). 
 %Even with well-specified model assumptions, the distance between the mixture model and the true density given the optimal parameters $\param^{\star}$ should be large.
+\end{comment}
 
-\subsection{Main Results}
 
-\PROBLEM{TODO: move versions of these to previous section}
+
+
 %The following result provides a general framework to establish when our method consistently estimates $K_{o}$ in the mixture model setting. %for estimating the number of components.
 %Our proof breaks into two parts: first we show that when $\numcomps = \numcomps^\star$, the modified log-likelihood attains the maximum in probability; second, we show for any $\numcomps < \numcomps^\star$, the modified log-likelihood will be large indicating that the model is inadequate. 
 %\NA{For simplicity, we use a shorthand notation to denote $\mcR^{\rho}_{\numobs} (\param^{(\numcomps)};\data{})=\mcR^{\rho}(\param^{(\numcomps)};\data{1:\numobs})$ and $\mcR^{\rho,\lambda}_{\numobs}(\param^{(\numcomps)};\data{}) =\mcR^{\rho,\lambda}(\param^{(\numcomps)};\data{1:\numobs})$.}\fTBD{I don't think this really makes the notation any cleaner. Maybe use it in the proof if you can remove explicit dependence on $x$. But not worth using to state the theorem.}
-To state our main results, let $\widehat{\numcomps}_{\numobs}(\rho)$ denote the
-output of \cref{algo:model-selection-general} given $\data{1:\numobs}$ and the specified value of $\rho$.
+% To state our main result for mixture models, let $\widehat{\numcomps}_{\numobs}(\rho)$ denote the
+% output of \cref{algo:model-selection-general} given $\data{1:\numobs}$ and the specified value of $\rho$.
 %$ = \widehat{\numcomps} = \argmin_{\numcomps} \mathcal{R}^{\rho,\lambda}(\widehat\allparam^{(\numcomps)}; z^{(\numcomps)}, \data{1:\numobs})$ denote the structurally aware robust model choice.
 
 % the number of components selected by structurally aware robust inference.
+We can now state our main result about the robust consistency of \methodname for mixture modeling. 
 \begin{theorem} \label{thm:main}
-	For mixture modeling, if \crefrange{assump:metric-discr-conditions}{assump:model-conditions} hold, then $\Pr\{\widehat{\numcomps}_{\numobs}(\rho) = K_{o}\} \to 1$ for $N \to \infty$.
+	For mixture modeling, if \cref{assump:metric-discr-conditions,assump:inference-regularity} hold, then 
+    \methodname is $\kappa$-robustly consistent for $\kappa(\rho, K) = \widetilde{\kappa}(\rho)$.
+    %$\Pr\{\widehat{\numcomps}_{\numobs}(\rho) = K_{o}\} \to 1$ for $N \to \infty$.
 	%the consistency of number of components holds for structurally aware model selection, i.e., 
 	%Then for $\rho > \rho^{\star}$
 	%	\begin{enumerate}[(1)]
@@ -203,14 +221,15 @@ output of \cref{algo:model-selection-general} given $\data{1:\numobs}$ and the s
 	$\mcR^{\rho}(\allparam^{(\numcomps)}; z^{(\numcomps)}, \data{1:\numobs})  \ge \mcR^{\rho}(\allparam^{(\numcomps_{o})}; z^{(\numcomps_{o})}, \data{1:\numobs})$, so the minimum is asymptotically attained at $\widehat{\numcomps}=\numcomps_o$.
 \end{proof}
 
-Under generally analogous conditions, a similar result holds for probabilistic matrix factorization.
-We defer the statements and discussion of the assumptions to \cref{sec:PMF-consistency-proof}. %, which also includes the proof of \cref{thm:main-pmf}.
-Also, due to the greater complexity of the dependence structure, we restrict our attention to case where the discrepancy is the KL divergence (which we use in our PMF experiments):
-\begin{theorem} \label{thm:main-pmf}
-	For probabilistic matrix factorization, if \cref{assump:metric-discr-conditions,assump:consistency,assump:sample_approx_able,assump:data_regular} hold, then $\Pr\{\widehat{\numcomps}_{\numobs}(\rho) = K_{o}\} \to 1$ as $N \to \infty$.
-\end{theorem}
-%Due to the similarity of the assumptions to those in the mixture modeling case,
+% Under generally analogous conditions, a similar result holds for probabilistic matrix factorization.
+% We defer the statements and discussion of the assumptions to \cref{sec:PMF-consistency-proof}. %, which also includes the proof of \cref{thm:main-pmf}.
+% Also, due to the greater complexity of the dependence structure, we restrict our attention to case where the discrepancy is the KL divergence (which we use in our PMF experiments):
+% \begin{theorem} \label{thm:main-pmf}
+% 	For probabilistic matrix factorization, if \cref{assump:metric-discr-conditions,assump:consistency,assump:sample_approx_able,assump:data_regular} hold, then $\Pr\{\widehat{\numcomps}_{\numobs}(\rho) = K_{o}\} \to 1$ as $N \to \infty$.
+% \end{theorem}
+% %Due to the similarity of the assumptions to those in the mixture modeling case,
 
+\begin{comment}
 While \cref{thm:main,thm:main-pmf} guarantee robust consistency under quite general and intuitive conditions, these results leave two important questions open to make the theory satisfactory.
 First, what choices of $\mcD$ and $d$ can satisfy \cref{assump:metric-discr-conditions} (and for what choice of $\kappa$)?
 Second, while \cref{assump:model-conditions} requires that $\discr{\widetilde{F}_{k}^{(K_{o})}}{F^{(K_{o})}_{\star k}} < \rho$
@@ -223,7 +242,7 @@ We address these questions next in \cref{sec:divergence-choice,subsec:theory-rho
 %The following results 
 %For the value of $\rho$, as indicated in \cref{assump:model-conditions}, it is contingent upon both the chosen divergence measure and the degree of discrepancy between the model component and the actual generating component distribution.
 %Let's now further provide theoretical guarantees about these two crucial pieces in our methodology: the choice of divergence and the value of $\rho$.
-
+\end{comment}
 
 %\begin{proof}[(assuming metric)]
 %	%Consider 
@@ -232,9 +251,9 @@ We address these questions next in \cref{sec:divergence-choice,subsec:theory-rho
 %	%\end{equation}
 %	%where $\Pr(z=k \mid x) = \eta_{\star k}f_{\phi_{\star k}}(x)/ \sum_{\ell =1}^{K}\eta_{\star\ell}f_{\phi_{\star\ell}}(x)$ and $P_o(dx) = \sum_{\ell =1}^{K}\eta_{o\ell}P_{o\ell}(dx)$. It follows by triangle inequality that 
 %	%\begin{align}
-%	%d(\widehat{P}_{k}, {F_{\param^\star_{k}}})& \le d(F_{ok}, F_{\param^\star_{k}}) + d(F_{ok},\widehat P_{k}) \\
-%	%& \le \rho +d\left(F_{ok},\frac{\eta_{\star k}f_{\phi_{\star k}}}{\int \eta_{\star k}f_{\phi_{\star k}}(y)  \frac{\sum_{\ell =1}^{K}\eta_{o\ell}P_{o\ell}}{\sum_{\ell =1}^{K}\eta_{\star\ell}F_{\phi_{\star\ell}}}(dy)} \frac{\sum_{\ell =1}^{K}\eta_{o\ell}P_{o\ell}}{\sum_{\ell =1}^{K}\eta_{\star\ell}F_{\phi_{\star\ell}}}\right)\\
-%	%& \le \rho +d\left(F_{ok},\frac{f_{\phi_{\star k}}}{Z_k} \frac{\sum_{\ell =1}^{K}\eta_{o\ell}P_{o\ell}}{\sum_{\ell =1}^{K}\eta_{\star\ell}F_{\phi_{\star\ell}}}\right),
+%	%\distDisc(\widehat{P}_{k}, {F_{\param^\star_{k}}})& \le \distDisc(F_{ok}, F_{\param^\star_{k}}) + \distDisc(F_{ok},\widehat P_{k}) \\
+%	%& \le \rho +\distDisc\left(F_{ok},\frac{\eta_{\star k}f_{\phi_{\star k}}}{\int \eta_{\star k}f_{\phi_{\star k}}(y)  \frac{\sum_{\ell =1}^{K}\eta_{o\ell}P_{o\ell}}{\sum_{\ell =1}^{K}\eta_{\star\ell}F_{\phi_{\star\ell}}}(dy)} \frac{\sum_{\ell =1}^{K}\eta_{o\ell}P_{o\ell}}{\sum_{\ell =1}^{K}\eta_{\star\ell}F_{\phi_{\star\ell}}}\right)\\
+%	%& \le \rho +\distDisc\left(F_{ok},\frac{f_{\phi_{\star k}}}{Z_k} \frac{\sum_{\ell =1}^{K}\eta_{o\ell}P_{o\ell}}{\sum_{\ell =1}^{K}\eta_{\star\ell}F_{\phi_{\star\ell}}}\right),
 %	%\end{align}
 %	%where $Z_k = \frac{f_{\phi_{\star k}}(y)}{\int f_{\phi_{\star k}}  \frac{\sum_{\ell =1}^{K}\eta_{o\ell}P_{o\ell}}{\sum_{\ell =1}^{K}\eta_{\star\ell}F_{\phi_{\star\ell}}}(dy)}$.
 %	Consider 
@@ -245,18 +264,16 @@ We address these questions next in \cref{sec:divergence-choice,subsec:theory-rho
 %	\end{align}
 %	It follows by triangle inequality that
 %	\begin{align}
-%		d(\widehat{P}_{k}, {F_{\param^\star_{k}}})& \le d(F_{ok}, F_{\param^\star_{k}}) + d(F_{ok},\widehat P_{k}) \\
-%		& \le \rho + d(F_{ok},\widehat P_{k})\\
-%		& \le \rho + d\left(F_{ok}, \frac{\Pr(z=k \mid x)P_o(dx)}{\int \Pr(z=k \mid y)P_o(dy)}\right)
+%		\distDisc(\widehat{P}_{k}, {F_{\param^\star_{k}}})& \le \distDisc(F_{ok}, F_{\param^\star_{k}}) + \distDisc(F_{ok},\widehat P_{k}) \\
+%		& \le \rho + \distDisc(F_{ok},\widehat P_{k})\\
+%		& \le \rho + \distDisc\left(F_{ok}, \frac{\Pr(z=k \mid x)P_o(dx)}{\int \Pr(z=k \mid y)P_o(dy)}\right)
 %	\end{align}
 %	
 %\end{proof}
 
-\subsection{Choice of Divergence} \label{sec:divergence-choice}
+\subsection{Results for Specific Divergences} \label{sec:divergence-choice}
 
-
-While there many possible choices for the divergence, we focus on some that are statistically natural (KL divergence), computationally convenient (maximum mean discrepancy \citep[MMD; ][]{Sriperumbudur:2010}), or interpretable (1-Wasserstein distance \citep{Villani:2009}).
-Specifically, we show that all three satisfy \cref{assump:metric-discr-conditions}(a,b,e) when an appropriate choice of $d$ is made.
+We now verify \cref{thm:mixture-model-robust-consistency} by showing that  \cref{assump:metric-discr-conditions}(a,b,e) is satisfied when $\mcD$ is the  KL divergence, maximum mean discrepancy \citep[MMD; ][]{Sriperumbudur:2010}), or 1-Wasserstein distance \citep{Villani:2009}) -- with an appropriate choice of $\distDisc$ is made.
 %Finding a proper $d$ that satisfies \cref{assump:metric-discr-conditions} with a given $\mcD$ is crucial to guarantee the consistency results in \cref{thm:main}.
 %We will make heavy use of integral probability metrics.
 Before stating these results, we recall the following useful class of metrics on probability measures.
@@ -280,8 +297,8 @@ $\blmetric = d_{\mcH_{\mathrm{BL}}}$.
 %We can use \cref{thm:main} to prove the consistency of our method when using bounded Lipschitz metric and the Kullback--Leibler divergence.
 If $\mcD$ is the KL divergence, we can choose $d$ to be the bounded Lipschitz metric.
 \begin{proposition} 	\label{coro:KL}
-	If $d(P, Q) = \blmetric(P,Q)$ and $\mcD(P \mid Q) = \kl{P}{Q}$, then
-	\cref{assump:metric-discr-conditions}(a,b,e) holds with $\kappa(\rho) = (\rho/2)^{1/2}$.
+	If $\distDisc(P, Q) = \blmetric(P,Q)$ and $\mcD(P \mid Q) = \kl{P}{Q}$, then
+	\cref{assump:metric-discr-conditions}(a,b,e) holds with $\widetilde\kappa(\rho) = (\rho/2)^{1/2}$.
 	%Hence, if \cref{assump:model-conditions} holds, then 
 	%$\widehat{\numcomps}_{\numobs}(\rho) \rightarrow \numcomps_{o}$ in probability as $N \to \infty$.
 \end{proposition}
@@ -291,15 +308,15 @@ Let $\mcK $ denote a kernel.
 Denote the reproducing kernel Hilbert space with positive definite kernel $\mcK \colon \mcX \times \mcX \to \reals$ as $\mcH_{\mcK}$.
 Denote the inner product of $\mcH_{\mcK}$ by $\langle{\cdot},{\cdot}\rangle_{\mcK}$ and the norm by $\|{\cdot}\|_{\mcK}$.
 Letting $\mcH = \mcB_{\mcK} = \{ h \in \mcH_{\mcK} :  \|h\|_{\mcK} \le 1\}$, the unit ball, gives the maximum mean discrepancy $d_{\mathrm{MMD}} = d_{\mcB_{\mcK}}$.
-If we choose the divergence to be an MMD, $d$ can be the same MMD.
+If we choose the divergence to be an MMD, $\distDisc$ can be the same MMD.
 %Here we assume a well-defined $d_{\mathrm{MMD}}(P,Q)$ is given and we show by choosing it as both the divergence and metric the consistency of number of clusters still holds.
 \begin{proposition} 	\label{coro:MMD}
 	If $\mcK$ is chosen such that $d_{\mathrm{MMD}}$ metrizes weak convergence, and
 	%	Assume that $d_{\mathrm{MMD}}(P,Q) = 0 \iff P = Q$ for any Borel probability measures $P, Q$ on $\mcX$ and 
 	%	$d_{\mathrm{MMD}}(\widehat{P}_{\numobs}, P) \rightarrow 0$ in probability for any 
 	%	$\widehat{P}_{\numobs} \rightarrow P$ in distribution.
-	$d(P, Q) =  \discr{P}{Q} = d_{\mathrm{MMD}}(P,Q)$,
-	then \cref{assump:metric-discr-conditions}(a,b,e) holds with $\kappa(\rho) = \rho$.
+	$\distDisc(P, Q) =  \discr{P}{Q} = d_{\mathrm{MMD}}(P,Q)$,
+	then \cref{assump:metric-discr-conditions}(a,b,e) holds with $\widetilde\kappa(\rho) = \rho$.
 	%	Hence, if \cref{assump:model-conditions} holds, then 
 	%	$\widehat{\numcomps}_{\numobs}(\rho) \rightarrow \numcomps_{o}$ in probability as $\numcomps \to \infty$.
 \end{proposition}
@@ -312,304 +329,34 @@ For conditions under which $d_{\mathrm{MMD}}$ metrizes weak convergence, see
 \paragraph{1-Wasserstein distance.}
 %Let the $\| h \|_L = \sup_{x \neq y} \frac{|h(x) - h(y)|}{m(x,y)}$ denote the Lipschitz norm w.r.t the metric $m$  on $\mathcal{X}$, then 
 Setting $\mathcal{H} = \mathcal{H}_{\text{Lip}} = \{ h : \| h \|_L \leq 1 \}$ gives the 1-Wasserstein distance $d_W = d_{\mathcal{H}_{\text{Lip}}}$.
-As with the MMD, we can choose the divergence and $d$ to be the same:
+As with the MMD, we can choose the divergence and $\distDisc$ to be the same:
 \begin{proposition}
 	\label{prop:wasserstein}
-	If $d(P, Q) = \discr{P}{Q} = d_W(P, Q)$, then \cref{assump:metric-discr-conditions}(a,b,e) holds with $\kappa(\rho) = \rho$.
+	If $\distDisc(P, Q) = \discr{P}{Q} = d_W(P, Q)$, then \cref{assump:metric-discr-conditions}(a,b,e) holds with $\kappa(\rho) = \rho$.
 \end{proposition}
 
 
+\subsection{Theory for Probabilistic Matrix Factorization}
 
-\subsection{Characterizing the Process-level Discrepancy}
-\label{subsec:theory-rho-bounds}
-
-\Cref{assump:model-conditions}(b), requires the discrepancy between the limiting empirical component distribution and the model component
-be less than $\rho$. % -- that is, $\mcD(\widetilde{P}_{k}||F_{\param^\star_{k}}) < \rho$.
-However, such a requirement is not completely satisfactory since $\widetilde{P}_{k}$ depends on both $P_{o}$ and the parameter
-estimates for the mixture model family.
-(A similar issues arises with \cref{assump:data_regular}(a) in the matrix factorization settings; see \cref{sec:checking-assumptions}.)
-A more intuitive and natural assumption would bound the divergence between the true component distribution and model component -- that is, be of the
-form $\mcD(F_{ok} \mid F_{\star k}^{(\numcomps_{o})}) < \rho_o$ for some $\rho_{o} > 0$.
-In this section, we show how to relate $\rho_o$ to $\rho$ for the KL divergence and integral probability metrics, including the maximum mean discrepancy and 1-Wasserstein distance.
-
-Define the conditional component probabilities for the true generating distribution as
-%\(
-%\Pr_{\star}(z=k \mid x) &= \frac{\eta_{\star k}f_{\phi_{\star k}}(x)}{\sum_{\ell=1}^{\numcomps_{o}}\eta_{\star\ell}f_{\phi_{\star\ell}}(x)}, &
-%\Pr_{o}(z=k \mid x) &= \frac{\eta_{ok}p_{ok}(x)}{\sum_{\ell=1}^{\numcomps_{o}}\eta_{o\ell}p_{o\ell}(x)}.
-%\)
-\(
-p_{o}(k \mid x) = {\eta_{ok}f_{ok}(x)}/{p_{o}(x)}.
-\)
-We rely on the following assumption.
-\begin{assumption} \label{assump:bounded-ratios}
-	%The data-generating distribution $P_o$ and component model family $\mcF$ satisfy the following properties:
-	There exists a finite constant $\varepsilon_{z}$ such that for all $k \in \{1,\ldots, \numcomps_{o}\}$,
-	\[
-		%\frac{\eta_{\star k}}{\eta_{ok} }  < 1+\varepsilon_{\eta},
-		\frac{p_{\star}^{(\numcomps_{o})}(k \mid x)}{p_{o}(k \mid x)} \le 1 + \varepsilon_{z}.
-	\]
-\end{assumption}
-\cref{assump:bounded-ratios} holds when the tails of the true distributions are heavier than those of the corresponding model components.
-This suggests it is best to use lighter tailed component distributions; see \cref{sec:checking-assumptions} for details.
-In addition, define $\varepsilon_{\eta} = \max_{k} {\eta_{\star k}^{(\numcomps_{o})}}/{\eta_{ok}} - 1$.
-Note that if \cref{assump:model-conditions}(a) holds, $\varepsilon_{\eta} < \infty$.
-
-We first consider the Kullback--Leibler divergence case.
-%We show in \cref{prop:kl-upper-bound} that with Kullback--Leibler divergence, the cutoff $\rho$ upper is bounded by the divergence between the true component distribution and optimal model component quantified by $\rho_o$, the difference between the conditional probabilities based on model and true generating distribution and the difference between the mixture weights derived from optimal model and true distributions.
-%In particular, we show that if the true underlying distribution is close to the optimal model for each component $k$ then the limiting empirical distribution $\widetilde{P}_k$ is close to the optimal model. 
-%
-%We show this holds for both Kullback--Leibler divergence and mean maximum discrepancy metrics given bounded kernel functions. 
-\begin{proposition} \label{prop:kl-upper-bound}
-	If $\mcD(P \mid Q) = \kl{P}{Q}$, Assumptions \ref{assump:model-conditions}(a) and \ref{assump:bounded-ratios} hold,
-	and $\kl{F_{ok}}{F_{\star k}^{(\numcomps_{o})}} < \rho_{o}$ for all $k \in \{1,\ldots, \numcomps_{o}\}$,
-	then \Cref{assump:model-conditions}(b) holds for $\rho = (1+\varepsilon_{\eta})(1+\varepsilon_{z})[\rho_{o} + \log(1+\varepsilon_{\eta})(1+\varepsilon_{z})]$.
-\end{proposition}
-% f(x) = <f, k(x, .)> ||f|| ||k(x, .)|| = sqrt{k(x,x)}
-%Define $d_{BL}(P, Q) = \sup_{f\in \mathcal{F}_{BL}} \vert E_{x\sim P}[f(x)] - E_{y\sim Q}[f(y)] \vert$, where $\mathcal{F}_{BL} = \{f: \sup_{x}f(x) \le 1 \ \text{and} \ \exists L > 0 \ \text{such that} \ \sup_{x\ne y} |f(x)-f(y)|/ |x-y| \le L \}$.
-
-
-For integral probability measures, we will focus on the common case where the ``test functions'' $h \in \mcH$ are uniformly bounded.
-%Given a constant $M > 0$, denote the class of bounded functions by $\mcH_{M} = \{h : \mcX \to \reals \mid  \|h\|_{\infty} \le M \}$. 
-%We show in the following proposition that $d(\widetilde{P}_{k},F_{\param^\star_{k}})$ can be bounded by $\rho_{o}$ for integral probability metrics with bounded function class $\mathcal{F}_{B} $.
-\begin{proposition} \label{prop:IPM-metric-upper-bound}
-	If $\mcD(P \mid Q) = d_{\mcH}(P, Q)$, Assumptions \ref{assump:model-conditions}(a) and
-	\ref{assump:bounded-ratios} hold, there exists $M > 0$ such that $\|h\|_{\infty} < M$ for all $h \in \mcH$,
-	and $d_{\mathcal{H}}(F_{ok},F^{(\numcomps_{o})}_{\opt k}) < \rho_{o}$ for all $k \in \{1,\ldots, \numcomps_{o}\}$, then
-	\Cref{assump:model-conditions}(b) holds for $\rho = M\left(\varepsilon_{\eta}+\varepsilon_{z}+\varepsilon_{\eta}\varepsilon_{z}\right) +\rho_{o}$.
-\end{proposition}
-
-\cref{prop:IPM-metric-upper-bound} provides justification for a variety of common metrics, including the bounded Lipschitz metric, the total variation distance,
-and the 1-Wasserstein distance when the metric defined on $\mcX$ is bounded.
-In addition, it applies to MMDs as long as $\mcK(x, x)$ is uniformly bounded.\footnote{To see this, note that for $h \in \mcB_{\mcK}$,
-	%Consider $f$ in the unit ball of the reproducing kernel Hilbert space induced by the positive definite kernel $k:\mathcal{X} \times \mathcal{X} \mapsto \reals$.
-	%If $k(x,x)$ is uniformly bounded, then $f$ is bounded since 
-	\begin{equation}
-		h(x) = \langle h, \mcK(x, \cdot) \rangle_{\mcK} \le \Vert h \Vert_{\mcK}  \Vert \mcK(x,\cdot )\Vert_{\mcK}  = \mcK(x,x)^{1/2}, % \le \sup_{x} \mcK(x,x)^{1/2},
-	\end{equation}
-	so we may take $M = \sup_{x} \mcK(x,x)^{1/2}$.}
-
-
-
-\section{Robust Consistency for Mixture Models} \label{sec:mixture-model-consistency}
-%\subsection*{Lemmas}
-\subsection{Notation}
-We write $\op(g(\numobs))$ to denote a random function $f$ that satisfies $f(\numobs) / g(\numobs) \to 0$ in probability for $\numobs \to \infty$.
-Let $\widehat\param_{k}^{(\numcomps,\numobs)}$ denote the $k$th component parameter estimate using $\data{1:\numobs}$
-for the mixture model with $\numcomps$ components.
-More generally, we replace superscript $(\numcomps)$ with $(\numcomps,\numobs)$ to make the dependence on $\numobs$ explicit.
-%Let $\widehat{n}^{(\numcomps,\numobs)}_k = |X^{(k)}(z^{(\numcomps,\numobs)})|$ and $\widehat{\eta}^{(\numcomps,\numobs)}_{k} = \widehat{n}^{(\numcomps,\numobs)}_k/\numobs$.
-Note that, with probability 1, $N^{(\numcomps,\numobs)}_k \rightarrow \infty$ as $\numobs \rightarrow \infty$.
-For simplicity, we introduce the shorthand notation
-$F^{(\numcomps,\numobs)}_{k} = F_{\widehat\param^{(\numcomps,\numobs)}_k}$,
-$\mcR^{\rho}_{\numobs} (\allparam^{(\numcomps)}) = \mcR^{\rho}(\allparam^{(\numcomps)}; z^{(\numcomps,\numobs)}, \data{1:\numobs})$, and
-$\mcR^{\rho,\lambda}_{\numobs}(\allparam^{(\numcomps)}) = \mathcal{R}^{\rho,\lambda}(\allparam^{(\numcomps)}; z^{(\numcomps,\numobs)}, \data{1:\numobs})$.
-
-Define the conditional component probabilities based on optimal model distribution and true generating distribution respectively as
-\[
-	q^{(\numcomps)}_{\star}(k \mid x)= \frac{\eta^{(\numcomps)}_{\star k}
-  f_{\star k}^{(\numcomps)}(x)}{p^{(\numcomps)}_{\star}(x)}, \qquad
-	q_{o}(k \mid x) = \frac{\eta_{ok}f_{ok}(x)}{p_{o}(x)}.
-\]
-For conditional probabilities of model distribution, we denote as 
-\[
-\widehat{q}^{(\numcomps, \numobs)}(k \mid x) = \widehat{\eta}^{(\numcomps,\numobs)}_{k}f_{k}^{(\numcomps,\numobs)}(x) / p^{(\numcomps,\numobs)}(x).
-\]
-Note that $\widehat{q}^{(\numcomps,\numobs)} (k\mid x) \rightarrow q^{(\numcomps)}_{\star}(k \mid x)$ as $\numobs \rightarrow \infty$ with probability 1.
-
-%Denote the empirical mixture weights $\widehat{\eta}^N_{k}$ and the empirical sampling distribution as $ \widehat{P}^{\numobs}_{k} = |X^{(k)}(z^{(K)}_{1:N})|^{-1}\sum_{x \in X^{(k)}(z_{1:N}^{(K)})} \delta_{x}$ . 
-%Denote the empirical number of observations in $k$th cluster as $N^{\numobs}_k$ 
-%$(k=1,\ldots,\numcomps)$ and $N^{\numobs}_k \rightarrow \infty$ as $\numobs \rightarrow \infty$.
-
-\subsection{Proof of \cref{thm:main}} \label{pf:main-thm}
-
-We show that (1) for $\numcomps = \numcomps_o$,  $ \mcR^{\rho}_{\numobs}(\allparam^{(\numcomps)}_{\star}) \rightarrow 0$ in probability as $\numobs \rightarrow \infty$, and (2) for $\numcomps < \numcomps_o$, $\mcR^{\rho}_{\numobs}(\allparam^{(\numcomps)}_{\star})\rightarrow \infty$ in probability as $\numobs \rightarrow \infty$.
-The theorem conclusion follows immediately from these two results since the unpenalized loss is lower bounded by zero,
-so the penalized loss will be asymptotically minimized at the smallest $\numcomps$ which has unpenalized loss of zero.
-
-
-%It follows from \cref{assump:model-conditions}(b) that 
-
-
-\textbf{Proof of part (1).} %$\numcomps = \numcomps_o$, choose $\rho > \rho^{\star}$. 
-%It follows by the definition of consistent estimator that there exists a sufficiently large $\numobs_{o}$ that for $N>N_{o}$, $|\discrest{\widehat{P}^N_{k}}{F^{\opt}_{k} }- \discr{\widehat{P}^{\numobs}_{k}}{F^{\opt}_{k}  }| < \varepsilon/2$. 
-Fix $\numcomps=\numcomps_{o}$.
-It follows from \cref{assump:metric-discr-conditions}(c,d) and \cref{assump:inference-regularity} that $\discrest{\widehat{F}^{(\numcomps_{o},\numobs)}_{k}}{F^{(\numcomps,\numobs)}_{k} }  \to \discr{\widetilde{F}_{k}}{F^{(\numcomps_{o})}_{\opt k}}$ in probability.
-Hence, it follows from \cref{assump:model-conditions}(b) that there exists $\varepsilon>0$ such that
-\[
-	\discrest{\widehat{F}^{(\numcomps_{o},\numobs)}_{k}}{F^{(\numcomps,\numobs)}_{k} } < \rho - \varepsilon + \op(1).
-\]
-%= \discr{\widetilde{F}_{k}}{F^{\opt}_{k}  } + \op(1) - \op(1) 
-%< \rho + \op(1).
-%Similarly for Assumption 1(c), $\discr{\widehat{F}_{k}}{F^{\opt}_{k} } < \rho+\op(1)$.
-Using this inequality, it follows that
-\begin{align}
-	\mcR^{\rho}_{\numobs}(\allparam^{(\numcomps_o}_{\star})
-	 & =\sum_{k=1}^{\numcomps_o}	N^{(\numcomps_{o},\numobs)}_k \max\{0, \discrest{\widehat{F}_{k}^{(\numcomps_o, \numobs)}}{F^{(\numcomps_{o},\numobs)}_{k}}  - \rho\} \\
-	 & \le \sum_{k=1}^{\numcomps_o}	N^{(\numcomps_{o},\numobs)}_k\max\{0, -\varepsilon+\op(1)\}.
-\end{align}
-Hence, we can conclude that $\lim_{\numobs \rightarrow\infty}\Pr[ \mcR^{\rho}_{\numobs}(\allparam^{(\numcomps_o}_{\star}) =0] = 1$. % indicating that the structurally aware loss is 0 asymptotically.
-
-\textbf{Proof of part (2).}
-Now we consider the case of $\numcomps < \numcomps_o$.
-Note the empirical distribution can be written as $\widehat{F}^{(\numcomps, \numobs)} = \sum_{k=1}^{\numcomps}\widehat{\eta}_k^{(\numcomps, \numobs)} \widehat{F}_k^{(\numcomps, \numobs)}$.
-By dominated convergence, we know that for $\numobs \to \infty$,
-\begin{equation}
-	\widehat{\eta}_k^{(\numcomps,\numobs)} = \int \widehat{q}^{(\numcomps,\numobs)} (k\mid x')\datadist(\dee x') \rightarrow  \int q^{(\numcomps)}_{\star}(k\mid x')\datadist(\dee x') = \eta^{(\numcomps)}_{\star k}, \label{eq:pi-conv}
-\end{equation}
-where convergence is in probability.
-
-For the purpose of contradiction, assume that $\discr{\widetilde{F}_{k}}{F^{(\numcomps)}_{\opt k}} \le \rho$ for all $k \in \{1,\ldots, \numcomps\}$. 
-Then we have
-\begin{align}
-	 d\left(P^{(\numcomps)}_{\star}, P_{o}\right) 
-	 & \le d\left(P^{(\numcomps)}_{\star}, \widehat{F}^{(\numcomps, \numobs)}\right) + d\left( \widehat{F}^{(\numcomps, \numobs)}, \datadist\right)\label{eq:trigin-ineq} \\
-	 & = d\left(\sum_{k = 1}^{\numcomps}  \eta^{(\numcomps)}_{\star k}F^{(\numcomps)}_{\star k}, \sum_{k=1}^{\numcomps}\widehat{\eta}_k^{(\numcomps, \numobs)} \widehat{F}_k^{(\numcomps, \numobs)}\right) + \op(1) \label{eq:assump1a}\\
-	 & \le d\left(\sum_{k = 1}^{\numcomps}  \eta^{(\numcomps)}_{\star k}F^{(\numcomps)}_{\star k}, \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)} F^{(\numcomps)}_{\star k} \right) \\
-   &\qquad + d\left(\sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)} F^{(\numcomps)}_{\star k}, \sum_{k=1}^{\numcomps}\widehat{\eta}_k^{(\numcomps, \numobs)} \widehat{F}_k^{(\numcomps, \numobs)}\right)
-   + \op(1), \label{eq:decomp}
-	%		&\le d\left(\sum_{k = 1}^{\numcomps}  \eta^{(\numcomps)}_{\star k}F^{(\numcomps)}_{\opt k}, \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)} F^{(\numcomps)}_{\opt k} \right)  +  \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)}d\left( F^{(\numcomps)}_{\opt k},  \widehat{F}_k^{(\numcomps, \numobs)}\right) + \op(1) \label{eq:assump1c}\\
-	%		&\le d\left(\sum_{k = 1}^{\numcomps}  \eta^{(\numcomps)}_{\star k}F^{(\numcomps)}_{\opt k}, \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)} F^{(\numcomps)}_{\opt k} \right)  +  \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)}\kappa\left(\discr{\widehat{F}_k^{(\numcomps, \numobs)}}{F^{(\numcomps)}_{\opt k}}\right)+ \op(1)  \label{eq:assump1d}\\
-	%		& \le  d\left(\sum_{k = 1}^{\numcomps}  \eta^{(\numcomps)}_{\star k}F^{(\numcomps)}_{\opt k}, \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)} F^{(\numcomps)}_{\opt k} \right)  +  \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)}\kappa\left(\rho\right)+ \op(1) \label{eq:prop}\\
-	%		&= \kappa(\rho) + \op(1),  % \label{assump:d-continuity}
-\end{align}
-where \cref{eq:assump1a} follows by  \cref{assump:metric-discr-conditions}(a).
-Define $\eta_k^{\min} = \min\{\eta^{(\numcomps)}_{\star k}, \widehat{\eta}^{(\numcomps, \numobs)}_k\}$ and $\bar{\eta}=1-\sum_{k=1}^{\numcomps}\eta_k^{\min}$.
-Let $\Vert \cdot \Vert_{1}$ denote the $\ell^1$-norm.
-For the first term in \cref{eq:decomp}, we can write
-\begin{align}
-	 & d\left(\sum_{k = 1}^{\numcomps} \eta^{(\numcomps)}_{\star k}F^{(\numcomps)}_{\star k}, \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)} F^{(\numcomps)}_{\star k} \right)\\
-	 & = d\left(\sum_{k = 1}^{\numcomps} \eta_k^{\min}F^{(\numcomps)}_{\star k} + \bar{\eta}\sum_{k = 1}^{\numcomps}  \frac{\eta^{(\numcomps)}_{\star k}-\eta_k^{\min}}{\bar{\eta}}F^{(\numcomps)}_{\star k}, \sum_{k = 1}^{\numcomps}  \eta_k^{\min}F^{(\numcomps)}_{\star k}+ \bar{\eta}\sum_{k = 1}^{\numcomps}  \frac{\widehat{\eta}_k^{(\numcomps, \numobs)} -  \eta_k^{\min}}{\bar{\eta}}F^{(\numcomps)}_{\star k} \right)  \\
-	 & \le \sum_{k = 1}^{\numcomps} \eta_k^{\min}d\left(F^{(\numcomps)}_{\star k}, F^{(\numcomps)}_{\star k}\right) \\
-   &\qquad+ \bar{\eta}d\left(\sum_{k = 1}^{\numcomps}  \frac{\eta^{(\numcomps)}_{\star k}-\eta_k^{\min}}{\bar{\eta}}F^{(\numcomps)}_{\star k}, \sum_{k = 1}^{\numcomps}  \frac{\widehat{\eta}_k^{(\numcomps, \numobs)} -  \eta_k^{\min}}{\bar{\eta}}F^{(\numcomps)}_{\star k}\right)\label{eq:joint-convexity}\\
-	 & \le \Vert \eta^{(\numcomps)}_{\star} - \widehat{\eta}^{(\numcomps,\numobs)} \Vert_{1} d\left(\sum_{k = 1}^{\numcomps}  \frac{\eta^{(\numcomps)}_{\star k}-\eta_k^{\min}}{\bar{\eta}}F^{(\numcomps)}_{\star k}, \sum_{k = 1}^{\numcomps}  \frac{\widehat{\eta}_k^{(\numcomps, \numobs)} -  \eta_k^{\min}}{\bar{\eta}}F^{(\numcomps)}_{\star k}\right)\label{eq:pi-l1norm-bound-pibar} \\
-	 & = \Vert \eta^{(\numcomps)}_{\star} - \widehat{\eta}^{(\numcomps,\numobs)}\Vert_{1} \\
-	 & \qquad \times  d\left( \sum_{k = 1}^{\numcomps} \sum_{\ell = 1}^{\numcomps} \frac{(\eta^{(\numcomps)}_{\star k}-\eta_k^{\min})(\widehat{\eta}_\ell^{(\numcomps, \numobs)} -  \eta_\ell^{\min}) }{\bar{\eta}^2}  F^{(\numcomps)}_{\star k}, \sum_{k = 1}^{\numcomps} \sum_{\ell = 1}^{\numcomps} \frac{(\eta^{(\numcomps)}_{\star k}-\eta_k^{\min})(\widehat{\eta}_\ell^{(\numcomps, \numobs)} -  \eta_\ell^{\min}) }{\bar{\eta}^2} F^{(\numcomps)}_{\star \ell}\right) \\
-	 & \le \Vert \eta^{(\numcomps)}_{\star} - \widehat{\eta}^{(\numcomps,\numobs)}\Vert_{1} \sum_{k = 1}^{\numcomps} \sum_{\ell = 1}^{\numcomps} \frac{(\eta^{(\numcomps)}_{\star k}-\eta_k^{\min})(\widehat{\eta}_\ell^{(\numcomps, \numobs)} -  \eta_\ell^{\min}) }{\bar{\eta}^2} d\left(F^{(\numcomps)}_{\star k}, F^{(\numcomps)}_{\star \ell}\right)\\
-	 & \le \Vert \eta^{(\numcomps)}_{\star} - \widehat{\eta}^{(\numcomps,\numobs)}\Vert_{1} \max_{\substack{k,\ell\in \{1,\ldots,K\} \\ 
-   k\neq \ell}} d\left(F^{(\numcomps)}_{\star k}, F^{(\numcomps)}_{\star \ell}\right) \\
-	 & = \op(1), \label{eq:first-bound}
-	%	&\le \Vert \eta^{(\numcomps)}_{\star} - \widehat{\eta}^{(\numcomps,\numobs)} \Vert \textcolor{red}{d\left(\sum_{k = 1}^{\numcomps}  \frac{\max\{0,\eta^{(\numcomps)}_{\star k}-\widehat{\eta}_k^{(\numcomps, \numobs)} \}}{\bar{\eta}}F^{(\numcomps)}_{\opt k}, \sum_{k = 1}^{\numcomps}  \frac{\max\{0,\widehat{\eta}_k^{(\numcomps, \numobs)}-\eta^{(\numcomps)}_{\star k} \}}{\bar{\eta}}F^{(\numcomps)}_{\opt k}\right)} 
-\end{align}
-where \cref{eq:joint-convexity} uses  \cref{assump:metric-discr-conditions}(b), \cref{eq:pi-l1norm-bound-pibar} follows by the fact that $\bar{\eta}=1- \sum_{k=1}^{\numcomps}\eta_k^{\min} \le  \sum_{k=1}^{\numcomps}\eta_k^{\max}-\sum_{k=1}^{\numcomps}\eta_k^{\min}=\Vert \eta^{(\numcomps)}_{\star} - \widehat{\eta}^{(\numcomps,\numobs)} \Vert_{1}$, and \cref{eq:first-bound} follows by  \cref{assump:metric-discr-conditions}(f) and \cref{eq:pi-conv}.
-
-The second term in \cref{eq:decomp} can be upper bounded as
-\begin{align}
-	d\left(\sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)} F^{(\numcomps)}_{\star k}, \sum_{k=1}^{\numcomps}\widehat{\eta}_k^{(\numcomps, \numobs)} \widehat{F}_k^{(\numcomps, \numobs)}\right)
-	 & \le   \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)}d\left( F^{(\numcomps)}_{\star k},  \widehat{F}_k^{(\numcomps, \numobs)}\right)  \label{eq:assump1c}          \\
-	 & \le   \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)}\kappa\left(\discr{\widehat{F}_k^{(\numcomps, \numobs)}}{F^{(\numcomps)}_{\star k}}\right)  \label{eq:assump1d} \\
-	 & \le  \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)}\kappa\left(\rho + \op(1) \right) \label{eq:prop}                                                                     \\
-	 & = \kappa(\rho) + \op(1) \label{eq:second-bound},
-\end{align}
-where %\cref{eq:trigin-ineq} uses the triangle inequality of metric, 
-\cref{eq:assump1c} follows by  \cref{assump:metric-discr-conditions}(b),
-\cref{eq:assump1d} follows by  \cref{assump:metric-discr-conditions}(e), and
-\cref{eq:prop} follows by our assumption for purposes of contradiction, and  \cref{eq:second-bound} follows by the continuity of $\kappa$. %\fTBD{JL: need to add this assumption in main text}.
-
-Plugging \cref{eq:first-bound,eq:second-bound} into \cref{eq:decomp} yields the final inequality $d\left(P^{(\numcomps)}_{\star}, P_{o}\right) \le \kappa(\rho) + \op(1)$, which contradicts \cref{assump:model-conditions}(c).
-Therefore, there must exist $\ell$ such that $\discr{\widetilde{F}_{\ell}}{F^{(\numcomps)}_{\star \ell}} > \rho$.
-Hence, by \cref{assump:metric-discr-conditions}(c), for some $\varepsilon > 0$, $\discrest{\widehat{F}_{\ell}^{(\numcomps,\numobs)} }{F^{(\numcomps,\numobs)}_{\ell}} = \rho + \varepsilon +\op(1)$.
-Hence, we have
-\begin{align}
-	\mcR^{\rho}_{\numobs}(\allparam^{(\numcomps)}_{\star})
-	 & \ge \widehat{n}_{\ell}^{(\numcomps,\numobs)}\max\{0, \discrest{\widehat{F}_{\ell}^{(\numcomps,\numobs)} }{F^{(\numcomps,\numobs)}_{\ell}} - \rho\}                             \\
-	 & = \widehat{n}_{\ell}^{(\numcomps,\numobs)}\max\{0, \varepsilon + \op(1)\}                                                                                                               \\
-	 & \rightarrow \infty,\label{ineq:N-infty}
-\end{align}
-where \cref{ineq:N-infty} follows
-since $\widehat{n}_{\ell}^{(\numcomps,\numobs)}  \rightarrow \infty$ in probability for $\numobs\rightarrow\infty$.
-
-
-\subsection{Proof of \cref{coro:KL}}
-
-%	We only need to verify that Kullback--Leibler divergence and bounded Lipschitz metric satisfy 
-%	Assumption 1.
- \cref{assump:metric-discr-conditions}(a) follows by \citet[Theorem 1]{Wellner:1981}.
-% which established the convergence of empirical measure with bounded Lipschitz metric $\blmetric$. 
- \cref{assump:metric-discr-conditions}(b) holds by \cref{lem:ipm-joint-convex}.
-%	Assumption 1(c) follows because there are various consistent estimators for Kullback-Leibler divergence \citep{Wang:2009}. 
-%	\fTBD{Not sure how to make statements about this. Please check.}Assumption 1(d) relies on the exact form of the consistent estimators for divergence. For Kullback-Leibler, we use one-sample $k$-nearest-neighbor estimators and they are continuous in model parameters by their construction. See \cref{appx:kl-estimator} for details about Kullback-Leibler estimators.
- \cref{assump:metric-discr-conditions}(e) holds with $\kappa(\rho) =(\rho/2)^{1/2}$ by the fact that, letting $d_{\mathrm{TV}}$
-denote total variation distance, $d_{\mathrm{BL}} \le d_{\mathrm{TV}}$ and
-$(2d_{\mathrm{TV}})^{2}  \le \mathrm{KL}$ \citep[][Section 3]{Gibbs:2002}.
- \cref{assump:metric-discr-conditions}(f) holds since $d_{\mathrm{BL}} \le 1 < \infty$.
-%Hence, conditions in Assumption 1 are all satisfied. 
-
-\subsection{Proof of \cref{coro:MMD}}
-%Similar as proof of Proposition 1, we will verify that mean maximum discrepancy satisfies Assumption 1.
- \cref{assump:metric-discr-conditions}(a) follows by the assumption that $d_{\mathrm{MMD}}$ metrizes weak convergence.
- \cref{assump:metric-discr-conditions}(b) holds by \cref{lem:ipm-joint-convex}.
-%Assumption 1(c) follows since there exists consistent estimator for mean maximum discrepancy in \citep{Gretton:2012}.
-%Similar to the argument in Proposition 1, Assumption 1(d) holds if the consistent estimator is smooth in model parameters. In our framework, it's easy to construct consistent one-sample estimators for mean maximum discrepancy based on \citep{Gretton:2012}.
- \cref{assump:metric-discr-conditions}(e) holds by choosing $\kappa(\rho) =\rho$ for maximum mean discrepancy. \cref{assump:metric-discr-conditions}(f) holds for maximum mean discrepancy with bounded kernels since $d_{\mathrm{MMD}} \le \sup_{x} \mcK(x,x)^{1/2} < \infty$.
-
-
-\subsection{Proof of \cref{prop:kl-upper-bound}}
-
-Let $f_{ok}$ be the density for the true $k$th component distribution and let $g^{(K)}_{\star}(x) =\sum_{\ell=1}^{\numcomps}\eta^{(\numcomps)}_{\star\ell}f^{(\numcomps)}_{\star\ell}(x)$.
-%Consider the definition of $\widetilde{F}_{k}(\dee x)$.
-It follows from \cref{assump:model-conditions}(a) that
-\begin{align}
-	\widetilde{F}_{k}(\dee x) & = \frac{q_{\star}^{(\numcomps_{o})}(k \mid x)P_o(\dee x) }{\int q_{\star}^{(\numcomps_{o})}(k \mid y)P_o(\dee y)} \label{appx-eq:phat-def}  = f^{(\numcomps_{o})}_{\opt k}(x) \frac{\sum_{\ell=1}^{\numcomps_{o}}\eta_{ok}F_{o\ell}(\dee x)}{\sum_{\ell=1}^{\numcomps_{o}}\eta^{(\numcomps_{o})}_{o \ell} f^{(\numcomps_{o})}_{\opt\ell}(x)}.
-\end{align}
-We can rewrite $\widetilde{F}_{k}(\dee x) $ in terms of the ratios $q_{\star}^{(\numcomps_{o})}(k \mid x)/q_{o}(k \mid x)$ and $\eta_{ok}/\eta^{(\numcomps_{o})}_{\star k}$:
-\begin{align}
-	\widetilde{F}_{k}(\dee x) & =  \frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}}\cdot  \frac{\eta^{(\numcomps_{o})}_{\star k}f_{\star k}^{(\numcomps_{o})}(x)}{\eta_{ok}f_{ok}(x)}\cdot \frac{\sum_{\ell=1}^{\numcomps_{o}}\eta_{ok}p_{o\ell}(x)}{\sum_{\ell=1}^{\numcomps_{o}}\eta^{(\numcomps_{o})}_{\star \ell}f_{\star \ell}^{(\numcomps_{o})}(x)}\cdot F_{ok}(\dee x). \\
-	                      & = \frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}} \cdot \frac{\eta^{(\numcomps_{o})}_{\star k}f_{\star k}^{(\numcomps_{o})}(x)}{\sum_{\ell=1}^{\numcomps_{o}}\eta^{(\numcomps_{o})}_{\star \ell}f_{\star \ell}^{(\numcomps_{o})}(x)} \cdot \frac{\sum_{\ell=1}^{\numcomps_{o}}\eta_{ok}p_{o\ell}(x)}{\eta_{ok}f_{ok}(x)}\cdot F_{ok}(\dee x)  \\
-	                      & = \frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}}\cdot \frac{q_{\star}^{(\numcomps_{o})}(k \mid x)}{q_{o}(k \mid x)}\cdot F_{ok}(\dee x) \label{eq:rewrite-phat-k}
-\end{align}
-To bound $\kl{\widetilde{F}_{k}}{F^{(\numcomps_{o})}_{\opt k}}$, we plug in the expression for $	\widetilde{F}_{k}(\dee x)$ in \cref{eq:rewrite-phat-k} and get
-\begin{align}
-	\kl{\widetilde{F}_{k}}{F^{(\numcomps_{o})}_{\opt k} } & = \int \widetilde{F}_{k}(\dee x)\log\frac{d \widetilde{F}_{k}}{dF_{\phi^{\opt}_{k}}}(x)      \\
-	    & = \int \frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}}\cdot \frac{q_{\star}^{(\numcomps_{o})}(k \mid x)}{q_{o}(k \mid x)}\\
-	    & \qquad \times \bigg\{\log\frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}} + \log\frac{q_{\star}^{(\numcomps_{o})}(k \mid x)}{q_{o}(k \mid x)} + \log\frac{dF_{ok}}{dF^{(\numcomps_{o})}_{\opt k}}(x)    \bigg\}  F_{ok}(\dee x)  \\
-	   & \le (1+\varepsilon_{\eta})(1+\varepsilon_{z})\bigg\{\int \log \left(1+\varepsilon_{\eta})(1+\varepsilon_{z}\right) F_{ok}(\dee x)  \label{ineq:use-ration-assump1}  \\
-	  & \phantom{\le (1+\varepsilon_{\eta})(1+\varepsilon_{z})\bigg\{~}  + \int  \log\frac{dF_{ok}}{dF^{(\numcomps_{o})}_{\opt k}}(x)  F_{ok}(\dee x)   \bigg\}   \\
-	   & < (1+\varepsilon_{\eta})(1+\varepsilon_{z})\left\{\log (1+\varepsilon_{\eta})(1+\varepsilon_{z}) + \kl{F_{ok}}{F^{(\numcomps_{o})}_{\opt k}}  \right\}  \label{ineq:use-ration-assump2}                                                               \\
-	  & < (1+\varepsilon_{\eta})(1+\varepsilon_{z})\left\{\log (1+\varepsilon_{\eta})(1+\varepsilon_{z}) + \rho_o\right\} \label{ineq:use-kl-assump},
-\end{align}
-where \cref{ineq:use-ration-assump1,ineq:use-ration-assump2} follow by applying the assumptions on the weight ratio and posterior probability ratio and \cref{ineq:use-kl-assump} follows by the upper bound on $\kl{F_{ok}}{F^{(\numcomps_{o})}_{\opt k}}$. Hence, we may set $\rho = (1+\varepsilon_{\eta})(1+\varepsilon_{z})\left[\log (1+\varepsilon_{\eta})(1+\varepsilon_{z}) + \rho_o \right]$.
-
-\subsection{Proof of \cref{prop:IPM-metric-upper-bound}}
-%Let $(\mathcal{X}, d)$ be a metric space and let $P$, $Q$ be two Borel probability measures defined on $\mathcal{X}$.
-%	Let $\mcH$ denote the class of all bounded functions. 
-It follows by the triangle inequality, \cref{eq:rewrite-phat-k}, H\"older's inequality, and the assumption that all $h \in \mcH$ are bounded by $M$ that
-\begin{align}
-	d_{\mcH}(\widetilde{F}_{k},F^{(\numcomps_{o})}_{\opt k})                                                                                                                                                                                         
-	 & \le d_{\mcH}(\widetilde{F}_{k},F_{ok}) + d_{\mcH}(F_{ok},F^{(\numcomps_{o})}_{\opt k})                                                                                                                                                                  \\
-	 & \le d_{\mcH}\left(\frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}} \frac{q_{\star}^{(\numcomps_{o})}(k \mid x)}{q_{o}(k \mid x)} F_{ok},F_{ok}\right) + \rho_{o}                                                                                    \\
-	 & = \sup_{h\in \mcH} \left\vert \int h(x) \frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}} \frac{q_{\star}^{(\numcomps_{o})}(k \mid x)}{q_{o}(k \mid x)} F_{ok}(\dee x) - \int h(y) F_{ok}(\dee y)   \right\vert
-	+ \rho_{o}                                                                                                                                                                                                                                             \\
-	 & =  \sup_{h\in \mcH} \left\vert \int \left(\frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}} \frac{q_{\star}^{(\numcomps_{o})}(k \mid x)}{q_{o}(k \mid x)}-1\right) h(x) F_{ok}(\dee x)   \right\vert
-	+ \rho_{o}                                                                                                                                                                                                                                             \\
-	 & \le \int F_{ok}(\dee x)\cdot  \sup_{h\in \mcH} \sup_{x \in \mcX} \left\vert  h(x)   \right\vert \left\vert \frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}} \frac{q_{\star}^{(\numcomps_{o})}(k \mid x)}{q_{o}(k \mid x)}-1 \right\vert  + \rho_{o} \\
-	% & \le \sup_{f\in \mathcal{F}_{BL}} \left\vert \int \big((1+\varepsilon_{z})(1+\varepsilon_{\eta})-1\big) f(x) F_{ok}(\dee x)   \right\vert
-	% + \rho_{o} \\
-	 & \le M \left(\varepsilon_{\eta}+\varepsilon_{z}+\varepsilon_{\eta}\varepsilon_{z}\right)
-	+ \rho_{o}.
-\end{align}
-Hence, we may take $\rho = M\left(\varepsilon_{\eta}+\varepsilon_{z}+\varepsilon_{\eta}\varepsilon_{z}\right)  +\rho_{o}$.
-
-\section{Robust Consistency for Probabilistic Matrix Factorization} \label{sec:PMF-consistency-proof}
-
-\subsection{Assumptions}
-
-We will show consistency properties of the method on PMF models using the KL divergence for the discrepancy. 
+Due to the more complex dependence structures in probabilistic matrix factorization, we limit 
+our result when $\mcD$ is the KL divergence, as stated informally in \cref{thm:pmf-robust-consistency}. 
+%We will show consistency properties of the method on PMF models using the KL divergence for the discrepancy. 
 %However, due to the more complex nature of PMF, we limit our proof to the case of $\mathcal{D}$ being the KL-divergence.
 % Note: identical to assumption 1
 % \begin{assumption}\label{assump:divergence}
 % 	For a certain dataset ${x}^{(N)}_{n}\in\mathcal{X}\ (N\in\nats^{*};n=1,\dots,N)$, define the empirical distribution $\widehat{P}^{(N)}=N\inv\sum^{N}_{n=1}\delta_{{x}^{(N)}_{n}}$ and
 % 	assume there exists a distribution $\widetilde{P}\in\mathcal{P}(\mathcal{X})$ such that $\widehat{P}^{(N)} \convd \widetilde{P}$. The metric $d$, and KL-divergence estimator $\widehat{\mathcal{D}}$ satisfy the following conditions:
 % 	\begin{enumerate}[label={(\alph*)}]
-% 		\item The metric detects empirical convergence: $d\lrp{\widehat{P}^{(N)},\widetilde{P}}\to 0$ as $N\to \infty$.
+% 		\item The metric detects empirical convergence: $\distDisc\lrp{\widehat{P}^{(N)},\widetilde{P}}\to 0$ as $N\to \infty$.
 % 		\item The metric is jointly convex in its arguments: for all $w\in(0,1)$ and distributions $P,P',Q,Q'$,
-% 		      \[d(wP+(1-w)P',wQ+(1-w)Q')\leq wd(P,Q)+(1-w)d(P',Q').\]
+% 		      \[\distDisc(wP+(1-w)P',wQ+(1-w)Q')\leq w\distDisc(P,Q)+(1-w)\distDisc(P',Q').\]
 % 		\item The divergence estimator is consistent: for any distribution $Q$, if $\mathcal{D}(\widetilde{P},Q) < \infty$, then $\widehat{\mathcal{D}}\lrp{\widehat{P}^{(N)},Q}\to \mathcal{D}(\widetilde{P}, Q)$ as $N\to \infty$.
-% 		\item The discrepancy bounds the metric: there exists a continuous, non-decreasing function $\kappa:\reals\to\reals$ such that $d(P,Q)\leq\kappa\lrp{\mathcal{D}(P\mid Q)}$ for all distributions $P,Q$ and $\kappa(0)=0$
+% 		\item The discrepancy bounds the metric: there exists a continuous, non-decreasing function $\kappa:\reals\to\reals$ such that $\distDisc(P,Q)\leq\kappa\lrp{\mathcal{D}(P\mid Q)}$ for all distributions $P,Q$ and $\kappa(0)=0$
 % 	\end{enumerate}
 % \end{assumption}
 For a given $K$, denote the empirical distribution of estimated coefficients by $\widehat{H}^{(K,N)} = N\inv\sum^{N}_{n=1}\delta_{\widehat{z}^{(K)}_{n}}$.
 \begin{assumption}\label{assump:consistency}
-	For each $K \in \{1,\dots,K_{o}\}$, there exists ${\phi}^{(K)}_{\star} \in\Phi^{(K)}$ and distribution $H^{(K)}_{\star}$ such that ${\widehat{\phi}}^{(K,N)} \convp {\phi}^{(K)}_{\star}$ and $\widehat{H}^{(K,N)}\convd H^{(K)}_{\star}$ as $N\to \infty$, after possibly reordering of components.
+	For each $K \in \{1,\dots,K_{o}\}$, there exists ${\phi}^{(K)}_{\star} \in\Phi^{(K)}$ and distribution $H^{(K)}_{\star}$ such that ${\widehat{\phi}}^{(K,N)} \convp {\phi}^{(K)}_{\star}$ and $\widehat{H}^{(K,N)}\convd H^{(K)}_{\star}$ as $N\to \infty$, after possible reordering of components.
 \end{assumption}
 
 \cref{assump:consistency} is analogous to \cref{assump:inference-regularity} in the mixture model case. This should also holds for most applications under mild conditions
@@ -680,19 +427,301 @@ the distributions $Q^{(K)}_{\star k}(\blank\mid z)$ has the same support on $\ma
 \cref{assump:sample_approx_able} ensures that the data generating distribution can be sufficiently approximated via empirical sampling. 
 The first two parts are mild regularity conditions while \cref{assump:sample_approx_able}(c) is applicable to the PMF models used in \cref{sec:experiments} (see \cref{sec:sample_approx_able_example} for details).
 
-\begin{assumption} \label{assump:data_regular} 
-	There exists $\rho > 0$ such that the following conditions hold: 
-	\begin{enumerate}[label={(\alph*)}]
-	\item \emph{Accuracy of parameter estimates for $K=K_{o}$:} For each $k \in \{1, \dots, K_{o}\}$,
-      \[
-        \mathcal{D}\lrp{G^{(K_{o})}_{\star k},  G}\leq\rho,
-      \]
-      where $\widehat{G}^{(K_{o},N)}_{k}\convd G^{(K_{o})}_{\star k}$ as $N\to\infty$.
-    \item \emph{Poor model fit when $K<K_{o}$}: For any $\numcomps < \numcomps_o$, 
-    it holds that $d(P_{o}, P^{(K)}_{\star})>\kappa(K\rho)$.
-	\end{enumerate}
+% \begin{assumption} \label{assump:data_regular} 
+% 	There exists $\rho > 0$ such that the following conditions hold: 
+% 	\begin{enumerate}[label={(\alph*)}]
+% 	\item \emph{Accuracy of parameter estimates for $K=K_{o}$:} For each $k \in \{1, \dots, K_{o}\}$,
+%       \[
+%         \mathcal{D}\lrp{G^{(K_{o})}_{\star k},  G}\leq\rho,
+%       \]
+%       where $\widehat{G}^{(K_{o},N)}_{k}\convd G^{(K_{o})}_{\star k}$ as $N\to\infty$.
+%     \item \emph{Poor model fit when $K<K_{o}$}: For any $\numcomps < \numcomps_o$, 
+%     it holds that $\distDisc(P_{o}, P^{(K)}_{\star})>\kappa(K\rho)$.
+% 	\end{enumerate}
+% \end{assumption}
+% \cref{assump:data_regular} is analogous to \cref{assump:model-conditions}. \cref{assump:data_regular}(a) characterizes the relationship between $\rho$ and the degree of misspecification of the latent processes, while \cref{assump:data_regular}(b) forbids pathological setups that allow the data generating process to be accurately approximated using fewer components than the true number.
+
+The following theorem and \cref{coro:KL} immediately imply \cref{thm:pmf-robust-consistency}. 
+\begin{theorem} \label{thm:main-pmf}
+	For probabilistic matrix factorization, if \cref{assump:metric-discr-conditions,assump:consistency,assump:sample_approx_able} hold with $\discr{\cdot}{\cdot} = \kl{\cdot}{\cdot}$, then 
+    \methodname is $\kappa$-robustly consistent for $\kappa(\rho, K) = \widetilde{\kappa}(K \rho)$. 
+\end{theorem}
+See \cref{sec:PMF-consistency-proof} for a proof. 
+
+\begin{comment}
+\subsection{Characterizing the Process-level Discrepancy}
+\label{subsec:theory-rho-bounds}
+
+\Cref{assump:model-conditions}(b), requires the discrepancy between the limiting empirical component distribution and the model component
+be less than $\rho$. % -- that is, $\mcD(\widetilde{P}_{k}||F_{\param^\star_{k}}) < \rho$.
+However, such a requirement is not completely satisfactory since $\widetilde{P}_{k}$ depends on both $P_{o}$ and the parameter
+estimates for the mixture model family.
+(A similar issues arises with \cref{assump:data_regular}(a) in the matrix factorization settings; see \cref{sec:checking-assumptions}.)
+A more intuitive and natural assumption would bound the divergence between the true component distribution and model component -- that is, be of the
+form $\mcD(F_{ok} \mid F_{\star k}^{(\numcomps_{o})}) < \rho_o$ for some $\rho_{o} > 0$.
+In this section, we show how to relate $\rho_o$ to $\rho$ for the KL divergence and integral probability metrics, including the maximum mean discrepancy and 1-Wasserstein distance.
+
+Define the conditional component probabilities for the true generating distribution as
+%\(
+%\Pr_{\star}(z=k \mid x) &= \frac{\eta_{\star k}f_{\phi_{\star k}}(x)}{\sum_{\ell=1}^{\numcomps_{o}}\eta_{\star\ell}f_{\phi_{\star\ell}}(x)}, &
+%\Pr_{o}(z=k \mid x) &= \frac{\eta_{ok}p_{ok}(x)}{\sum_{\ell=1}^{\numcomps_{o}}\eta_{o\ell}p_{o\ell}(x)}.
+%\)
+\(
+p_{o}(k \mid x) = {\eta_{ok}f_{ok}(x)}/{p_{o}(x)}.
+\)
+We rely on the following assumption.
+\begin{assumption} \label{assump:bounded-ratios}
+	%The data-generating distribution $P_o$ and component model family $\mcF$ satisfy the following properties:
+	There exists a finite constant $\varepsilon_{z}$ such that for all $k \in \{1,\ldots, \numcomps_{o}\}$,
+	\[
+		%\frac{\eta_{\star k}}{\eta_{ok} }  < 1+\varepsilon_{\eta},
+		\frac{p_{\star}^{(\numcomps_{o})}(k \mid x)}{p_{o}(k \mid x)} \le 1 + \varepsilon_{z}.
+	\]
 \end{assumption}
-\cref{assump:data_regular} is analogous to \cref{assump:model-conditions}. \cref{assump:data_regular}(a) characterizes the relationship between $\rho$ and the degree of misspecification of the latent processes, while \cref{assump:data_regular}(b) forbids pathological setups that allow the data generating process to be accurately approximated using fewer components than the true number.
+\cref{assump:bounded-ratios} holds when the tails of the true distributions are heavier than those of the corresponding model components.
+This suggests it is best to use lighter tailed component distributions; see \cref{sec:checking-assumptions} for details.
+In addition, define $\varepsilon_{\eta} = \max_{k} {\eta_{\star k}^{(\numcomps_{o})}}/{\eta_{ok}} - 1$.
+Note that if \cref{assump:model-conditions}(a) holds, $\varepsilon_{\eta} < \infty$.
+
+We first consider the Kullback--Leibler divergence case.
+%We show in \cref{prop:kl-upper-bound} that with Kullback--Leibler divergence, the cutoff $\rho$ upper is bounded by the divergence between the true component distribution and optimal model component quantified by $\rho_o$, the difference between the conditional probabilities based on model and true generating distribution and the difference between the mixture weights derived from optimal model and true distributions.
+%In particular, we show that if the true underlying distribution is close to the optimal model for each component $k$ then the limiting empirical distribution $\widetilde{P}_k$ is close to the optimal model. 
+%
+%We show this holds for both Kullback--Leibler divergence and mean maximum discrepancy metrics given bounded kernel functions. 
+\begin{proposition} \label{prop:kl-upper-bound}
+	If $\mcD(P \mid Q) = \kl{P}{Q}$, Assumptions \ref{assump:model-conditions}(a) and \ref{assump:bounded-ratios} hold,
+	and $\kl{F_{ok}}{F_{\star k}^{(\numcomps_{o})}} < \rho_{o}$ for all $k \in \{1,\ldots, \numcomps_{o}\}$,
+	then \Cref{assump:model-conditions}(b) holds for $\rho = (1+\varepsilon_{\eta})(1+\varepsilon_{z})[\rho_{o} + \log(1+\varepsilon_{\eta})(1+\varepsilon_{z})]$.
+\end{proposition}
+% f(x) = <f, k(x, .)> ||f|| ||k(x, .)|| = sqrt{k(x,x)}
+%Define $d_{BL}(P, Q) = \sup_{f\in \mathcal{F}_{BL}} \vert E_{x\sim P}[f(x)] - E_{y\sim Q}[f(y)] \vert$, where $\mathcal{F}_{BL} = \{f: \sup_{x}f(x) \le 1 \ \text{and} \ \exists L > 0 \ \text{such that} \ \sup_{x\ne y} |f(x)-f(y)|/ |x-y| \le L \}$.
+
+
+For integral probability measures, we will focus on the common case where the ``test functions'' $h \in \mcH$ are uniformly bounded.
+%Given a constant $M > 0$, denote the class of bounded functions by $\mcH_{M} = \{h : \mcX \to \reals \mid  \|h\|_{\infty} \le M \}$. 
+%We show in the following proposition that $\distDisc(\widetilde{P}_{k},F_{\param^\star_{k}})$ can be bounded by $\rho_{o}$ for integral probability metrics with bounded function class $\mathcal{F}_{B} $.
+\begin{proposition} \label{prop:IPM-metric-upper-bound}
+	If $\mcD(P \mid Q) = d_{\mcH}(P, Q)$, Assumptions \ref{assump:model-conditions}(a) and
+	\ref{assump:bounded-ratios} hold, there exists $M > 0$ such that $\|h\|_{\infty} < M$ for all $h \in \mcH$,
+	and $d_{\mathcal{H}}(F_{ok},F^{(\numcomps_{o})}_{\opt k}) < \rho_{o}$ for all $k \in \{1,\ldots, \numcomps_{o}\}$, then
+	\Cref{assump:model-conditions}(b) holds for $\rho = M\left(\varepsilon_{\eta}+\varepsilon_{z}+\varepsilon_{\eta}\varepsilon_{z}\right) +\rho_{o}$.
+\end{proposition}
+
+\cref{prop:IPM-metric-upper-bound} provides justification for a variety of common metrics, including the bounded Lipschitz metric, the total variation distance,
+and the 1-Wasserstein distance when the metric defined on $\mcX$ is bounded.
+In addition, it applies to MMDs as long as $\mcK(x, x)$ is uniformly bounded.\footnote{To see this, note that for $h \in \mcB_{\mcK}$,
+	%Consider $f$ in the unit ball of the reproducing kernel Hilbert space induced by the positive definite kernel $k:\mathcal{X} \times \mathcal{X} \mapsto \reals$.
+	%If $k(x,x)$ is uniformly bounded, then $f$ is bounded since 
+	\begin{equation}
+		h(x) = \langle h, \mcK(x, \cdot) \rangle_{\mcK} \le \Vert h \Vert_{\mcK}  \Vert \mcK(x,\cdot )\Vert_{\mcK}  = \mcK(x,x)^{1/2}, % \le \sup_{x} \mcK(x,x)^{1/2},
+	\end{equation}
+	so we may take $M = \sup_{x} \mcK(x,x)^{1/2}$.}
+\end{comment}
+
+\section{Proofs of Mixture Model Results} \label{sec:mixture-model-consistency}
+%\subsection*{Lemmas}
+\subsection{Notation}
+We write $\op(g(\numobs))$ to denote a random function $f$ that satisfies $f(\numobs) / g(\numobs) \to 0$ in probability for $\numobs \to \infty$.
+Let $\widehat\param_{k}^{(\numcomps,\numobs)}$ denote the $k$th component parameter estimate using $\data{1:\numobs}$
+for the mixture model with $\numcomps$ components.
+More generally, we replace superscript $(\numcomps)$ with $(\numcomps,\numobs)$ to make the dependence on $\numobs$ explicit.
+%Let $\widehat{n}^{(\numcomps,\numobs)}_k = |X^{(k)}(z^{(\numcomps,\numobs)})|$ and $\widehat{\eta}^{(\numcomps,\numobs)}_{k} = \widehat{n}^{(\numcomps,\numobs)}_k/\numobs$.
+Note that, with probability 1, $N^{(\numcomps,\numobs)}_k \rightarrow \infty$ as $\numobs \rightarrow \infty$.
+For simplicity, we introduce the shorthand notation
+$F^{(\numcomps,\numobs)}_{k} = F_{\widehat\param^{(\numcomps,\numobs)}_k}$,
+$\mcR^{\rho}_{\numobs} (\allparam^{(\numcomps)}) = \mcR^{\rho}(\allparam^{(\numcomps)}; z^{(\numcomps,\numobs)}, \data{1:\numobs})$, and
+$\mcR^{\rho,\lambda}_{\numobs}(\allparam^{(\numcomps)}) = \mathcal{R}^{\rho,\lambda}(\allparam^{(\numcomps)}; z^{(\numcomps,\numobs)}, \data{1:\numobs})$.
+We also write $F^{(K)}_{\star k} = F_{\param^{(K)}_{\star k}}$ and $G^{(K)}_{\star k} = G_{\allparam^{(K)}_{\star k}}$, and similarly for their densities.
+
+Define the conditional component probabilities based on optimal model distribution and true generating distribution respectively as
+\[
+	q^{(\numcomps)}_{\star}(k \mid x)= \frac{\eta^{(\numcomps)}_{\star k}
+  f_{\star k}^{(\numcomps)}(x)}{p^{(\numcomps)}_{\star}(x)}, \qquad
+	q_{o}(k \mid x) = \frac{\eta_{ok}f_{ok}(x)}{p_{o}(x)}.
+\]
+For conditional probabilities of model distribution, we denote as 
+\[
+\widehat{q}^{(\numcomps, \numobs)}(k \mid x) = \widehat{\eta}^{(\numcomps,\numobs)}_{k}f_{k}^{(\numcomps,\numobs)}(x) / p^{(\numcomps,\numobs)}(x).
+\]
+Note that $\widehat{q}^{(\numcomps,\numobs)} (k\mid x) \rightarrow q^{(\numcomps)}_{\star}(k \mid x)$ as $\numobs \rightarrow \infty$ with probability 1.
+
+%Denote the empirical mixture weights $\widehat{\eta}^N_{k}$ and the empirical sampling distribution as $ \widehat{P}^{\numobs}_{k} = |X^{(k)}(z^{(K)}_{1:N})|^{-1}\sum_{x \in X^{(k)}(z_{1:N}^{(K)})} \delta_{x}$ . 
+%Denote the empirical number of observations in $k$th cluster as $N^{\numobs}_k$ 
+%$(k=1,\ldots,\numcomps)$ and $N^{\numobs}_k \rightarrow \infty$ as $\numobs \rightarrow \infty$.
+
+\subsection{Proof of \cref{thm:main}} \label{pf:main-thm}
+
+We show that (1) for $\numcomps = \numcomps_o$,  $ \mcR^{\rho}_{\numobs}(\allparam^{(\numcomps)}_{\star}) \rightarrow 0$ in probability as $\numobs \rightarrow \infty$, and (2) for $\numcomps < \numcomps_o$, $\mcR^{\rho}_{\numobs}(\allparam^{(\numcomps)}_{\star})\rightarrow \infty$ in probability as $\numobs \rightarrow \infty$.
+The theorem conclusion follows immediately from these two results since the loss is lower bounded by zero,
+so asymptotically $K_o$ will be estimated to be the smallest value of $\numcomps$ which has a loss of zero.
+
+\textbf{Proof of part (1).} %$\numcomps = \numcomps_o$, choose $\rho > \rho^{\star}$. 
+%It follows by the definition of consistent estimator that there exists a sufficiently large $\numobs_{o}$ that for $N>N_{o}$, $|\discrest{\widehat{P}^N_{k}}{F^{\opt}_{k} }- \discr{\widehat{P}^{\numobs}_{k}}{F^{\opt}_{k}  }| < \varepsilon/2$. 
+Fix $\numcomps=\numcomps_{o}$.
+It follows from \cref{assump:metric-discr-conditions}(c,d) and \cref{assump:inference-regularity} that $\discrest{\widehat{F}^{(\numcomps_{o},\numobs)}_{k}}{F^{(\numcomps,\numobs)}_{k} }  \to \discr{\widetilde{F}_{k}}{F^{(\numcomps_{o})}_{\opt k}}$ in probability.
+Hence, it follows that there exists $\varepsilon>0$ such that
+\[
+	\discrest{\widehat{F}^{(\numcomps_{o},\numobs)}_{k}}{F^{(\numcomps,\numobs)}_{k} } < \rho - \varepsilon + \op(1).
+\]
+%= \discr{\widetilde{F}_{k}}{F^{\opt}_{k}  } + \op(1) - \op(1) 
+%< \rho + \op(1).
+%Similarly for Assumption 1(c), $\discr{\widehat{F}_{k}}{F^{\opt}_{k} } < \rho+\op(1)$.
+Using this inequality, it follows that
+\begin{align}
+	\mcR^{\rho}_{\numobs}(\allparam^{(\numcomps_o}_{\star})
+	 & =\sum_{k=1}^{\numcomps_o}	N^{(\numcomps_{o},\numobs)}_k \max\{0, \discrest{\widehat{F}_{k}^{(\numcomps_o, \numobs)}}{F^{(\numcomps_{o},\numobs)}_{k}}  - \rho\} \\
+	 & \le \sum_{k=1}^{\numcomps_o}	N^{(\numcomps_{o},\numobs)}_k\max\{0, -\varepsilon+\op(1)\}.
+\end{align}
+Hence, we can conclude that $\lim_{\numobs \rightarrow\infty}\Pr[ \mcR^{\rho}_{\numobs}(\allparam^{(\numcomps_o}_{\star}) =0] = 1$. % indicating that the structurally aware loss is 0 asymptotically.
+
+\textbf{Proof of part (2).}
+Now we consider the case of $\numcomps < \numcomps_o$.
+Note the empirical distribution can be written as $\widehat{F}^{(\numcomps, \numobs)} = \sum_{k=1}^{\numcomps}\widehat{\eta}_k^{(\numcomps, \numobs)} \widehat{F}_k^{(\numcomps, \numobs)}$.
+By dominated convergence, we know that for $\numobs \to \infty$,
+\begin{equation}
+	\widehat{\eta}_k^{(\numcomps,\numobs)} = \int \widehat{q}^{(\numcomps,\numobs)} (k\mid x')\datadist(\dee x') \rightarrow  \int q^{(\numcomps)}_{\star}(k\mid x')\datadist(\dee x') = \eta^{(\numcomps)}_{\star k}, \label{eq:pi-conv}
+\end{equation}
+where convergence is in probability.
+
+For the purpose of contradiction, assume that $\discr{\widetilde{F}_{k}}{F^{(\numcomps)}_{\opt k}} \le \rho$ for all $k \in \{1,\ldots, \numcomps\}$. 
+Then we have
+\begin{align}
+	 \distDisc\left(P^{(\numcomps)}_{\star}, P_{o}\right) 
+	 & \le \distDisc\left(P^{(\numcomps)}_{\star}, \widehat{F}^{(\numcomps, \numobs)}\right) + \distDisc\left( \widehat{F}^{(\numcomps, \numobs)}, \datadist\right)\label{eq:trigin-ineq} \\
+	 & = \distDisc\left(\sum_{k = 1}^{\numcomps}  \eta^{(\numcomps)}_{\star k}F^{(\numcomps)}_{\star k}, \sum_{k=1}^{\numcomps}\widehat{\eta}_k^{(\numcomps, \numobs)} \widehat{F}_k^{(\numcomps, \numobs)}\right) + \op(1) \label{eq:assump1a}\\
+	 & \le \distDisc\left(\sum_{k = 1}^{\numcomps}  \eta^{(\numcomps)}_{\star k}F^{(\numcomps)}_{\star k}, \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)} F^{(\numcomps)}_{\star k} \right) \\
+   &\qquad + \distDisc\left(\sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)} F^{(\numcomps)}_{\star k}, \sum_{k=1}^{\numcomps}\widehat{\eta}_k^{(\numcomps, \numobs)} \widehat{F}_k^{(\numcomps, \numobs)}\right)
+   + \op(1), \label{eq:decomp}
+	%		&\le \distDisc\left(\sum_{k = 1}^{\numcomps}  \eta^{(\numcomps)}_{\star k}F^{(\numcomps)}_{\opt k}, \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)} F^{(\numcomps)}_{\opt k} \right)  +  \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)}\distDisc\left( F^{(\numcomps)}_{\opt k},  \widehat{F}_k^{(\numcomps, \numobs)}\right) + \op(1) \label{eq:assump1c}\\
+	%		&\le \distDisc\left(\sum_{k = 1}^{\numcomps}  \eta^{(\numcomps)}_{\star k}F^{(\numcomps)}_{\opt k}, \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)} F^{(\numcomps)}_{\opt k} \right)  +  \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)}\kappa\left(\discr{\widehat{F}_k^{(\numcomps, \numobs)}}{F^{(\numcomps)}_{\opt k}}\right)+ \op(1)  \label{eq:assump1d}\\
+	%		& \le  \distDisc\left(\sum_{k = 1}^{\numcomps}  \eta^{(\numcomps)}_{\star k}F^{(\numcomps)}_{\opt k}, \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)} F^{(\numcomps)}_{\opt k} \right)  +  \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)}\kappa\left(\rho\right)+ \op(1) \label{eq:prop}\\
+	%		&= \kappa(\rho) + \op(1),  % \label{assump:d-continuity}
+\end{align}
+where \cref{eq:assump1a} follows by  \cref{assump:metric-discr-conditions}(a).
+Define $\eta_k^{\min} = \min\{\eta^{(\numcomps)}_{\star k}, \widehat{\eta}^{(\numcomps, \numobs)}_k\}$ and $\bar{\eta}=1-\sum_{k=1}^{\numcomps}\eta_k^{\min}$.
+Let $\Vert \cdot \Vert_{1}$ denote the $\ell^1$-norm.
+For the first term in \cref{eq:decomp}, we can write
+\begin{align}
+	 & \distDisc\left(\sum_{k = 1}^{\numcomps} \eta^{(\numcomps)}_{\star k}F^{(\numcomps)}_{\star k}, \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)} F^{(\numcomps)}_{\star k} \right)\\
+	 & = \distDisc\left(\sum_{k = 1}^{\numcomps} \eta_k^{\min}F^{(\numcomps)}_{\star k} + \bar{\eta}\sum_{k = 1}^{\numcomps}  \frac{\eta^{(\numcomps)}_{\star k}-\eta_k^{\min}}{\bar{\eta}}F^{(\numcomps)}_{\star k}, \sum_{k = 1}^{\numcomps}  \eta_k^{\min}F^{(\numcomps)}_{\star k}+ \bar{\eta}\sum_{k = 1}^{\numcomps}  \frac{\widehat{\eta}_k^{(\numcomps, \numobs)} -  \eta_k^{\min}}{\bar{\eta}}F^{(\numcomps)}_{\star k} \right)  \\
+	 & \le \sum_{k = 1}^{\numcomps} \eta_k^{\min}\distDisc\left(F^{(\numcomps)}_{\star k}, F^{(\numcomps)}_{\star k}\right) \\
+   &\qquad+ \bar{\eta}\distDisc\left(\sum_{k = 1}^{\numcomps}  \frac{\eta^{(\numcomps)}_{\star k}-\eta_k^{\min}}{\bar{\eta}}F^{(\numcomps)}_{\star k}, \sum_{k = 1}^{\numcomps}  \frac{\widehat{\eta}_k^{(\numcomps, \numobs)} -  \eta_k^{\min}}{\bar{\eta}}F^{(\numcomps)}_{\star k}\right)\label{eq:joint-convexity}\\
+	 & \le \Vert \eta^{(\numcomps)}_{\star} - \widehat{\eta}^{(\numcomps,\numobs)} \Vert_{1} \distDisc\left(\sum_{k = 1}^{\numcomps}  \frac{\eta^{(\numcomps)}_{\star k}-\eta_k^{\min}}{\bar{\eta}}F^{(\numcomps)}_{\star k}, \sum_{k = 1}^{\numcomps}  \frac{\widehat{\eta}_k^{(\numcomps, \numobs)} -  \eta_k^{\min}}{\bar{\eta}}F^{(\numcomps)}_{\star k}\right)\label{eq:pi-l1norm-bound-pibar} \\
+	 & = \Vert \eta^{(\numcomps)}_{\star} - \widehat{\eta}^{(\numcomps,\numobs)}\Vert_{1} \\
+	 & \qquad \times  \distDisc\left( \sum_{k = 1}^{\numcomps} \sum_{\ell = 1}^{\numcomps} \frac{(\eta^{(\numcomps)}_{\star k}-\eta_k^{\min})(\widehat{\eta}_\ell^{(\numcomps, \numobs)} -  \eta_\ell^{\min}) }{\bar{\eta}^2}  F^{(\numcomps)}_{\star k}, \sum_{k = 1}^{\numcomps} \sum_{\ell = 1}^{\numcomps} \frac{(\eta^{(\numcomps)}_{\star k}-\eta_k^{\min})(\widehat{\eta}_\ell^{(\numcomps, \numobs)} -  \eta_\ell^{\min}) }{\bar{\eta}^2} F^{(\numcomps)}_{\star \ell}\right) \\
+	 & \le \Vert \eta^{(\numcomps)}_{\star} - \widehat{\eta}^{(\numcomps,\numobs)}\Vert_{1} \sum_{k = 1}^{\numcomps} \sum_{\ell = 1}^{\numcomps} \frac{(\eta^{(\numcomps)}_{\star k}-\eta_k^{\min})(\widehat{\eta}_\ell^{(\numcomps, \numobs)} -  \eta_\ell^{\min}) }{\bar{\eta}^2} \distDisc\left(F^{(\numcomps)}_{\star k}, F^{(\numcomps)}_{\star \ell}\right)\\
+	 & \le \Vert \eta^{(\numcomps)}_{\star} - \widehat{\eta}^{(\numcomps,\numobs)}\Vert_{1} \max_{\substack{k,\ell\in \{1,\ldots,K\} \\ 
+   k\neq \ell}} \distDisc\left(F^{(\numcomps)}_{\star k}, F^{(\numcomps)}_{\star \ell}\right) \\
+	 & = \op(1), \label{eq:first-bound}
+	%	&\le \Vert \eta^{(\numcomps)}_{\star} - \widehat{\eta}^{(\numcomps,\numobs)} \Vert \textcolor{red}{\distDisc\left(\sum_{k = 1}^{\numcomps}  \frac{\max\{0,\eta^{(\numcomps)}_{\star k}-\widehat{\eta}_k^{(\numcomps, \numobs)} \}}{\bar{\eta}}F^{(\numcomps)}_{\opt k}, \sum_{k = 1}^{\numcomps}  \frac{\max\{0,\widehat{\eta}_k^{(\numcomps, \numobs)}-\eta^{(\numcomps)}_{\star k} \}}{\bar{\eta}}F^{(\numcomps)}_{\opt k}\right)} 
+\end{align}
+where \cref{eq:joint-convexity} uses  \cref{assump:metric-discr-conditions}(b), \cref{eq:pi-l1norm-bound-pibar} follows by the fact that $\bar{\eta}=1- \sum_{k=1}^{\numcomps}\eta_k^{\min} \le  \sum_{k=1}^{\numcomps}\eta_k^{\max}-\sum_{k=1}^{\numcomps}\eta_k^{\min}=\Vert \eta^{(\numcomps)}_{\star} - \widehat{\eta}^{(\numcomps,\numobs)} \Vert_{1}$, and \cref{eq:first-bound} follows by  \cref{assump:metric-discr-conditions}(f) and \cref{eq:pi-conv}.
+
+The second term in \cref{eq:decomp} can be upper bounded as
+\begin{align}
+	\distDisc\left(\sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)} F^{(\numcomps)}_{\star k}, \sum_{k=1}^{\numcomps}\widehat{\eta}_k^{(\numcomps, \numobs)} \widehat{F}_k^{(\numcomps, \numobs)}\right)
+	 & \le   \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)}\distDisc\left( F^{(\numcomps)}_{\star k},  \widehat{F}_k^{(\numcomps, \numobs)}\right)  \label{eq:assump1c}          \\
+	 & \le   \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)}\kappa\left(\discr{\widehat{F}_k^{(\numcomps, \numobs)}}{F^{(\numcomps)}_{\star k}}\right)  \label{eq:assump1d} \\
+	 & \le  \sum_{k = 1}^{\numcomps}  \widehat{\eta}_k^{(\numcomps, \numobs)}\kappa\left(\rho + \op(1) \right) \label{eq:prop}                                                                     \\
+	 & = \kappa(\rho) + \op(1) \label{eq:second-bound},
+\end{align}
+where %\cref{eq:trigin-ineq} uses the triangle inequality of metric, 
+\cref{eq:assump1c} follows by  \cref{assump:metric-discr-conditions}(b),
+\cref{eq:assump1d} follows by  \cref{assump:metric-discr-conditions}(e), and
+\cref{eq:prop} follows by our assumption for purposes of contradiction, and  \cref{eq:second-bound} follows by the continuity of $\kappa$. %\fTBD{JL: need to add this assumption in main text}.
+
+Plugging \cref{eq:first-bound,eq:second-bound} into \cref{eq:decomp} yields the final inequality $\distDisc\left(P^{(\numcomps)}_{\star}, P_{o}\right) \le \kappa(\rho) + \op(1)$, which contradicts the 
+definition of $\rho$.
+Therefore, there must exist $\ell$ such that $\discr{\widetilde{F}_{\ell}}{F^{(\numcomps)}_{\star \ell}} > \rho$.
+Hence, by \cref{assump:metric-discr-conditions}(c), for some $\varepsilon > 0$, $\discrest{\widehat{F}_{\ell}^{(\numcomps,\numobs)} }{F^{(\numcomps,\numobs)}_{\ell}} = \rho + \varepsilon +\op(1)$.
+Hence, we have
+\begin{align}
+	\mcR^{\rho}_{\numobs}(\allparam^{(\numcomps)}_{\star})
+	 & \ge \widehat{n}_{\ell}^{(\numcomps,\numobs)}\max\{0, \discrest{\widehat{F}_{\ell}^{(\numcomps,\numobs)} }{F^{(\numcomps,\numobs)}_{\ell}} - \rho\}                             \\
+	 & = \widehat{n}_{\ell}^{(\numcomps,\numobs)}\max\{0, \varepsilon + \op(1)\}                                                                                                               \\
+	 & \rightarrow \infty,\label{ineq:N-infty}
+\end{align}
+where \cref{ineq:N-infty} follows
+since $\widehat{n}_{\ell}^{(\numcomps,\numobs)}  \rightarrow \infty$ in probability for $\numobs\rightarrow\infty$.
+
+
+\subsection{Proof of \cref{coro:KL}}
+
+%	We only need to verify that Kullback--Leibler divergence and bounded Lipschitz metric satisfy 
+%	Assumption 1.
+ \cref{assump:metric-discr-conditions}(a) follows by \citet[Theorem 1]{Wellner:1981}.
+% which established the convergence of empirical measure with bounded Lipschitz metric $\blmetric$. 
+ \cref{assump:metric-discr-conditions}(b) holds by \cref{lem:ipm-joint-convex}.
+%	Assumption 1(c) follows because there are various consistent estimators for Kullback-Leibler divergence \citep{Wang:2009}. 
+%	\fTBD{Not sure how to make statements about this. Please check.}Assumption 1(d) relies on the exact form of the consistent estimators for divergence. For Kullback-Leibler, we use one-sample $k$-nearest-neighbor estimators and they are continuous in model parameters by their construction. See \cref{appx:kl-estimator} for details about Kullback-Leibler estimators.
+ \cref{assump:metric-discr-conditions}(e) holds with $\kappa(\rho) =(\rho/2)^{1/2}$ by the fact that, letting $d_{\mathrm{TV}}$
+denote total variation distance, $d_{\mathrm{BL}} \le d_{\mathrm{TV}}$ and
+$(2d_{\mathrm{TV}})^{2}  \le \mathrm{KL}$ \citep[][Section 3]{Gibbs:2002}.
+ \cref{assump:metric-discr-conditions}(f) holds since $d_{\mathrm{BL}} \le 1 < \infty$.
+%Hence, conditions in Assumption 1 are all satisfied. 
+
+\subsection{Proof of \cref{coro:MMD}}
+%Similar as proof of Proposition 1, we will verify that mean maximum discrepancy satisfies Assumption 1.
+ \cref{assump:metric-discr-conditions}(a) follows by the assumption that $d_{\mathrm{MMD}}$ metrizes weak convergence.
+ \cref{assump:metric-discr-conditions}(b) holds by \cref{lem:ipm-joint-convex}.
+%Assumption 1(c) follows since there exists consistent estimator for mean maximum discrepancy in \citep{Gretton:2012}.
+%Similar to the argument in Proposition 1, Assumption 1(d) holds if the consistent estimator is smooth in model parameters. In our framework, it's easy to construct consistent one-sample estimators for mean maximum discrepancy based on \citep{Gretton:2012}.
+ \cref{assump:metric-discr-conditions}(e) holds by choosing $\kappa(\rho) =\rho$ for maximum mean discrepancy. \cref{assump:metric-discr-conditions}(f) holds for maximum mean discrepancy with bounded kernels since $d_{\mathrm{MMD}} \le \sup_{x} \mcK(x,x)^{1/2} < \infty$.
+
+
+\begin{comment}
+
+\subsection{Proof of \cref{prop:kl-upper-bound}}
+
+Let $f_{ok}$ be the density for the true $k$th component distribution and let $g^{(K)}_{\star}(x) =\sum_{\ell=1}^{\numcomps}\eta^{(\numcomps)}_{\star\ell}f^{(\numcomps)}_{\star\ell}(x)$.
+%Consider the definition of $\widetilde{F}_{k}(\dee x)$.
+It follows from \cref{assump:model-conditions}(a) that
+\begin{align}
+	\widetilde{F}_{k}(\dee x) & = \frac{q_{\star}^{(\numcomps_{o})}(k \mid x)P_o(\dee x) }{\int q_{\star}^{(\numcomps_{o})}(k \mid y)P_o(\dee y)} \label{appx-eq:phat-def}  = f^{(\numcomps_{o})}_{\opt k}(x) \frac{\sum_{\ell=1}^{\numcomps_{o}}\eta_{ok}F_{o\ell}(\dee x)}{\sum_{\ell=1}^{\numcomps_{o}}\eta^{(\numcomps_{o})}_{o \ell} f^{(\numcomps_{o})}_{\opt\ell}(x)}.
+\end{align}
+We can rewrite $\widetilde{F}_{k}(\dee x) $ in terms of the ratios $q_{\star}^{(\numcomps_{o})}(k \mid x)/q_{o}(k \mid x)$ and $\eta_{ok}/\eta^{(\numcomps_{o})}_{\star k}$:
+\begin{align}
+	\widetilde{F}_{k}(\dee x) & =  \frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}}\cdot  \frac{\eta^{(\numcomps_{o})}_{\star k}f_{\star k}^{(\numcomps_{o})}(x)}{\eta_{ok}f_{ok}(x)}\cdot \frac{\sum_{\ell=1}^{\numcomps_{o}}\eta_{ok}p_{o\ell}(x)}{\sum_{\ell=1}^{\numcomps_{o}}\eta^{(\numcomps_{o})}_{\star \ell}f_{\star \ell}^{(\numcomps_{o})}(x)}\cdot F_{ok}(\dee x). \\
+	                      & = \frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}} \cdot \frac{\eta^{(\numcomps_{o})}_{\star k}f_{\star k}^{(\numcomps_{o})}(x)}{\sum_{\ell=1}^{\numcomps_{o}}\eta^{(\numcomps_{o})}_{\star \ell}f_{\star \ell}^{(\numcomps_{o})}(x)} \cdot \frac{\sum_{\ell=1}^{\numcomps_{o}}\eta_{ok}p_{o\ell}(x)}{\eta_{ok}f_{ok}(x)}\cdot F_{ok}(\dee x)  \\
+	                      & = \frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}}\cdot \frac{q_{\star}^{(\numcomps_{o})}(k \mid x)}{q_{o}(k \mid x)}\cdot F_{ok}(\dee x) \label{eq:rewrite-phat-k}
+\end{align}
+To bound $\kl{\widetilde{F}_{k}}{F^{(\numcomps_{o})}_{\opt k}}$, we plug in the expression for $	\widetilde{F}_{k}(\dee x)$ in \cref{eq:rewrite-phat-k} and get
+\begin{align}
+	\kl{\widetilde{F}_{k}}{F^{(\numcomps_{o})}_{\opt k} } & = \int \widetilde{F}_{k}(\dee x)\log\frac{d \widetilde{F}_{k}}{dF_{\phi^{\opt}_{k}}}(x)      \\
+	    & = \int \frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}}\cdot \frac{q_{\star}^{(\numcomps_{o})}(k \mid x)}{q_{o}(k \mid x)}\\
+	    & \qquad \times \bigg\{\log\frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}} + \log\frac{q_{\star}^{(\numcomps_{o})}(k \mid x)}{q_{o}(k \mid x)} + \log\frac{dF_{ok}}{dF^{(\numcomps_{o})}_{\opt k}}(x)    \bigg\}  F_{ok}(\dee x)  \\
+	   & \le (1+\varepsilon_{\eta})(1+\varepsilon_{z})\bigg\{\int \log \left(1+\varepsilon_{\eta})(1+\varepsilon_{z}\right) F_{ok}(\dee x)  \label{ineq:use-ration-assump1}  \\
+	  & \phantom{\le (1+\varepsilon_{\eta})(1+\varepsilon_{z})\bigg\{~}  + \int  \log\frac{dF_{ok}}{dF^{(\numcomps_{o})}_{\opt k}}(x)  F_{ok}(\dee x)   \bigg\}   \\
+	   & < (1+\varepsilon_{\eta})(1+\varepsilon_{z})\left\{\log (1+\varepsilon_{\eta})(1+\varepsilon_{z}) + \kl{F_{ok}}{F^{(\numcomps_{o})}_{\opt k}}  \right\}  \label{ineq:use-ration-assump2}                                                               \\
+	  & < (1+\varepsilon_{\eta})(1+\varepsilon_{z})\left\{\log (1+\varepsilon_{\eta})(1+\varepsilon_{z}) + \rho_o\right\} \label{ineq:use-kl-assump},
+\end{align}
+where \cref{ineq:use-ration-assump1,ineq:use-ration-assump2} follow by applying the assumptions on the weight ratio and posterior probability ratio and \cref{ineq:use-kl-assump} follows by the upper bound on $\kl{F_{ok}}{F^{(\numcomps_{o})}_{\opt k}}$. Hence, we may set $\rho = (1+\varepsilon_{\eta})(1+\varepsilon_{z})\left[\log (1+\varepsilon_{\eta})(1+\varepsilon_{z}) + \rho_o \right]$.
+
+\subsection{Proof of \cref{prop:IPM-metric-upper-bound}}
+%Let $(\mathcal{X}, d)$ be a metric space and let $P$, $Q$ be two Borel probability measures defined on $\mathcal{X}$.
+%	Let $\mcH$ denote the class of all bounded functions. 
+It follows by the triangle inequality, \cref{eq:rewrite-phat-k}, H\"older's inequality, and the assumption that all $h \in \mcH$ are bounded by $M$ that
+\begin{align}
+	d_{\mcH}(\widetilde{F}_{k},F^{(\numcomps_{o})}_{\opt k})                                                                                                                                                                                         
+	 & \le d_{\mcH}(\widetilde{F}_{k},F_{ok}) + d_{\mcH}(F_{ok},F^{(\numcomps_{o})}_{\opt k})                                                                                                                                                                  \\
+	 & \le d_{\mcH}\left(\frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}} \frac{q_{\star}^{(\numcomps_{o})}(k \mid x)}{q_{o}(k \mid x)} F_{ok},F_{ok}\right) + \rho_{o}                                                                                    \\
+	 & = \sup_{h\in \mcH} \left\vert \int h(x) \frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}} \frac{q_{\star}^{(\numcomps_{o})}(k \mid x)}{q_{o}(k \mid x)} F_{ok}(\dee x) - \int h(y) F_{ok}(\dee y)   \right\vert
+	+ \rho_{o}                                                                                                                                                                                                                                             \\
+	 & =  \sup_{h\in \mcH} \left\vert \int \left(\frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}} \frac{q_{\star}^{(\numcomps_{o})}(k \mid x)}{q_{o}(k \mid x)}-1\right) h(x) F_{ok}(\dee x)   \right\vert
+	+ \rho_{o}                                                                                                                                                                                                                                             \\
+	 & \le \int F_{ok}(\dee x)\cdot  \sup_{h\in \mcH} \sup_{x \in \mcX} \left\vert  h(x)   \right\vert \left\vert \frac{\eta_{ok}}{\eta^{(\numcomps_{o})}_{\star k}} \frac{q_{\star}^{(\numcomps_{o})}(k \mid x)}{q_{o}(k \mid x)}-1 \right\vert  + \rho_{o} \\
+	% & \le \sup_{f\in \mathcal{F}_{BL}} \left\vert \int \big((1+\varepsilon_{z})(1+\varepsilon_{\eta})-1\big) f(x) F_{ok}(\dee x)   \right\vert
+	% + \rho_{o} \\
+	 & \le M \left(\varepsilon_{\eta}+\varepsilon_{z}+\varepsilon_{\eta}\varepsilon_{z}\right)
+	+ \rho_{o}.
+\end{align}
+Hence, we may take $\rho = M\left(\varepsilon_{\eta}+\varepsilon_{z}+\varepsilon_{\eta}\varepsilon_{z}\right)  +\rho_{o}$.
+
+\end{comment}
+
+\section{Robust Consistency for Probabilistic Matrix Factorization} \label{sec:PMF-consistency-proof}
+
+
 
 % \begin{theorem}
 % 	Let $\widehat{K}^{(N)}(\rho)=\argmin_{K}\mathcal{R}^{\rho,\lambda}\lrp{\widehat{G}^{(K,N)}_{1:K}}$ be the output of \cref{algo:model-selection-general}.
@@ -784,7 +813,7 @@ in the proof of \cref{thm:main}.
 
 \paragraph{Proof of part (1).} 
 If $K=K_{o}$, then it follows from \cref{assump:metric-discr-conditions}(c,d) and \cref{assump:consistency} that $\widehat{\mathcal{D}}\lrp{\widehat{G}^{(K_{o},N)}_{k},G}\to\mathcal{D}\lrp{G^{(K_{o})}_{\star}, G}$ in probability.
-Hence, it follows from \cref{assump:data_regular}$(a)$ that there exists $\varepsilon>0$ such that
+Hence, it follows that there exists $\varepsilon>0$ such that
 \[
 	\widehat{\mathcal{D}}\lrp{\widehat{G}^{(K_{o},N)}_{k},G}<\rho-\varepsilon+o_{P}(1).
 \]
@@ -800,14 +829,14 @@ $\lim_{N\to\infty}\Pr\lrc{\mathcal{R}^{\rho}\lrp{\widehat{G}^{(K,N)}_{1:K}}=0}=1
 \paragraph{Proof of part (2).} Consider the case of $K<K_{o}$.
 We have
 \[
-	d(\datadist,P^{(K)}_{\star})&\leq d\lrp{\datadist,\widehat{P}^{(K,N)}}+d\lrp{\widehat{P}^{(K,N)},P^{(K)}_{\star}}\\
-	&\leq d\lrp{\datadist,\widehat{P}^{(K,N)}}+d\lrp{\widehat{P}^{(K,N)},\check{P}^{(K,N)}}+d\lrp{\check{P}^{(K,N)},P^{(K)}_{\star}}\\
-	&=o_{P}(1)+d\lrp{\widehat{P}^{(K,N)},\check{P}^{(K,N)}}
-  +d\lrp{\check{P}^{(K,N)},P^{(K)}_{\star}}\label{eq:follows_assump1a}\\
-	&\leq\kappa\lrp{ \widehat{\mathcal{D}}\lrp{\widehat{P}^{(K,N)},\check{P}^{(K,N)}}+o_{P}(1)}
-	+\kappa\lrp{\mathcal{D}\lrp{\check{P}^{(K,N)},P^{(K)}_{\star}}}+o_{P}(1)\\
-	&\leq\kappa\lrp{ \widehat{\mathcal{D}}\lrp{\widehat{Q}^{(K,N)},\check{Q}^{(K,N)}}}
-	+\kappa\lrp{\mathcal{D}\lrp{\check{Q}^{(K,N)},Q^{(K)}_{\star}}}+o_{P}(1).\label{eq:main_ineq}
+	\distDisc(\datadist,P^{(K)}_{\star})&\leq \distDisc\lrp{\datadist,\widehat{P}^{(K,N)}}+\distDisc\lrp{\widehat{P}^{(K,N)},P^{(K)}_{\star}}\\
+	&\leq \distDisc\lrp{\datadist,\widehat{P}^{(K,N)}}+\distDisc\lrp{\widehat{P}^{(K,N)},\check{P}^{(K,N)}}+\distDisc\lrp{\check{P}^{(K,N)},P^{(K)}_{\star}}\\
+	&=o_{P}(1)+\distDisc\lrp{\widehat{P}^{(K,N)},\check{P}^{(K,N)}}
+  +\distDisc\lrp{\check{P}^{(K,N)},P^{(K)}_{\star}}\label{eq:follows_assump1a}\\
+	&\leq\widetilde{\kappa}\lrp{ \widehat{\mathcal{D}}\lrp{\widehat{P}^{(K,N)},\check{P}^{(K,N)}}+o_{P}(1)}
+	+\widetilde{\kappa}\lrp{\mathcal{D}\lrp{\check{P}^{(K,N)},P^{(K)}_{\star}}}+o_{P}(1)\\
+	&\leq\widetilde{\kappa}\lrp{ \widehat{\mathcal{D}}\lrp{\widehat{Q}^{(K,N)},\check{Q}^{(K,N)}}}
+	+\widetilde{\kappa}\lrp{\mathcal{D}\lrp{\check{Q}^{(K,N)},Q^{(K)}_{\star}}}+o_{P}(1).\label{eq:main_ineq}
 \]
 where \cref{eq:follows_assump1a} follows from \cref{assump:metric-discr-conditions}(a).
 A bound on $\widehat{\mathcal{D}}\lrp{\widehat{Q}^{(K,N)},\check{Q}^{(K,N)}}$ is given by
@@ -830,9 +859,9 @@ where \cref{eq:follows-convex-KL} follows from the fact that the KL divergence i
 and \cref{eq:follows-KL-invariance} follows from the fact that KL divergence is invariant under diffeomorphism. 
 With this we bound
 \[
-  \kappa\lrp{\mathcal{D}\lrp{\widehat{Q}^{(K,N)},\check{Q}^{(K,N)}}}
-  &\leq\kappa\lrp{\sum_{k}\mathcal{D}\lrp{\widehat{G}^{(K,N)}_{k},G}+o_{P}(1)}\\ 
-  &\leq\kappa\lrp{\sum_{k}\mathcal{D}\lrp{\widehat{G}^{(K,N)}_{k},G}}+o_{P}(1).
+  \widetilde{\kappa}\lrp{\mathcal{D}\lrp{\widehat{Q}^{(K,N)},\check{Q}^{(K,N)}}}
+  &\leq\widetilde{\kappa}\lrp{\sum_{k}\mathcal{D}\lrp{\widehat{G}^{(K,N)}_{k},G}+o_{P}(1)}\\ 
+  &\leq\widetilde{\kappa}\lrp{\sum_{k}\mathcal{D}\lrp{\widehat{G}^{(K,N)}_{k},G}}+o_{P}(1).
   \label{eq:subbound_1}
 \]
 % Expanding certain parts of the term $\mathcal{D}\lrp{\check{P}^{({y},K)},Q^{(K)}_{\star}}$
@@ -848,23 +877,23 @@ With this we bound
 Next we will bound $\mathcal{D}\lrp{\check{Q}^{(K,N)},Q^{(K)}_{\star}}$. 
 For the chi-squared distance $D_{\chi^2}(P,Q) = \int \frac{(P(x) - Q(x))^2}{Q(x)} \, dx$ \citep{cover2006elements}, we have that
 \begin{align}
-\lefteqn{\mathbb{E}_{h\{1:N\}} \left[ D_{\chi^2}\left( \check{Q}^{(K,N)}, Q^{(K)}_{\star} \right) \right]} \\
-&= \mathbb{E}_{h\{1:N\}} \left[ \int_{\mathcal{X}^{\otimes K}_{D}} \frac{(\check{Q}^{(K,N)} - Q^{(K)}_{\star})^2}{Q^{(K)}_{\star}} \, d y_{1:K} \right] \\
+\lefteqn{\mathbb{E}_{h_{1:N}} \left[ D_{\chi^2}\left( \check{Q}^{(K,N)}, Q^{(K)}_{\star} \right) \right]} \\
+&= \mathbb{E}_{h_{1:N}} \left[ \int_{\mathcal{X}^{\otimes K}_{D}} \frac{(\check{Q}^{(K,N)} - Q^{(K)}_{\star})^2}{Q^{(K)}_{\star}} \, d y_{1:K} \right] \\
 %
-&= \int_{\mathcal{X}^{\otimes K}_{D}} \mathbb{E}_{h\{1:N\}} \left[ \frac{(\check{Q}^{(K,N)} - Q^{(K)}_{\star})^2}{Q^{(K)}_{\star}} \right] d y_{1:K} 
+&= \int_{\mathcal{X}^{\otimes K}_{D}} \mathbb{E}_{h_{1:N}} \left[ \frac{(\check{Q}^{(K,N)} - Q^{(K)}_{\star})^2}{Q^{(K)}_{\star}} \right] d y_{1:K} 
 \quad \text{[by bounded covergence]}\\
 %
-&= \int_{\mathcal{X}^{\otimes K}_{D}} \mathbb{E}_{h\{1:N\}} \left[ \frac{(\check{Q}^{(K,N)})^2}{Q^{(K)}_{\star}} - 2\check{Q}^{(K,N)} + Q^{(K)}_{\star} \right] d y_{1:K} \\
+&= \int_{\mathcal{X}^{\otimes K}_{D}} \mathbb{E}_{h_{1:N}} \left[ \frac{(\check{Q}^{(K,N)})^2}{Q^{(K)}_{\star}} - 2\check{Q}^{(K,N)} + Q^{(K)}_{\star} \right] d y_{1:K} \\
 %
-&= \int_{\mathcal{X}^{\otimes K}_{D}} \left[ \mathbb{E}_{h\{1:N\}} \left( \frac{(\check{Q}^{(K,N)})^2}{Q^{(K)}_{\star}} \right)
+&= \int_{\mathcal{X}^{\otimes K}_{D}} \left[ \mathbb{E}_{h_{1:N}} \left( \frac{(\check{Q}^{(K,N)})^2}{Q^{(K)}_{\star}} \right)
 - 2Q^{(K)}_{\star} + Q^{(K)}_{\star} \right] d y_{1:K}
 \quad \text{[ since } \mathbb{E}[\check{Q}^{(K,N)}] = Q^{(K)}_{\star} \text{]}\\
 %
-&= \int_{\mathcal{X}^{\otimes K}_{D}} \frac{ \mathbb{E}_{h\{1:N\}} \left( (\check{Q}^{(K,N)})^2 \right) }{Q^{(K)}_{\star}} - Q^{(K)}_{\star}\, d y_{1:K} \\
+&= \int_{\mathcal{X}^{\otimes K}_{D}} \frac{ \mathbb{E}_{h_{1:N}} \left( (\check{Q}^{(K,N)})^2 \right) }{Q^{(K)}_{\star}} - Q^{(K)}_{\star}\, d y_{1:K} \\
 %
-&= \int_{\mathcal{X}^{\otimes K}_{D}} \frac{ \operatorname{Var}_{h\{1:N\}}(\check{Q}^{(K,N)}) + \left( \mathbb{E}_{h\{1:N\}} \check{Q}^{(K,N)} \right)^2 }{Q^{(K)}_{\star}}- Q^{(K)}_{\star} \, d y_{1:K} \\
+&= \int_{\mathcal{X}^{\otimes K}_{D}} \frac{ \operatorname{Var}_{h_{1:N}}(\check{Q}^{(K,N)}) + \left( \mathbb{E}_{h_{1:N}} \check{Q}^{(K,N)} \right)^2 }{Q^{(K)}_{\star}}- Q^{(K)}_{\star} \, d y_{1:K} \\
 %
-&= \int_{\mathcal{X}^{\otimes K}_{D}} \frac{ \operatorname{Var}_{h\{1:N\}}(\check{Q}^{(K,N)}) }{ Q^{(K)}_{\star} } d y_{1:K}\\
+&= \int_{\mathcal{X}^{\otimes K}_{D}} \frac{ \operatorname{Var}_{h_{1:N}}(\check{Q}^{(K,N)}) }{ Q^{(K)}_{\star} } d y_{1:K}\\
 %
 &= \frac{1}{N} \int_{\mathcal{X}^{\otimes K}_{D}} \frac{ \Var_{z_{1:K}\sim H^{(K)}_{\star}}\lrp{Q^{(K)}_{\star}({y}_{1:K}\mid z_{1:K})}}
 { Q^{(K)}_{\star} } d y_{1:K}
@@ -886,18 +915,18 @@ Together with \cref{assump:sample_approx_able}, it follows that
 \]
 and therefore
 \[
-	\kappa\lrp{\mathcal{D}\lrp{\check{Q}^{(K,N)},Q^{(K)}_{\star}}}\leq\kappa\lrp{o_{P}(1)}
+	\widetilde{\kappa}\lrp{\mathcal{D}\lrp{\check{Q}^{(K,N)},Q^{(K)}_{\star}}}\leq\widetilde{\kappa}\lrp{o_{P}(1)}
 	\leq o_{P}(1).\label{eq:subbound_2}
 \]
 Using \cref{eq:subbound_1,eq:subbound_2}, we rewrite \cref{eq:main_ineq} as
 \[
-	d(\datadist,P^{(K)}_{\star})&\leq\kappa\lrp{\sum_{k}\widehat{\mathcal{D}}\lrp{\widehat{G}^{(K,N)}_{k},G}}+o_{P}(1).
+	\distDisc(\datadist,P^{(K)}_{\star})&\leq\widetilde{\kappa}\lrp{\sum_{k}\widehat{\mathcal{D}}\lrp{\widehat{G}^{(K,N)}_{k},G}}+o_{P}(1).
 \]
-By \cref{assump:data_regular}(b), we have
+Therefore, under the conditions for $\kappa$-robust consistency, we are guaranteed that 
 \[
-  \kappa(K\rho)\leq\kappa\lrp{\sum_{k}\widehat{\mathcal{D}}\lrp{\widehat{G}^{(K,N)}_{k},G}}+o_{P}(1).
+  \widetilde{\kappa}(K\rho)\leq\widetilde{\kappa}\lrp{\sum_{k}\widehat{\mathcal{D}}\lrp{\widehat{G}^{(K,N)}_{k},G}}+o_{P}(1).
 \]
-Because $\kappa$ is monotonic,
+Because $\widetilde{\kappa}$ is monotonic,
 \[
   K\rho\leq\sum_{k}\widehat{\mathcal{D}}\lrp{\widehat{G}^{(K,N)}_{k},G}+o_{P}(1).
 \]
@@ -910,6 +939,110 @@ This holds if and only if there exists $\ell\in\lrc{1,\dots,K}$ such that $\math
   &\to \infty
 \]
 where \cref{eq:follow1c} follows from \cref{assump:metric-discr-conditions}(c).
+
+\subsection{Verifying \cref{assump:sample_approx_able} for Applications} \label{sec:sample_approx_able_example}
+
+We show that \cref{assump:sample_approx_able} holds for both the PMF models used for the experiments in \cref{sec:experiments}. 
+% Although the assumption is stated in terms of the full sequence $y_{1:K}$, 
+It is sufficient to verify the assumption for a single element $y_{nk}$ since the variance and integrability conditions can often be checked component-wise.
+Hence, we drop the dependence on $n$ and $k$ in our notation. 
+
+\subsubsection{Poisson PMF}
+
+Consider the Poisson model with  $y \sim \distPoiss(\lambda)$ and $\lambda = W h$.
+For convenience, we assume $h \sim \distGamma(\alpha, \beta)$.
+%so
+To compute the first and second moments of 
+\[
+  P(y\mid h) = \frac{(W h)^{y} e^{-W h}}{y!},
+\]
+we will use the identity
+$\Gamma(z) = \int_0^\infty t^{z-1} e^{-t} \, \d t$ and integration by substitution.
+For the first moment we have 
+\begin{align}
+\mathbb{E}_{h}\bigl[P(y\mid h)\bigr]
+  &= \int_{0}^{\infty} \frac{(W h)^{y} e^{-W h}}{y!}
+     \;\frac{\beta^{\alpha}}{\Gamma(\alpha)} h^{\alpha-1} e^{-\beta h} \, \mathrm{d}h\\[6pt]
+  &= \frac{W^{y} \beta^{\alpha}}{y!\,\Gamma(\alpha)}
+     \int_{0}^{\infty} h^{y+\alpha-1} e^{-(W+\beta)h} \, \mathrm{d}h\\[6pt]
+  &= \frac{W^{y} \beta^{\alpha}\,\Gamma(y+\alpha)}{y!\,\Gamma(\alpha)(W+\beta)^{y+\alpha}},
+\end{align}
+while the second moment is 
+\begin{align}
+\mathbb{E}_{h}\bigl[P^{2}(y\mid h)\bigr]
+  &= \int_{0}^{\infty} \frac{(W h)^{2y} e^{-2 W h}}{(y!)^{2}}
+     \;\frac{\beta^{\alpha}}{\Gamma(\alpha)} h^{\alpha-1} e^{-\beta h} \, \mathrm{d}h\\[6pt]
+  &= \frac{W^{2y} \beta^{\alpha}}{\Gamma(\alpha)(y!)^{2}}
+     \int_{0}^{\infty} h^{2y+\alpha-1} e^{-(2W+\beta)h} \, \mathrm{d}h\\[6pt]
+  &= \frac{W^{2y} \beta^{\alpha}\, \Gamma(2y+\alpha)}{\Gamma(\alpha)(y!)^{2}(2W+\beta)^{2y+\alpha}}.
+\end{align}
+% 
+Taking the ratio of the second to the first moment, define 
+\[
+  C(y) = \frac{\mathbb{E}_{h}[P^{2}(y\mid h)]}{\mathbb{E}_{h}[P(y\mid h)]}
+         = \frac{W^{y} \, \Gamma(2y+\alpha)}{y!\,\Gamma(y+\alpha)}
+           \left(\frac{W+\beta}{2W+\beta}\right)^{y+\alpha}
+           \cdot\left(\frac{1}{2W+\beta}\right)^{y},
+\]
+which is continuous and finite for all $y \in \nats$. 
+Now, using Stirling's approximation
+$ \Gamma(z) \sim \sqrt{2\pi}\, z^{z-1/2} e^{-z},$ we have
+\begin{align}
+    \frac{\Gamma(2y+\alpha)}{y!\,\Gamma(y+\alpha)} &\sim
+    \frac{(2y)^{2y+\alpha-1/2} e^{-2y}}{\sqrt{2\pi}\,y^{y+\alpha-1/2} e^{-y}\cdot \sqrt{2\pi}\,y^{y+1/2} e^{-y}}
+    \sim \frac{2^{2y+\alpha}}{\sqrt{\pi y}}.
+\end{align}
+Substituting into $C(y)$ yields
+\begin{align}
+C(y)
+ &\sim \frac{W^{y}}{\sqrt{\pi y}}
+        \left(\frac{W+\beta}{2W+\beta}\right)^{\alpha}
+        \left(\frac{W+\beta}{2W+\beta}\right)^{y}
+        \left(\frac{1}{2W+\beta}\right)^{y}
+        2^{2y}\\
+ &\sim \frac{1}{\sqrt{\pi y}}
+        \left(\frac{W+\beta}{2W+\beta}\right)^{\alpha}
+        \left(\frac{2^2W(W+\beta)}{(2W+\beta)^2}\right)^{y}\\
+ &\sim \frac{1}{\sqrt{\pi y}}
+        \left(\frac{4W^2+4W\beta}{4W^2+\beta^2+4W\beta}\right)^{y}.      
+\end{align}
+Because $0<\frac{4W^2+4W\beta}{4W^2+\beta^2+4W\beta} < 1$, the ratio $C(y)$ decays exponentially as $y \to \infty$, 
+hence $\sum_{y=0}^{\infty} C(y)  <\infty$.
+
+\subsubsection{Gaussian PMF}
+
+Consider the Gaussian setting $y \sim \mathcal{N}(\phi h, \sigma^2)$
+and, following common practice, we let $h \sim \mathcal{N}(\mu, \tau^2)$. 
+To compute the moments of $p(y \mid h)$, we integrate over the latent variable $h$ by combining the terms in the exponential, completing the square, and using the Gaussian integral identity
+$\int_{-\infty}^{\infty} e^{-(a x^2 + b x + c)} \, \dee x = \sqrt{\frac{\pi}{a}} e^{\frac{b^2}{4a} - c}.$ 
+The first moment is 
+% 
+\begin{align}
+\mathbb{E}_h [p(y \mid h)] 
+&= \int_{-\infty}^{\infty} \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(y - \phi h)^2}{2\sigma^2} \right)
+\cdot \frac{1}{\sqrt{2\pi\tau^2}} \exp\left(-\frac{(h - \mu)^2}{2\tau^2} \right) \, dh \\
+&\propto \exp\left\{ -\frac{(y - \phi \mu)^2}{2(\phi^2 \tau^2 + \sigma^2)} \right\},
+\end{align}
+while the second moment is 
+% also the moment
+\begin{align}
+\mathbb{E}_h [p(y \mid h)^2] 
+&= \int_{-\infty}^{\infty} \left( \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(y - \phi h)^2}{2\sigma^2} \right) \right)^2
+\cdot \frac{1}{\sqrt{2\pi\tau^2}} \exp\left(-\frac{(h - \mu)^2}{2\tau^2} \right) \, dh \\
+&\propto \exp\left\{ -\frac{(y - \phi \mu)^2}{2(\phi^2 \tau^2 + \frac{1}{2}\sigma^2)} \right\}.
+\end{align}
+Therefore, up to a multiplicative constant, the ratio of moments is 
+\begin{align}
+    C(y) 
+    &= \frac{\mathbb{E}_{h}[P^{2}(y\mid h)]}{\mathbb{E}_{h}[P(y\mid h)]} \\
+    &\propto \frac{ \exp\left\{ -\frac{(y - \phi \mu)^2}{2(\phi^2 \tau^2 + \frac{1}{2}\sigma^2)} \right\} }{ \exp\left\{ -\frac{(y - \phi \mu)^2}{2(\phi^2 \tau^2 + \sigma^2)} \right\} }\\
+    % &= \exp\left\{ -\frac{(y - \phi \mu)^2}{2(\phi^2 \tau^2 + \frac{1}{2}\sigma^2)} + \frac{(y - \phi \mu)^2}{2(\phi^2 \tau^2 + \sigma^2)} \right\} \\
+    &= \exp\left\{ -(y - \phi \mu)^2 \left( \frac{1}{2(\phi^2 \tau^2 + \frac{1}{2}\sigma^2)} - \frac{1}{2(\phi^2 \tau^2 + \sigma^2)} \right) \right\}.
+\end{align}
+Since $\frac{1}{2(\phi^2 \tau^2 + \frac{1}{2}\sigma^2)} > \frac{1}{2(\phi^2 \tau^2 + \sigma^2)}$, 
+we get $C(y) \propto \exp\left\{ -a (y - \phi \mu)^2 \right\}$ for some $a > 0$. Therefore,
+$C(y)$ decays exponentially as $y \to \infty$ and hence $\int C(y)\d y <\infty$.  
+
 
 
 \section{Technical Lemma}
@@ -1224,7 +1357,7 @@ we test one possible adaption in \cref{sec:high-dim-simulation} to use the $k$-n
 	\label{fig:knn-kl-est-comparison}
 \end{figure}
 
-
+\begin{comment}
 \section{Checking \cref{assump:bounded-ratios}} \label{sec:checking-assumptions}
 
 % We illustrate using a mixture of t-distributions and mixture of binomial distributions below.
@@ -1296,113 +1429,10 @@ On the other hand, it follows by the finite support for $F_{ok}$ that
 Combining \cref{eq:negbin-sec-term,eq:neg-bin-third-term} yields $\sup_x\{ p_{\star}^{(\numcomps_{o})}(k \mid x)/p_{o}(k \mid x) \}< \infty$.
 %\end{example}
 
-\section{Checking \cref{assump:sample_approx_able}}\label{sec:sample_approx_able_example}
-
-We show that \cref{assump:sample_approx_able} holds for both the PMF models used for the experiments in \cref{sec:experiments}. 
-% Although the assumption is stated in terms of the full sequence $y_{1:K}$, 
-It is sufficient to verify the assumption for a single element $y_{nk}$ since the variance and integrability conditions can often be checked component-wise.
-Hence, we drop the dependence on $n$ and $k$ in our notation. 
-
-\subsection{Poisson PMF}
-
-Consider the Poisson model with  $y \sim \distPoiss(\lambda)$ and $\lambda = W h$.
-For convenience, we assume $h \sim \distGamma(\alpha, \beta)$.
-%so
-To compute the first and second moments of 
-\[
-  P(y\mid h) = \frac{(W h)^{y} e^{-W h}}{y!},
-\]
-we will use the identity
-$\Gamma(z) = \int_0^\infty t^{z-1} e^{-t} \, \d t$ and integration by substitution.
-For the first moment we have 
-\begin{align}
-\mathbb{E}_{h}\bigl[P(y\mid h)\bigr]
-  &= \int_{0}^{\infty} \frac{(W h)^{y} e^{-W h}}{y!}
-     \;\frac{\beta^{\alpha}}{\Gamma(\alpha)} h^{\alpha-1} e^{-\beta h} \, \mathrm{d}h\\[6pt]
-  &= \frac{W^{y} \beta^{\alpha}}{y!\,\Gamma(\alpha)}
-     \int_{0}^{\infty} h^{y+\alpha-1} e^{-(W+\beta)h} \, \mathrm{d}h\\[6pt]
-  &= \frac{W^{y} \beta^{\alpha}\,\Gamma(y+\alpha)}{y!\,\Gamma(\alpha)(W+\beta)^{y+\alpha}},
-\end{align}
-while the second moment is 
-\begin{align}
-\mathbb{E}_{h}\bigl[P^{2}(y\mid h)\bigr]
-  &= \int_{0}^{\infty} \frac{(W h)^{2y} e^{-2 W h}}{(y!)^{2}}
-     \;\frac{\beta^{\alpha}}{\Gamma(\alpha)} h^{\alpha-1} e^{-\beta h} \, \mathrm{d}h\\[6pt]
-  &= \frac{W^{2y} \beta^{\alpha}}{\Gamma(\alpha)(y!)^{2}}
-     \int_{0}^{\infty} h^{2y+\alpha-1} e^{-(2W+\beta)h} \, \mathrm{d}h\\[6pt]
-  &= \frac{W^{2y} \beta^{\alpha}\, \Gamma(2y+\alpha)}{\Gamma(\alpha)(y!)^{2}(2W+\beta)^{2y+\alpha}}.
-\end{align}
-% 
-Taking the ratio of the second to the first moment, define 
-\[
-  C(y) = \frac{\mathbb{E}_{h}[P^{2}(y\mid h)]}{\mathbb{E}_{h}[P(y\mid h)]}
-         = \frac{W^{y} \, \Gamma(2y+\alpha)}{y!\,\Gamma(y+\alpha)}
-           \left(\frac{W+\beta}{2W+\beta}\right)^{y+\alpha}
-           \cdot\left(\frac{1}{2W+\beta}\right)^{y},
-\]
-which is continuous and finite for all $y \in \nats$. 
-Now, using Stirling's approximation
-$ \Gamma(z) \sim \sqrt{2\pi}\, z^{z-1/2} e^{-z},$ we have
-\begin{align}
-    \frac{\Gamma(2y+\alpha)}{y!\,\Gamma(y+\alpha)} &\sim
-    \frac{(2y)^{2y+\alpha-1/2} e^{-2y}}{\sqrt{2\pi}\,y^{y+\alpha-1/2} e^{-y}\cdot \sqrt{2\pi}\,y^{y+1/2} e^{-y}}
-    \sim \frac{2^{2y+\alpha}}{\sqrt{\pi y}}.
-\end{align}
-Substituting into $C(y)$ yields
-\begin{align}
-C(y)
- &\sim \frac{W^{y}}{\sqrt{\pi y}}
-        \left(\frac{W+\beta}{2W+\beta}\right)^{\alpha}
-        \left(\frac{W+\beta}{2W+\beta}\right)^{y}
-        \left(\frac{1}{2W+\beta}\right)^{y}
-        2^{2y}\\
- &\sim \frac{1}{\sqrt{\pi y}}
-        \left(\frac{W+\beta}{2W+\beta}\right)^{\alpha}
-        \left(\frac{2^2W(W+\beta)}{(2W+\beta)^2}\right)^{y}\\
- &\sim \frac{1}{\sqrt{\pi y}}
-        \left(\frac{4W^2+4W\beta}{4W^2+\beta^2+4W\beta}\right)^{y}.      
-\end{align}
-Because $0<\frac{4W^2+4W\beta}{4W^2+\beta^2+4W\beta} < 1$, the ratio $C(y)$ decays exponentially as $y \to \infty$, 
-hence $\sum_{y=0}^{\infty} C(y)  <\infty$.
-
-\subsection{Gaussian PMF}
-
-Consider the Gaussian setting $y \sim \mathcal{N}(\phi h, \sigma^2)$
-and, following common practice, we let $h \sim \mathcal{N}(\mu, \tau^2)$. 
-To compute the moments of $p(y \mid h)$, we integrate over the latent variable $h$ by combining the terms in the exponential, completing the square, and using the Gaussian integral identity
-$\int_{-\infty}^{\infty} e^{-(a x^2 + b x + c)} \, \dee x = \sqrt{\frac{\pi}{a}} e^{\frac{b^2}{4a} - c}.$ 
-The first moment is 
-% 
-\begin{align}
-\mathbb{E}_h [p(y \mid h)] 
-&= \int_{-\infty}^{\infty} \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(y - \phi h)^2}{2\sigma^2} \right)
-\cdot \frac{1}{\sqrt{2\pi\tau^2}} \exp\left(-\frac{(h - \mu)^2}{2\tau^2} \right) \, dh \\
-&\propto \exp\left\{ -\frac{(y - \phi \mu)^2}{2(\phi^2 \tau^2 + \sigma^2)} \right\},
-\end{align}
-while the second moment is 
-% also the moment
-\begin{align}
-\mathbb{E}_h [p(y \mid h)^2] 
-&= \int_{-\infty}^{\infty} \left( \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{(y - \phi h)^2}{2\sigma^2} \right) \right)^2
-\cdot \frac{1}{\sqrt{2\pi\tau^2}} \exp\left(-\frac{(h - \mu)^2}{2\tau^2} \right) \, dh \\
-&\propto \exp\left\{ -\frac{(y - \phi \mu)^2}{2(\phi^2 \tau^2 + \frac{1}{2}\sigma^2)} \right\}.
-\end{align}
-Therefore, up to a multiplicative constant, the ratio of moments is 
-\begin{align}
-    C(y) 
-    &= \frac{\mathbb{E}_{h}[P^{2}(y\mid h)]}{\mathbb{E}_{h}[P(y\mid h)]} \\
-    &\propto \frac{ \exp\left\{ -\frac{(y - \phi \mu)^2}{2(\phi^2 \tau^2 + \frac{1}{2}\sigma^2)} \right\} }{ \exp\left\{ -\frac{(y - \phi \mu)^2}{2(\phi^2 \tau^2 + \sigma^2)} \right\} }\\
-    % &= \exp\left\{ -\frac{(y - \phi \mu)^2}{2(\phi^2 \tau^2 + \frac{1}{2}\sigma^2)} + \frac{(y - \phi \mu)^2}{2(\phi^2 \tau^2 + \sigma^2)} \right\} \\
-    &= \exp\left\{ -(y - \phi \mu)^2 \left( \frac{1}{2(\phi^2 \tau^2 + \frac{1}{2}\sigma^2)} - \frac{1}{2(\phi^2 \tau^2 + \sigma^2)} \right) \right\}.
-\end{align}
-Since $\frac{1}{2(\phi^2 \tau^2 + \frac{1}{2}\sigma^2)} > \frac{1}{2(\phi^2 \tau^2 + \sigma^2)}$, 
-we get $C(y) \propto \exp\left\{ -a (y - \phi \mu)^2 \right\}$ for some $a > 0$. Therefore,
-$C(y)$ decays exponentially as $y \to \infty$ and hence $\int C(y)\d y <\infty$.  
-
+\end{comment}
 
 \section{Limitations of Coarsening}
-
-\PROBLEM{XXX: maybe remove?}
+\label{sec:coarsening-limitations}
 
 The following toy example illustrates how coarsening and the Bayesian information criterion can overfit even in scenarios with only a modest degree of misspecification.
 %\begin{example}[Illustration: Overfitting the Number of Mixture Model Components]
@@ -1652,7 +1682,7 @@ is able to properly trade off a worse density estimate for better model selectio
 
 
 
-\section{Reverse sampling}
+\section{Conditional Sampling for PMF Models}
 
 \subsection{Poisson NMF}
 

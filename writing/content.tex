@@ -10,31 +10,57 @@ mutational processes in tumors %(e.g., using whole genome sequencing data)
 or material types
 \citep{Fevotte_NonlinearHyperspectralUnmixing_2015,Rajabi_SpectralUnmixingHyperspectral_2015}.
 Processes can also be decision policies, such as in the case of 
-Hierarchical Reinforcement Learning (HRL) or, in the presence of expert demonstration, Hierarchical Imitation Learning (HIL), where
+\emph{Hierarchical Reinforcement Learning} (HRL) or, in the presence of expert demonstration, \emph{Hierarchical Imitation Learning} (HIL), where
 general sweeping decisions over large epochs consist of  
 smaller specific decisions on finer (more granular) epochs \citep{SUTTON1999181, Barto2003}. 
 
 While current machine learning techniques excels at prediction, a challenge remains in the 
 consistent and interpretable identification of the underlying latent structures that 
 govern observable phenomena. A lot of approaches, like HRL/HIL frameworks, 
-often rely on local search like the Expectation-Maximization (EM) algorithms. These are prone to problems such as 
+often rely on local search like the \emph{Expectation-Maximization} (EM) algorithms. These are prone to problems such as 
 slow convergence, suboptimal local optima, and sensitivity to initialization. 
-Moreover, in practice, it is necessary to not only characterize
-the latent processes, but also determine how many such processes there are. Akaike, Bayesian, and deviance information criteria \citep{Akaike:1974,Schwarz:1978,Spiegelhalter:2002} remains commonly used for such purpose due to their simplicity and ease of use. 
-However, real-world difficulties such as sparse, incomplete, or noisy data, along with imperfect modeling, 
-frequently lead to issues using these standard methods. For machine learning to be effectively adopted in high-stakes fields like healthcare, models must, in addition to being accurate, be transparent, explainable, and robust against real-world data complications and model misspecification.
+In tasks like learning from expert demonstrations, this can lead to policies that are inefficient or fail to capture the expert's true strategy.
 
-This work presents two primary contributions:
+Moreover, in practice, it is necessary to not only characterize
+the latent processes, but also determine how many such processes there are. \emph{Akaike, Bayesian, and deviance information criteria} (AIC, BIC, DIC) \citep{Akaike:1974,Schwarz:1978,Spiegelhalter:2002} remains commonly used for such purpose due to their simplicity and ease of use. However, these criteria primarily optimize for predictive performance.
+Real-world difficulties such as sparse, incomplete, or noisy data, along with imperfect model knowledge, 
+frequently lead to issues using these standard methods. 
+Model misspecification is ubiquitous in complex systems, as simplifying assumptions are often necessary 
+and the true generative process is typically unknown or too intricate to model perfectly. 
+Consequently, as sample sizes increase, BIC and similar criteria tend to select increasingly complex models, 
+adding spurious latent structures merely to better approximate the observed data, 
+rather than identifying the genuinely distinct underlying processes \citep{Cai:2021}. This overfitting hinders interpretability, 
+as the inferred structures may lack meaningful real-world correspondence, 
+leading potentially to flawed scientific conclusions or ineffective interventions.
+
+For machine learning to be effectively adopted in high-stakes fields like healthcare, models must, in addition to being accurate, be transparent, explainable, and robust against real-world data complications and model misspecification.
+
+This work addresses the problem by presenting two primary contributions:
 \begin{enumerate}
-  \item An asymptotically consistent spectral method of moments for HIL that provides direct extimation of hidden decision making policies 
-    for the Options Framework \citep{SUTTON1999181} using only one sweep through expert demonstration data. 
-    This approach, while can be used as a standalone method, also synergizes with existing EM algorithms, acting as 
-    good initialization to be refined.
-  \item The Accumulated Cutoff Discrepancy Criterion (ACDC), a novel model selection framework that robustly identifies the true number latent processes, even under model misspecification.
+  \item An asymptotically consistent spectral method of moments for HIL provides a direct, non-iterative estimation of 
+    hidden hierarchical decision-making policies within the Options Framework \citep{SUTTON1999181}. 
+    By leveraging low-order moments of observed state-action data and circumventing local search, 
+    it offers global convergence guarantees under mild conditions and 
+    requires only a single pass through the expert demonstration data. 
+    This approach can serve as a robust standalone method for policy recovery, 
+    or it can synergize effectively with existing EM algorithms by providing a high-quality initialization, 
+    thereby mitigating the risk of convergence to poor local optima.
+  \item The \emph{Accumulated Cutoff Discrepancy Criterion} (ACDC), a novel, general-purpose model selection framework 
+    designed explicitly to identify the true number of latent processes, even when the assumed model family is misspecified. 
+    ACDC shifts the focus from predictive accuracy to explanatory power by incorporating a 
+    cutoff discrepancy threshold at the component level. This mechanism prevents the criterion from 
+    rewarding the addition of spurious components that only capture minor data deviations or noise, 
+    thereby directly combating the overfitting problem common to BIC/AIC in misspecified settings. 
+    It provides robust model selection consistency under intuitive assumptions for broad model classes.
 \end{enumerate}
-Collectively, these contributions aim to provide valuable alternative and complementary methods for applying machine learning in high-stakes situations.
+Collectively, these contributions aim to provide valuable alternative and complementary methods for applying machine learning 
+in high-stakes situations. Continue on, \cref{chap:Spectral_HIL} will provide details to 
+the spectral HIL method, including relevant background and related works. 
+\cref{chap:ACDC} will similarly provide the background and details to the ACDC. 
+Finally, \cref{chap:discussion} will discuss the limitations of the proposed methods and the way forward.
+
  
-\chapter{Spectral method of moments for Hierarchical Imitation Learning}
+\chapter{Spectral method of moments for Hierarchical Imitation Learning}\label{chap:Spectral_HIL}
 \section{Introduction}
 \label{sec:introduction}
 In the literature, the problem of discovering suitable abstractions has been tackled both separately and in conjunction (in a single end-to-end process) with learning the optimal policy \citep{Barto2003}.
@@ -605,23 +631,62 @@ We developed a novel method of moments for Hierarchical Imitation Learning (HIL)
 Our method of moments for HIL is based on similar methods for HMMs and other latent variable models, and avoids the local convergence issues inherent in previous Expectation-Maximization (EM) approaches to HIL.
 Future work could include further relaxation of the conditions under which the method holds and examining its extension to situations in which the options form a semi-Markov (rather than a Markov) process.
 
-\chapter{Accumulated Cutoff Discrepancy Criterion}
+\chapter{Accumulated Cutoff Discrepancy Criterion}\label{chap:ACDC}
+
 \section{Introduction}
 \label{sec:intro}
 
-Characterizing latent structures with meaningful real-world interpretations is a central task in statistics.
-In scientific applications, this task often amounts to discovering unobserved physical ``processes'' that generate observable quantities.
+%\subsection{Learning latent causes}
+
+% \begin{itemize}
+%     \item Frequently encounter situations in which we would like to discover unobserved processes that generated observations. 
+%     \item Example 1: mixture models
+%     \item Example 2: probabilistic factor analysis 
+%     \item Problem: typically, we need to not only characterize each process but also determine the number of unobserved processes 
+%     \item Can view this as a model selection problem 
+%     \item Problem: even slight misspecification of the model can lead to overfitting 
+%     \item Goal: model selection method that is \emph{robustly consistent}: if true data-generating process is close to model, want $\Pr[\widehat K = K_o] \to 1$ as number of samples $\to \infty$. 
+% \end{itemize}
+
+%Learning latent structures with real-world interpretations is a commonly encountered task. 
+Characterizing latent structures with meaningful real-world interpretations is a common task in scientific applications of statistical methods.
+This task often amounts to discovering unobserved physical ``processes'' that generate observable quantities.
 %To be concrete, consider two common classes of models aimed at the discovery of latent processes (although our setting and methods will be more general. 
+For example, processes might correspond to subpopulations that cannot be directly observed such as
+types of cells \citep{Gorsky:2020,Prabhakaran:2016}, behavioral genotypes \citep{Stevens:2019}, or
+groups with canonical patterns of IQ development \citep{Bauer:2007}.
+Processes could correspond to a variety of scientifically important objects such cell programs \citep{Kotliar_Identify_Cell_Idendity_Activity_NMF_2019,Buettner_FscLVM_ScalableVersatile_FA_2017,Risso_General_Flexible_Signal_Extract_2018},
+mutational processes in tumors %(e.g., using whole genome sequencing data) 
+\citep{Levitin_DeNovo_Gene_Signature_Identification_2019,Kinker_Pan_Cancer_2020,Seplyarskiy_PopulationSequencingData_2021},
+or material types
+%on the ground that observed using a remote sensing platform such as a drone or satellite %(e.g., from hyperspectral data) 
+\citep{Fevotte_NonlinearHyperspectralUnmixing_2015,Rajabi_SpectralUnmixingHyperspectral_2015}.
+% Latent  discovery is typically carried out using familiar models such as mixture and latent class models, probabilistic matrix factorization and factor analysis models, and generalized bilinear models. 
+%For example, mixture models are used to discover unobserved subpopulations
+%There is a wide range of areas that mixture models provide invaluable insights, including 
+%such as cell types %(e.g., using single-cell assays) 
+%,  %(e.g., using gene expression data) 
+%, and ;
+% and much more  \citep{Greenspan:2006,Adelino:2007,Ghorbani:2016}. 
+%Further examples include disease recognition \citep{Greenspan:2006,Adelino:2007,Ghorbani:2016}, anomaly detection  \citep{Zong:2018},
+%and discovery of abnormal heart rhythm types \citep{Ghorbani:2016}.
+%In the mixture modeling case, each observation is associated with a single latent process (i.e., type).
+%are used to discover  %(e.g., using gene expression data) 
+%,
+%;
+%\NA{while and generalized bilinear models can serve similar functions while also incorporating covariates and other structured...}\PROBLEM{TODO: finish this}
+%%and, in recent years, deep generative models have been used for similar purposes
+%%\citep{Moran_IdentifiableDeepGenerative_2022}.
 
 In practice, it is necessary to not only characterize each latent process but also determine \emph{how many} such processes there are.
 This requires solving a model selection problem for a sequence of model families $\model{K} = \{ P_\theta : \theta \in \Theta_K\}$, $K = 1, 2, \dots,$ where $K$ denotes the number of latent processes in the model.
 For example, $K$ could be the number of components in a mixture model or the number of factors in a factor analysis model.
 Given some observed data $\data{1},\dots, \data{N} \distiid P_o$ that were generated by the output of $K_{o}$ latent processes,
 the goal is to recover $K_{o}$ and a model $\widetilde{P}_o \in \model{K_{o}}$ such that $\widetilde{P}_o  \approx P_{o}$.
-Standard frequentist and Bayesian model selection methods provide consistent estimation of $K_o$ when $\model{K_o}$ is \emph{well-specified} (that is, $P_o \in \model{K_o}$ but $P_o \notin \model{K}$ if $K < K_o$).
-However, if $\model{K_o}$ is \emph{misspecified} (that is, $P_o \notin \model{K_o}$), then standard methods do not work as intended
+Likelihood-based model selection methods provide consistent estimation of $K_o$ when $\model{K_o}$ is \emph{well-specified} (that is, $P_o \in \model{K_o}$ but $P_o \notin \model{K}$ if $K < K_o$).
+However, if $\model{K_o}$ is \emph{misspecified} (that is, $P_o \notin \model{K_o}$), then these methods do not work as intended
 \citep{Cai:2021,Guha:2021,Fruhwurth:2006,Miller:2019,Xue:2024}.
-The reason for this failure is that these methods optimize for some measure of \emph{predictive performance} (e.g., some form of expected log loss).
+The reason for this failure is that they optimize for some measure of \emph{predictive performance} (e.g., some form of expected log loss).
 Therefore, as $N \to \infty$, these methods will select a sequence of models that converge to the distribution $P_\star
 	\in \model{\infty} = \bigcup_{K=1}^\infty \model{k}$ that has minimal Kullback--Leibler divergence between $P_o$ and all $P \in \model{\infty}$.
 Since typically $P_\star \notin \model{K}$ for any finite $K$, when using a predictive method for
@@ -633,13 +698,90 @@ However, when trying discover real-world processes, the statistical problem is n
 The aim is to infer meaningful constructs that capture the underlying causal structure 
 -- in this case the latent processes -- even if doing so results in a fitted model with reduced
 predictive power.
-Hence, there is a need for robust model selection procedures that can replace current defaults such as the Akaike, Bayesian, and deviance information criteria \citep{Akaike:1974,Schwarz:1978,Spiegelhalter:2002}, which remain widely used due to their simplicity and the ease with
+An alternative set of approaches are nonparametric or semi-parametric in nature. 
+With weaker assumptions, they can often be more robust.
+However, because they do not rely on parametric assumptions, they tend to be less sensitive and can underestimate the number of latent components. 
+These nonparametric methods also lack the generality of the likelihood-based approaches. 
+Hence, there is a need for robust model selection procedures that have the generality of likelihood-based methods like Akaike, Bayesian, and deviance information criteria \citep{Akaike:1974,Schwarz:1978,Spiegelhalter:2002} while
+retaining the robustness to parametric assumptions provided by the nonparametric methods. 
+Notably, information criteria remain widely used due to their simplicity and the ease with
 which they can be incorporated into data analysis workflows -- for example, when a user wants to use an existing (perhaps specialized) method to estimate the parameters of each model $\model{K}$ ($K = 1, 2, \dots$).
-We defer a more detailed discussion of related work until after we describe 
-out methodology. 
+We defer more detailed discussion of related work to \cref{sec:related-work,sec:experiments} once we have provided more context. 
+%
+%Many attempts have been developed towards turning it into a model selection problem.
+%One strategy is to treat number of clusters as an unknown parameter and construct Markov Chain Monte Carlo methods to move towards the ``best'' model (i.e. number of latent structures) inferred from its posterior distribution. 
+%Such approaches suffer from computationally inefficiency of running Markov Chain Monte Carlo (MCMC) algorithms and the complexity of designing  MCMC and priors to deal with non-identifiability (multimodality) issues and dimension matching problems while updating parameters. 
+%Two well-known models fall into this category are mixture of finite mixture models and dirichlet process mixture models. 
+%Past work has shown that these two automated learning processes contract to the true generating distribution in density estimation with large datasets \citep{Guha:2021,Nguyen:2013}. 
+%However, closeness in the overall density does not imply the closeness of the characterization for each cluster.
+%When misspecification occurs, both models exhibit different forms of misspecification.
+%It is shown that finite mixture models with true model in the support of the prior has the posterior of number of clusters diverges \citep{Cai:2021,Miller:2014}. 
+%The inconsistency of number of clusters appears in Dirichlet process mixture models which assume infinite many clusters and inherently introduces misspecification if data is generated from finite mixtures. 
+
+%From a theoretical perspective, such erroneous number of clusters closely relates to the identifiability issues of the mixture model \citep{Celeux:2018} and arises for both frequentist and Bayesian mixture modeling procedures \citep{Liu:2003,Mena:2015}. 
+
+%
+%From a frequentist point of view, identifying number of latent structures turns into a model selection problem. 
+%Many attempts have been developed towards modifying the likelihood ratio tests \citep{Gassiat:2002,McLachlan:1987,Schnatter:2006}. 
+%However, conducting hypotheses to select number of components in mixture models is ill-posed. 
+%%The mixture models under comparison are not necessarily embedded \citep{Celeux:2018}.
+%An alternative strategy is to optimize penalized likelihoods with some information criteria such as AIC \citep{Akaike:1974}, BIC \citep{Schwarz:1978} and DIC \citep{ Spiegelhalter:2002}. 
+%These information criteria achieve consistency for the number of clusters under properly defined regularity conditions that deal with the identifiability and label switching. 
+%%To deal with the identifiability issues, \citet{Dacunha-Castelle:1997} consider a locally conic parameterization and show consistency of number of components.
+%Their theory also assumes that the sampling distribution is within the posited model class. 
+%However, these assumptions are satisfied at a cost of either failing most mixture models or producing very unstable behaviors with real data examples due to misspecification \citep{Celeux:2006,Roeder:1997,Keribin:2000}. 
+%%With this regard, users tend to resort to the more flexible Bayesian methods.
+%
+
+%Bayesian approaches view the number of latent structures as a unknown parameter and assign it with a prior distribution to provide inferences. 
+%Two common ways to formulate priors are the mixture of finite mixtures models and Dirichlet process mixture models. 
+%These two automated learning processes for number of clusters are shown to obtain a model that contracts to the true generating distribution with large enough datasets \citep{Guha:2021,Nguyen:2013}. 
+%They also show that under misspecification, the convergence still holds at a slower rate assuming some identifiability conditions on the true distribution. 
+%However, closeness in the overall density does not imply the closeness of the characterization for each cluster.
+%When misspecification is presented, it turns out that both models contract to the true density at a cost of pushing the number of clusters to the supremum of the support of likelihoods and thus losing power in detecting correct patterns for each cluster  \citep{Cai:2021,Miller:2014}. 
+%It results in a situation that multiple model components are used to represent one true cluster, which contradicts the goal of cluster analysis that observations behave similarly should be grouped into one cluster. 
+%This is known as \emph{overfitting}. 
+%Unfortunately, such missepcification cannot be circumvented in practice due to the lack of the knowledge of the true distribution. 
+%%It is common for practitioners to apply a DPMM to data generated from finite mixtures, or assume erroneous likelihoods for each cluster in MFMs while modeling. 
+
+ %as the following example shows: 
+%imposing the robustness threshold on the \emph{overall} model distribution does not guarantee robust model selection consistency. 
+%, 
+
+%
+%
+%Another challenge  the coarsened posterior approach to determining $\numcomps_{o}$ involves post-processing, specifically eliminating the minimal clusters.
+% however contributing significantly to the method's computational demands.
+%flexibility for the user to incorporate their belief of model misspecification. 
+%Such power posterior are flattened versions of standard posterior and hence allow extra robustness to model mismatches and tiny clusters of heterogeneity.
+%
+%Another issue with the coarsened posterior is that the coarsening is applied to the entire density, rather than on each component. 
+%Therefore, the coarsened posterior is not guaranteed to converge to the correct number of components.
+%
+%
+%
+%
+% \subsection{Related Work}
+% Another disadvantage of the coarsening approach comes from computational considerations.
+% Letting $\eta_{0}$ denote the prior density and $\alpha > 0$, the coarsened posterior is given by
+% \(
+% \eta_{\alpha}(\theta \mid \data{1:\numobs}) \propto \eta_{0}(\theta)\prod_{n=1}^{\numobs} f_{\phi}(\data{n})^{\frac{\alpha}{\numobs +\alpha}},
+% \)
+% where $\alpha$ controls the expected degree of misspecification
+% (roughly speaking, that the Kullback--Leibler divergence between the population and estimated distributions
+% is of order $1/\alpha$).
+% Selecting $\alpha$ requires a grid search over dozens or more plausible values.
+% Since a separate power posterior must be estimated for each $\alpha$ value, which typically requires using a slow Markov chain Monte Carlo algorithm,
+% the coarsened posterior has a high computational cost.
+% %$\alpha$ requires estimating a separate , which  \citep{Miller:2019}.
+%\subsection{Contributions and Paper Outline}
+%An alternative approach that endows with fast computation is to optimize penalized likelihoods with some information criteria such as AIC \citep{Akaike:1974}, BIC \citep{Schwarz:1978} and DIC \citep{ Spiegelhalter:2002}. 
+%These information criteria achieve consistency for the number of clusters under properly defined regularity conditions that deal with the identifiability and assumptions that the sampling distribution is within the posited model class.
+%However, these assumptions hold at a cost of either failing most mixture models or producing very unstable behaviors with real data examples due to misspecification \citep{Celeux:2006,Roeder:1997,Keribin:2000}. 
+%In this paper, we aim to develop a model selection method that avoids overfitting by being robust to small-to-moderate amounts of model misspecification, in the following sense (we will make this definition more precise in the next section):
 
 
-\paragraph{Contributions.}
+\paragraph{Summary of Contributions.}
 In this paper, we make the following contributions to the development of more reliable
 and robust methods for model selection for discovering real-world latent processes:
 %overcome the limitations of existing approaches:
@@ -653,7 +795,7 @@ and robust methods for model selection for discovering real-world latent process
     should satisfy. 
 	\item We propose the \emph{accumulated cutoff discrepancy criterion} (\methodname), as a simple, flexible approach to robust model selection. 
 	\item We show how to apply \methodname to a broad class of models
-	in which the observations are determined by combining (unobserved) outputs from $K$ latent processes.
+	in which the observations are determined by combining unobserved outputs from $K$ latent processes.
 	% \methodname combines ideas from minimum distance estimation and coarsening, and
 	% can incorporate expert and prior knowledge about the nature of the model misspecification.
 	%       \methodname can be used with any parameter estimation technique, so it is easy to incorporate
@@ -662,22 +804,50 @@ and robust methods for model selection for discovering real-world latent process
 	      %     which can be chosen in an application-specific manner.
 	      %    Given fitted models each possible number of components, the computational cost required to compute our criterion is determined by the cost of estimating the discrepancy measure, which is typically quite small.
 	\item We prove that \methodname provides robust model selection 
-    consistency for mixture models and probabilistic matrix factorization models, including factor analysis models. 
+    consistency for mixture models and probabilistic matrix factorization models. 
 	      %for our model class (\cref{sec:motivation}).
 	      %   We show that, under intuitive assumptions, our procedure is robustly consistent (\cref{sec:theory}), 
 	      % as illustrated in the third row of \cref{fig:motivate-comparison}.
-	\item We demonstrate the broad utility of \methodname through four numerical experiments using mixture and matrix factorization models
-	      applied to simulated and real data.\footnote{Code to reproduce all experiments is available on GitHub: \url{https://github.com/TARPS-group/robust-model-selection-for-discovery}.} % (\cref{sec:experiments}).
+	\item We illustrate the advantages of \methodname through four numerical experiments with 
+	    simulated and real data.\footnote{Code to reproduce all experiments is available on GitHub: \url{https://github.com/TARPS-group/robust-model-selection-for-discovery}.} % (\cref{sec:experiments}).
 	      % Experiments include cell type discovery using flow cytometry data and mutational process discovery using Poisson nonnegative matrix factorization.
-	      We also provide an in-depth case study that shows our criterion provides state-of-the-art clustering accuracy of single-cell RNA-seq gene expression data.
+	    A case study to the common bioinformatics task of clustering single-cell RNA-seq gene expression data
+        demonstrates \methodname provides state-of-art performance
+        compared to standard tools. 
           % ~(\cref{sec:case-study})
 	% \item We conclude in \cref{sec:discussion} with a discussion of some limitations of our approach and directions for future work.
 \end{enumerate}
 
 
+% -- in contrast to adding it on the overall model as described in \citep{Miller:2019}.  % such that the coarsening technique is applied to each component. 
+%In \cref{sec:method}, we propose a post-hoc model selection approach based on a generalized loss function that allows for a fixed amount of component-wise misspecification. 
+% Moreover, 
+% Because we employ component-wise robustness, we are able to show that, under natural conditions and for a wide variety of discrepancies,
+% including the Kullback--Leibler divergence and the maximum mean discrepancy,
+% our method identifies the number of components correctly in large datasets.
+% %We demonstrate the flexibility of our approach by providing theoretical guarantees using both the.
+% %we combine our model selection criterion with an algorithm that uses expectation--maximization to carry out computationally efficient, structurally aware mixture model inference that is robust to misspecification. 
+% %In \cref{sec:theory}, 
+% %Our loss function relies on the accuracy of the consistent estimator of the divergence in use.
+% %As the Kullback--Leibler divergence is a popular choice, we study the empirical performance of various consistent Kullback--Leibler estimators for both discrete and continuous cases in \cref{sec:kl-estimation}.
+% We validate the effectiveness and computational efficiency of our model selection criterion when using the Kullback--Leibler divergence as the discrepancy measure
+% through a combination of simulation studies and an application to cell type discovery using flow cytometry data.
+% % \cref{sec:simulation,sec:experiments}.
+
+
+
+
+%\section{Overview}
 
 \section{Methodology}
 \label{sec:methods}
+
+% We first formalize the problem of obtaining a model selection procedure that is 
+% consistent even when the models are all misspecified (\cref{sec:robust-consistency}). 
+% We call the necessary condition \emph{robust model selection consistency.} 
+% We then describe our modeling framework (\cref{sec:framework}), 
+% our proposed robust model selection method (\cref{sec:method}), and show it provides
+% robust model selection consistency. 
 
 We first define robust model selection consistency, which naturally 
 leads to a plug-in procedure, the accumulated cutoff discrepancy criterion (\methodname). 
@@ -694,13 +864,13 @@ mixture model distribution family is
 \[
 \model{K} = \textstyle \left\{ P_\theta = \sum_{k=1}^K \eta_k F_{\phi_k} : \theta = (\eta, \phi_1,\dots,\phi_K) \in \Theta^{(\numcomps)}\right\}. 
 \]
-Recall that we can also write the generative process of the mixture model in terms of
+We can also write the generative process of the mixture model in terms of
 latent variables $z_{n} \in \{1,\dots,K\}$ that indicate which component observation $n$ belongs to:
 \[
 z_n \mid \theta &\distas \distCat(\eta) &
 x_n \mid z_n = k, \theta &\distas F_{\phi_{k}}. 
 \]
-Since we are interested in isolating contribution of each component, it is this latent variable
+Since we are interested in isolating the contribution of each component, it is this latent variable
 representation that will be most relevant. 
 We discuss applications to other models in \cref{sec:framework,sec:pmf-applications}.
 
@@ -745,11 +915,15 @@ then the inferred $k$th component of $P_o$ is
 \begin{align}
 	\widetilde{F}^{(\theta)}_{ok} = \frac{p(k \mid x, \theta)}{\int p(k \mid y, \theta) P_o(\dee y)} P_o. 
 \end{align}
-Given a choice discrepancy measure $\mcD$ (e.g., $\distDisc$), we can set 
+Given a choice of discrepancy measure $\mcD$ (e.g., $\distDisc$), we can set 
 $
 \compDisc^{(K)}(\theta, k, P_{o}) = \mcD(\widetilde{F}^{(\theta)}_{ok} \mid F_{\phi_k}).
 $
 
+% The final element of the robust model selection consistency definition is a family of distributions.
+% However, each $P_o$ must also be associated with a true $K_o$ value, since this is not intrinsic to $P_o$. 
+% So, let $\mcQ_{o} \subset \mcP(\mathbb X) \times \nats$ denote a family of pairs of probability measures and their associated true number of components.
+% For any such pair $(P_{o}, K_{o}) \in \mcQ_{o}$, 
 \begin{definition}[Robust model selection consistency] \label{def:robust-consistency}
 	Fix a function $\kappa : \reals_{+} \times \nats \to \reals_{+}$. 
 	A model selection procedure $\widehat K(\data{1:N}, \rho) \in \nats$ is \emph{$\kappa$-robustly consistent for $\Theta_{\star}$ and $\compDisc$} if,
@@ -766,12 +940,12 @@ $
 %The model selection rule can depend on $\rho =  \rho(P_{o}, K_{o})$ since $\rho$ is not inferable using samples from $P_{o}$.
 To interpret \cref{def:robust-consistency} and the role of the function $\kappa$, 
 it is helpful to compare robust model selection consistency to classical model selection consistency.
-\Cref{fig:consistency-illustration} provides a cartoon illustration of the differences between the two types of consistency. 
+\Cref{fig:consistency-illustration} provides a cartoon illustration of the differences. 
 Classical model consistency typically requires that  
 (1) $P_o \in \model{K_o}$ and (2) $P_{o} \notin \model{K}$ for $K < K_o$ \PROBLEM{add citations}.
 Robust consistency weakens the first condition by allowing for a worst-case discrepancy $\rho(P_{o}, K_{o}) \ne 0$,
-whereas classical consistency would require $\rho(P_{o}, K_{o}) = 0$.
-However, robust consistency strengthens the second second by requiring a gap between $P_o$ 
+rather than needing $\rho(P_{o}, K_{o}) = 0$.
+However, robust consistency strengthens the second by requiring a gap between $P_o$ 
 and all models for $K < K_o$.
 The size of this gap specified in \cref{eq:mismatch-condition} in terms of $\kappa$. 
 Hence, we call $\kappa$ the \emph{gap function}. 
@@ -800,16 +974,25 @@ It would be natural to ask that $\kappa(\rho, K) = \rho$, although this may not 
 \end{figure}
 
 
+% \NA{\begin{example}
+% For a mixture model we would have $\compDisc^{(K)}(\theta, k, P_{o}) = \mcD(\tilde{F}_{ok}(\theta, P_{o}) \mid F_{\phi_{k}})$,
+% where my notation emphasizes that the inferred distribution for component $k$ depends on both the parameter $\theta$
+% and the true distribution $P_{o}$. 
+% This formulation would suggest using a worst-case plug-in discrepancy $\mcR^{\rho}(\hat\theta; z, x) = \max_{k \in [K]} \max\{0, \mcD(\hat{F}_{ok}(\hat\theta, z, x) \mid F_{\hat\phi_{k}}) - \rho\}$ rather than a sum of discrepancies. 
+% \end{example}}
+
+% In the remainder of the section, we first give a detailed description of the precise modeling framework, including choices 
+% of $\distDisc$ and $\compDisc$; then, we describe our plug-in model selection procedure and 
 
 \subsection{A Plug-in Procedure}
 \label{sec:method}
 
-We propose a simple plug-in procedure for model selection, inspired by \cref{def:robust-consistency}.
+Inspired by \cref{def:robust-consistency}, we propose a simple plug-in procedure for model selection,.
 Assuming $\rho_o = \rho(P_o, K_o)$ were known, we would want to find the smallest value of $K$ such that 
-for all $k \in \{1,\dots,K\}$, we have $\compDisc^{(K)}(\theta_\star, k, P_{o}) \le \rho$ for $\theta_\star \in \Theta_{\star}^{(K_{o})}(P_{o})$.
+for all $k \in \{1,\dots,K\}$, we have $\compDisc^{(K)}(\theta_\star, k, P_{o}) \le \rho_o$ for $\theta_\star \in \Theta_{\star}^{(K_{o})}(P_{o})$.
 However, since $P_{o}$ and $\Theta_{\star}^{(K_{o})}(P_{o})$ are unavailable, we propose to instead 
-use the empirical distribution $\widehat{P}_o = \numobs^{-1} \sum_{n=1}^N \delta_{x_n}$, where $\delta_x$
-is the Dirac measure at $x$, and a point estimator $\widehat\theta^{(K)}$.
+use the empirical distribution $\widehat{P}_o = \numobs^{-1} \sum_{n=1}^N \delta_{x_n}$ (here $\delta_x$ denotes
+the Dirac measure at $x$) and a point estimator $\widehat\theta^{(K)}$.
 Hence, we obtain the plug-in estimator $\compDiscEst^{(K,k)} = \compDisc^{(K)}(\widehat\theta^{(K)}, k, \widehat{P}_o)$.
 Since values of $\compDiscEst^{(K,k)} < \rho_o$ are not important from a model selection perspective, 
 we truncate the estimator by replacing it with $\max(0, \compDiscEst^{(K,k)} - \rho)$, where $\rho$ is 
@@ -832,7 +1015,7 @@ The corresponding robust model estimator is
 Since $\argmin_{\numcomps}$ may return a set of values if the loss is equal to
 zero for more than one value of $\numcomps$, it is necessary to include an
 additional $\min$ operation to select the smallest value from the set.
-We will discuss how to determine $\rho$ in \cref{sec:choosing-rho}. 
+We provide a number of methods for determining $\rho$ in \cref{sec:choosing-rho}. 
 
 \subsection{Modeling Framework} \label{sec:framework}
 
@@ -881,7 +1064,7 @@ Typically $\mcZ \subseteq \reals$ and $z_{nk}$ represents the activity level of 
 In such cases, usually $\emptyset = 0$.
 For a global parameter $\eta \in \mathcal{E}^{(K)}$, we assume the observation-specific latent variables are independent but may depend on the sample-specific covariates:
 \[
-	z_n \mid \eta, w_n \distiid H^{(K)}_{\eta,w_n}.
+	z_n \mid \eta, w_n \distind H^{(K)}_{\eta,w_n}.
 \]
 If there are no covariates, we drop the dependence on $w_{n}$ and write $H^{(K)}_{\eta}$ instead.
 
@@ -921,13 +1104,15 @@ Our framework captures many common model types:
 	where $\sigma^{2}$ can also be learned.
 	Finally, take $g^{(K)}$ to be the summation operator.
 \end{example}
-It is similarly applicable to supervised variants of probabilistic matrix factorization models, functional clustering problems, and a variety
+Our framework is similarly applicable to supervised variants of probabilistic matrix factorization models, functional clustering problems, and a variety
 of other latent variable models \citep{Carvalho:2008,Chiou:2007,Cunningham:2014,West:2003,Blei:2007,Dunson:2000}.
+
+\subsection{Constructing the Component-level Discrepancy}
 
 To define the component-level discrepancy, it is tempting to directly apply the approach we took for mixture models
 and quantify the difference between the distributions of $y_{n1},\dots,y_{nK}$ when $x_n \distas P_o$ and the modeled distributions of $y_{n1},\dots,y_{nK}$.
-However, the distribution of $y_{nk}$ ($n=1,2,\dots$) may be different due to the sample-specific dependence on $w_n$ and $z_{nk}$.
-To address this issue, we instead consider the discrepancy between the distribution of the noise variables $\varepsilon_{nk}$ when $x_n \distas P_o$ and the noise distribution $G$.
+However, the distributions of $y_{1k}, y_{2k}, \dots, y_{nk}, \dots$ may be different due to the sample-specific dependence on $w_n$ and $z_{nk}$.
+To address this issue, we instead consider the discrepancy between the conditional distribution of the noise variables $\varepsilon_{nk}$ given $x_{1:N}$ and the assumed noise distribution $G$.
 However, we must exclude $\varepsilon_{nk}$ if $y^{(K)}_{nk} = \emptyset$ because then it is no longer part of the graphical model (see \cref{fig:model}).
 Dropping the dependence on $n$, the inferred distribution of the $k$th noise variable is
 \[
@@ -944,7 +1129,10 @@ Then the empirical distribution of the noise variables for component $k$ is
 \[
 	\widehat G_k^{(K)} = \frac{1}{N_k^{(K)}} \sum_{n=1}^N u_{nk}^{(K)} \widehat G_{nk}^{(K)}.
 \]
-Hence the estimated discrepancy for the $k$th component is given by $\compDiscEst^{(K,k)} = \discr{\widehat G_k^{(K)}}{G}$. 
+Hence, an estimate of discrepancy for the $k$th component is given by 
+\[ \label{eq:general-Dcomp}
+\compDiscEst^{(K,k)} = \discr{\widehat G_k^{(K)}}{G}.
+\]
 
 In some scenarios, it is necessary to replace the divergence with an estimator because 
 $\discr{\widehat G_k^{(K)}}{G}$ is undefined (e.g., the KL divergence) or not efficiently computable (e.g., the Wasserstein distance).
@@ -954,6 +1142,589 @@ In \cref{sec:kl-estimation}, we discuss how best to estimate the KL divergence i
 consistency theory by modifying the two-sample KL divergence estimation theory developed in \citet{Wang:2009} to the one-sample estimation setting applicable to \methodname. 
 In \cref{sec:case-study-details}, we discuss using the entropy-regularized Wasserstein distance (the Sinkhorn distance) 
 as a stable, efficiently computable alternative to the Wasserstein distance that scales to high dimensions. 
+
+% \begin{example}[Generalized Bilinear Models] \label{ex:gbms}
+%     To recover a generalized bilinear model, let $z_{nk}=(w_{nk}, a_{nk}, v_{nk}) \in \reals^3$ and $\phi_{k}=(b_{k},u_{k})$, where $b_{k},u_{k}\in \reals^{D}$. 
+%     Let $\ell(z_{nk},\phi_{k},t_{k})=\psi\inv(a_{nk}t_{k} + w_{nk}b_{k} + v_{nk}u_{k}$), where $\psi$ is the link function. 
+%     As in \cref{ex:pmf-formulations}, assume that $\mcF = \{ F_{\mu} \mid \mu \in \reals^{D} \}$ is a location family of distributions.
+%     %satisfying $\int x F_\mu(\dee x) = \mu$ for all $\mu \in \reals^{D}$. 
+% 	Let $f$ satisfy $f(z, \phi, t, \varepsilon) \distas F_{\ell(z,\phi,t)}$ if  $\varepsilon \distas G$. 
+% 	Finally, take $g^{(K)}$ to be the summation operator.
+% \end{example}
+% \PROBLEM{TODO(Nguyen): Bilinear model needs feature covariates}
+% \begin{example}[Variational Autoencoders]
+% 	\PROBLEM{TODO: not clear how to define the $y_{nk}$ because of the nonlinearity of the VAE}
+% \end{example}
+%This set-up captures many common scenarios such as  matrix factorization with unknown rank $K$, topic modeling with $K$ topics, and mixture modeling with $K$ component \PROBLEM{citations}.
+%For example, in matrix factorization, each latent component may represent a different real-world process or activity, and the observed data consists of the sum of the contributions due to each process.
+% Since in practice even flexible models such as autoencoders are approximations to reality,
+% it is important to allow for some misspecification.
+% However, as explained in \cref{sec:intro}, since these models can only approximate the data-generating distribution, the inferred values for $K$ may not
+% accurately reflect the true number of processes that generated the observed data.
+% Therefore, we seek a procedure with the following guarantee:
+
+% \begin{definition}[Robust model selection consistency]
+% 	A model selection procedure $\widehat K(\data{1:N}) \in \nats$ is \emph{robustly consistent} if,
+% 	under the assumptions that
+% 	(1) $P_o$ is ``close'' to $\model{K_o}$ and
+% 	(2) $P_o$ is ``sufficiently far'' from $\model{K}$ for $K < K_o$, then
+% 	for $\data{1}, \data{2}, \dots \distiid P_{o}$, it holds that
+% 	\[
+% 		\Pr\{\widehat K(\data{1:N}) = K_o\} \overset{N \to \infty}{\longrightarrow} 1.
+% 	\]
+% \end{definition}
+
+% We have purposely left the definitions of ``close'' and ``sufficiently far'' vague since different choices may be appropriate depending on problem at hand.
+% For example, the operative definition of ``close'' will depend on
+% \emph{where} in the model the misspecification occurs.
+% In this paper we focus on the case where the misspecification is at the process-level -- that is, in the choice of distribution family induced by
+% the function $f(z, \phi, \varepsilon)$ and noise distribution $G$.
+% This choice leads to an operative definition of robust model selection consistency (see \cref{sec:theory}).
+
+
+
+
+%\subsection{Causal Mixture Modeling}\PROBLEM{Consolidate with previous subsection}
+%
+%Consider data $\data{1:\numobs}= (\data{1}, \dots, \data{\numobs}) \in \mcX^{\otimes \numobs}$ independently and identically distributed from some unknown distribution $P_o$ defined on the measurable space $(\mcX, \mcB_x)$.
+%When discovering latent types, we assume that $P_o = \sum_{k=1}^{\numcomps_o} \eta_{ok} F_{ok}$,
+%where $\numcomps_o$ is the number of types, $F_{ok}$ is the distribution of observations from the $k$th type, and
+%$ \eta_{ok}$ is the probability that an observation belongs to the $k$th type.
+%Thus, $\eta_{o} = (\eta_{o1},\dots,\eta_{o\numcomps_{o}}) \in \Delta_{\numcomps_o} = \{ \eta \in \reals_{+}^{\numcomps_{o}} \mid \sum_{k=1}^{\numcomps_{o}} \eta_{k} = 1 \}$, the $(\numcomps_o-1)$-dimensional probability simplex, and we assume $\eta_{ok} > 0$ so all components contribute observations.
+%We posit a mixture model parameterized by $\theta \in \Theta = \bigcup_{\numcomps=1}^{\infty} \Theta^{(\numcomps)}$,
+%where $\Theta^{(\numcomps)} = \Delta_{\numcomps} \times \Phi^{\otimes \numcomps}$ for measurable space $(\Phi, \mcB_{\Phi})$
+%and $\phi \in \Phi$  parameterizes the family of mixture component distributions $\mcF = \{ F_{\phi} \mid \phi \in \Phi \}$.
+%For $\theta = (\eta, \phi_{1},\dots,\phi_{\numcomps}) \in \Theta$, the mixture model distribution is
+%$G_{\theta} = \sum_{k=1}^{\numcomps}\eta_{k}F_{\param_{k}}$.
+%So, our models are $\modelK = \{ G_\theta \colon \theta \in \Theta^{(\numcomps)} \}$.
+%Hence, given $\data{1:\numobs}$, our goals are to (1) find $\numcomps_\star = \numcomps_{o}$ and (2) find a parameter
+%estimate $\widehat\theta = (\widehat\eta, \widehat\phi_{1},\dots,\widehat\phi_{\numcomps_{o}})  \in \Theta^{(\numcomps_{o})}$ such that (possibly after a reordering of the components)
+%$\widehat\eta \approx \eta_{o}$ and $F_{\widehat\phi_{k}} \approx F_{ok}$.
+%
+%%Denote the observation model as $F_{\param^\star} = \sum_{k=1}^{\numcomps_o}\eta^\star_{k}F_{\param^\star_{k}}$, where $F_{\param^\star_{k}}$ denotes the $k$th component model and $\param^\star_{k}$ is an unknown parameter. 
+%%Suppose the underlying true distribution such that $P_k \approx F_{\param^\star_{k}}$ with mixture weights $\eta^\star_{k} \approx \eta_{ok}$. 
+%%We want to recover $\numcomps_o$ and approximately recover $ \eta^{\star} = (\eta^{\star}_{1} ,\ldots, \eta^{\star}_{\numcomps_o})$ and $\phi^{\star} = (\phi^{\star}_{1}, \ldots, \phi^{\star}_{\numcomps_o} )$. 
+%
+%
+%%\begin{figure}[tp]
+%%	\centering	
+%%	\subfloat{\label{fig:motivate-em1}\includegraphics[width=50mm,height=30mm]{em-pdfs-n=100-close-False-rsize-equal-rmis-equal-legend}}
+%%	\subfloat{\label{fig:motivate-em2}\includegraphics[width=50mm,height=30mm]{em-pdfs-n=1000-close-False-rsize-equal-rmis-equal-legend}}
+%%	\subfloat{\label{fig:motivate-em3}\includegraphics[width=50mm,height=30mm]{em-pdfs-n=10000-close-False-rsize-equal-rmis-equal-legend}}
+%%	\caption{Naive Gaussian mixture models with expectation-maximization algorithm and BIC criterion for Scenario~(\ref{eg:s2}) in \cref{exa:motivating}.} 
+%%	\label{fig:motivating-em}
+%%\end{figure}
+
+
+\begin{comment}
+\subsection{[outdated] Robust Model Selection Procedure}
+%\label{sec:method}
+
+%To address the limitations of standard model selection methods and the coarsened posterior, we introduce a general approach to robustly selecting selecting the number of components for a model when, where the misspecification can be identified in a component-level manner.
+%We apply our approach to the case of mixture model selection, and show it leads to a
+%computationally efficient and statistically
+%sound model selection criterion.
+%%which applies the robustness threshold at the component level while also being . 
+%As shown in \cref{fig:motivate-comparison}, our method -- which we describe in detail later in this section -- identifies the correct value for $\numcomps_{o}$ in both scenarios. % by using known causal structure in the data-generating process.
+
+% Existing  model selection approaches, however, do not account for misspecification at the level of the causal components of the model.
+
+
+
+
+
+
+%\begin{figure}[tp]
+%	\centering	
+%	\subfloat{\label{fig:motivate-standard-gmm-d7}\includegraphics[width=.48\textwidth]{data7-kposterior-standard}}
+%	\subfloat{\label{fig:motivate-standard-gmm-d10}\includegraphics[width=.48\textwidth]{data10-kposterior-standard}}
+%	\caption{Posteriors of the number of clusters with growing number of observations on flow cytometry dataset $\#7$ (left) and dataset $\#10$ (right). See details about the data in \cref{sec:experiments}. The vertical dotted line indicates the ground truth of $\numcomps_{o}=4$.  } 
+%	\label{fig:motivating-background}
+%\end{figure}
+
+%Learning the number of components with Bayesian inference can not provide reliable results when model is misspecified.
+%As shown in \cref{fig:motivating-background}, applying a Gaussian mixture model with a fixed prior on $\numcomps$ still overfits the data. The posterior of number of components tends to concentrate on increasing values as data becomes large.
+
+%\citet{Miller:2019} propose to address this overfitting problem by using a modified \emph{coarsened posterior}
+%which conditions on the event that the Kullback--Leibler divergence between
+%the observed data and the data generated from the assumed model is less than some cutoff $c$.
+%%The main idea is rather than assuming the data are exactly from the assumed model, choose to conditional on the fact that there is a small amount of discrepancy between the overall model and the data distribution.
+%They show that using Kullback--Leibler divergence as a discrepancy measure, the posterior distribution of parameters is approximately equivalent to raising the likelihood to a fractional power. 
+%When an exponential distribution prior with rate parameter $\alpha$ is placed on $c$, they show 
+%that the coarsened posterior is (asymptotically) equal to the power posterior $\eta_{\alpha}(\theta \mid %\data{1:\numobs}) 
+%\propto \prod_{n=1}^{\numobs} f_{\theta}(\data{n})^{\frac{\alpha}{\numobs + \alpha}} \times \eta_{0}(\param)$,
+%where $f_{\param}$ is the density of $F_{\theta}$ and $\eta_{0}$ is the density of the prior distribution. 
+%Coarsening thus introduces robustness by using a more ``flattened'' likelihood to account for misspecification 
+%and does not concentrate on a single parameter in when $\numobs \to \infty$. 
+
+
+%\begin{figure}[tp]
+%	\centering	
+%\subfloat[ Scenario~(\ref{eg:s1})]{\label{fig:motivate-coarsen1}\includegraphics[width=.48\textwidth]{skewnorm-coarsen-pdfs-n=5000-close-False-rsize-equal-rmis-none-legend}}
+%\subfloat[ Scenario~(\ref{eg:s2})]{\label{fig:motivate-coarsen2}\includegraphics[width=.48\textwidth]{skewnorm-coarsen-pdfs-n=5000-close-False-rsize-equal-rmis-equal-legend}}
+%	\caption{Coarsened posterior inference for (left) Scenario~(\ref{eg:s1}) and (right) Scenario~(\ref{eg:s2}) in \cref{exa:motivating}.} 
+%	\label{fig:coarsen-succeed}
+%\end{figure}
+
+
+%\subsection{Method}
+
+As discussed earlier, our aim is to develop a general-purpose, robust model selection method that can use arbitrary parameter estimates.
+That is, we assume that for each $K \in \{K_{\min},\dots, K_{\max}\}$, we have access to a parameter estimate $\widehat\theta^{(K)} = (\widehat\eta^{(K)}, \widehat\phi^{(K)}_1, \dots, \widehat \phi^{(K)}_K)$.
+While we do not impose any specific requirements on the parameter estimates, the quality of the estimates can be expected to
+affect the accuracy of any model selection procedure.
+%We will drop the dependence on $K$ when it is clear from context.
+Using these parameter estimates, we would like to obtain an estimate $\widehat K$ for $K_o$.
+We first take inspiration from minimum distance inference methods \citep{Wolfowitz:1957,Parr:1980,Drossos:1980}, which choose a model $P_\theta$ to minimize the divergence $\mcD(P_N \mid P_\theta)$,
+where $P_N = N^{-1} \sum_{n=1}^N \delta_{x_n}$ is the empirical data distribution.
+
+However, we would like to measure discrepancy at the process level, as that is
+the part of the model where there is typically misspecification.
+As shown in \cref{fig:motivate-comparison}
+with the coarsened posterior, imposing robustness at the model level is generally insufficient.
+So, instead we define a \emph{process-level} discrepancy between the empirical distribution of the $y^{(K)}_{1k},\dots,y^{(K)}_{Nk}$ and their modeled distribution.
+However, each $y^{(K)}_{nk}$ may have a different distribution due to the sample-specific dependence on $w_n$ and $z_{nk}$.
+To address this issue, we instead consider the discrepancy between the empirical distribution of the noise variables $\varepsilon_{1k},\dots, \varepsilon_{Nk}$
+and the noise distribution $G$.
+However, we must exclude $\varepsilon_{nk}$ if $y^{(K)}_{nk} = \emptyset$ because then it is no longer part of the graphical model (see \cref{fig:model}).
+%(e.g., because $z_{nk} = 1$ in the mixture model case or because $F_\mu$ is a point mass -- say, for a Poisson distribution with $\mu = 0$).
+Toward this end, let $\widehat G_{nk} = \mcL(\varepsilon_{nk} \mid x_n, w_n, z_{nk}, \widehat\phi)$, the conditional law of $\varepsilon_{nk}$,
+where $z_n$ is sampled from its conditional distribution given $x$ and $\widehat\theta$.
+Define the usage indicators $u_{nk} = \ind(y_{nk} = \emptyset)$ and number of observations for component $k$ as $N_k = \sum_{n=1}^N u_{nk}$.
+%If $\widehat G_{nk} = G$, then $\varepsilon_{nk}$ is unused, so define the usage indicators $u_{nk} = \ind(\widehat G_{nk} \ne G)$ and number of active observations for component $k$ as $N_k = \sum_{n=1}^N u_{nk}$.
+Then the empirical distribution of the noise variables for component $k$ is
+\[
+	\widehat G_k = N_k^{-1} \sum_{n=1}^N u_{nk} \widehat G_{nk}.
+\]
+Hence the discrepancy for the $k$th process is given by $D_k = \discr{\widehat G_k}{G}$.
+
+To allow for some misspecification, we take inspiration from the coarsened posterior approach and enforce that the loss function should not decrease if $D_k$ is below some threshold $\rho \ge 0$.
+Hence, we replace $D_k$ with $\min(0, D_k - \rho)$, which leads to the robust model selection loss
+\[ \label{eq:general-loss}
+	\mathcal{R}^\rho(\widehat\theta; z, x) = \sum_{k=1}^K N_k \min(0, D_k - \rho).
+\]
+Note that since $D_k$ uses $N_k$ observations, we rescale that $k$th term in the sum by $N_k$.
+By construction, the loss is nonnegative and equal to zero (and therefore minimized) if $D_k < \rho$ for all $k$.
+On the other hand, if $\liminf_{\numobs \to \infty} D_k > \rho$ for some $k$, then the scaling by $N_k$ will result in
+the loss tending to $\infty$ as $N \to \infty$.
+%, exhibit a greater mismatch than is expected, as quantified by the chosen divergence measure.
+%Such noticeable misspecification is further scaled by the component size so that as the dataset becomes large, insufficient $\numcomps$ will result in a large loss.
+Therefore, by minimizing \cref{eq:general-loss} with respect to $K$, we can expect to exclude $\numcomps < \numcomps_{o}$.
+Since the loss is the sum (i.e., accumulation) of disrepancies that have been truncated (i.e., cut off) at $\rho$,
+we call \cref{eq:general-loss} the \emph{accumulated cutoff discrepancy criterion} (\methodname).
+%\begin{figure}[t]
+%	\centering
+%	\subfloat[]{\label{fig:pen-loss}\includegraphics[width = .48\textwidth]{pen-stare-loss-legend}}	
+%	\subfloat[]{\label{fig:loss-rho}\includegraphics[width = .48\textwidth]{pen-stare-loss-linear-in-rho}}
+%	\caption{(a) The penalized loss versus number of components fixing $\rho$. The true number of clusters is marked with vertical dashed line. (b) the structurally aware loss against $\rho$ fixing $\numcomps$ under Scenario (\ref{eg:s3}) in \cref{exa:motivating}. }	
+%	\label{fig:intuition-loss}
+%\end{figure}
+%
+%
+%On the other hand, to asymptotically rule out $\numcomps > \numcomps_{o}$, we
+%introduce an Akaike information criterion-like penalty term, leading to the \emph{penalized structurally aware loss}
+%\begin{equation}
+%	\mathcal{R}^{\rho,\lambda}(\widehat\theta, z, x) = \mathcal{R}^\rho(\widehat\theta, z, x)  + \lambda \numcomps, \label{eq:pen-general-loss}
+%\end{equation}
+%where $\lambda > 0$ controls the strength of the penalty.
+Given a choice of divergence $\discr{\cdot}{\cdot}$ %, $\discrest{\cdot}{\cdot}$, 
+and minimum (respectively, maximum) number of components to consider, $\numcomps_{\min}$ (resp.\ $\numcomps_{\max}$),
+our robust model selection procedure is as follows:
+%\begin{enumerate}
+%\item For $\numcomps = 1,\dots, \numcomps_{\max}$, use whatever inference procedure you wish to 
+%compute a parameter estimate $\widehat\theta^{(\numcomps)}$. 
+%\item For $n = 1,\dots, \numobs$, sample $z_{n}$ from its conditional distribution given $\widehat\theta^{(\numcomps)}$
+%and $\data{n}$. 
+%\item If necessary, determine an appropriate value for $\rho$. 
+%\item Compute $\widehat{\numcomps} = \argmin_{\numcomps} \mathcal{R}^{\rho,\lambda}(\widehat\param^{(\numcomps)}; \data{1:\numobs})$.
+%\item Return $\widehat{\theta}^{(\widehat{\numcomps})}$. 
+%\end{enumerate}
+
+\begin{algorithm}[H]
+	\SetKwInOut{Input}{Input}
+	\SetKwInOut{Output}{Output}
+	\For{$\numcomps= K_{\min},\ldots, \numcomps_{\max}$ }{
+		Obtain parameter estimate $\widehat{\allparam}^{(\numcomps)} \in \Theta^{(\numcomps)}$ \\
+		%\For{$n=1,\ldots,\numobs$}{
+		Sample $z^{(\numcomps)} \mid \widehat{\allparam}^{(\numcomps)}, x_{1:\numobs}$
+		%}
+	}
+	If necessary, determine an appropriate value for $\rho$ \\
+	Compute $\widehat{\numcomps} = \min \{\argmin_{\numcomps} \mathcal{R}^{\rho}(\widehat\allparam^{(\numcomps)}, z^{(\numcomps)}, \data{1:\numobs})\}$
+
+	\Return{$\widehat{\allparam}^{(\widehat{\numcomps)}}$}
+	\caption{Robust model selection procedure using \methodname}
+	\label{algo:model-selection-general}
+\end{algorithm}
+
+\begin{remark}[Definition of $\widehat{K}$]
+	Since $\argmin_{\numcomps}$ may return a set of values if the loss is equal to
+	zero for more than one value of $\numcomps$, it is necessary to include an
+	additional $\min$ operation to select the smallest value from the set.
+	We take the minimum since larger values of $K$ may overfit the data.
+\end{remark}
+\begin{remark}[Choice of divergence]
+	Our approach allows the user flexibility to select a divergence which they expect to be small for the forms of misspecification
+	present in their model.
+	At the same time, it important to have reasonable defaults.
+	The KL divergence is an attractive default choice of discrepancy because of its
+	close connection to likelihood-based inference (see \cref{sec:connection-to-likelihood})
+	and because it is invariant under diffeomorphisms of $\mcX$;
+	in particular, it is invariant to rescaling of the data.
+	We provide a theory-informed discussion of divergence choice in \cref{sec:divergence-choice}.
+\end{remark}
+\begin{remark}[Divergence estimation]
+	In some scenarios, $\discr{\widehat G_k}{G}$ can be be undefined (e.g., KL divergence)
+	or not efficiently computable (e.g., Wasserstein distance).
+	In such cases, it is necessary to replace the divergence with an estimator -- a consideration
+	we will address in both our theory and methodology.
+	%However, if $\mcX$ is not discrete, the KL divergence becomes 
+	%more challenging to estimate because the empirical distribution $\widehat G_{k}$ is not absolutely continuous with respect to $G$.
+	In particular, in \cref{sec:kl-estimation} we discuss how best to estimate the KL divergence in practice and provide supporting
+	consistency theory by modifying the two-sample KL divergence estimation theory developed in \citet{Wang:2009} to our setting of one-sample estimation.
+	%address this in a few specific scenarios later on. 
+\end{remark}
+\begin{remark}[Computational cost]
+	Since our model selection framework can be used with any parameter estimation algorithm (e.g., expectation--maximization, Markov chain Monte Carlo, or variational inference), the choice of algorithm can be based on the
+	statistical and computational considerations relevant to the specific problem at hand.
+	%In our experiments we use expectation--maximization algorithm to approximate the maximum likelihood parameter estimates for each
+	%possible choice of $\numcomps$.
+	Once parameter estimates have been obtained, the other major cost is computing the loss
+	$\mathcal{R}^{\rho}(\allparam; z, \data{})$, which is generally dominated by
+	the computation of the divergences. % $\discrest{X_{k}^{(\numcomps)}(z^{(\numcomps)})}{F_{\widehat\param_{k}^{(\numcomps)}})}$. 
+	%We discuss the particular case of Kullback--Leibler divergence estimation in \cref{sec:kl-estimation}.
+\end{remark}
+
+\end{comment}
+
+% \subsection{Example Model Applications}
+% \label{sec:example-applications}
+
+% \PROBLEM{TODO: add robust model selection consistency results to this section}
+
+% Next, we briefly discuss how our \methodname method can be applied to mixture models
+% and probabilistic matrix factorization models, which we will use
+% for our numerical experiments in \cref{sec:experiments,sec:case-study}.
+
+% \paragraph{Application to Mixture Models.}
+% %As introduced in 
+% %, a mixture model assumes that each observation $x_n$ arises from one of $K$ possible latent components such that $x_n \sim P_\theta^{(K)} = \sum_{k=1}^{K} \eta_{k} \, F_{\phi_k}$, where $\eta_k = \Pr(z_{nk} = 1)$.
+% %We apply the robust model selection framework that minimizes the total noise divergence loss
+% %$\mathcal{R}^{\rho}(\widehat{\theta}, z, x) = \sum_{k=1}^{K} N_k \min(0, D(\widehat{G}_k \| G) - \rho).$
+% For mixture models (\cref{ex:mix-model}), the noise terms $\varepsilon_{nk}$ can be implicitly embedded within each component distribution $F_{\phi_k}$: if $z_{nk} = 1$, then we have
+% \[
+% 	x_n
+% 	= \sum_{j=1}^{K} f(z_{nj}, \phi_j, \varepsilon_{nj})
+% 	= f(1, \phi_k, \varepsilon_{nk})
+% 	\sim F_{\phi_k}.
+% \]
+% Therefore, rather than computing the divergence $\discr{\widehat{G}_k}{G}$ between noise distributions,
+% we can directly compare the estimated component distribution $F_{\phi_{k}}$ to the empirical
+% data distribution $\widehat{F}_k = N_{nk}^{-1} \sum_{i=1}^n u_{nk} \delta_{\data{n}}$.
+% So, in this case, we use a modified version of \cref{eq:general-loss}:
+% \[ \label{eq:mixture-model-loss}
+% 	\mathcal{R}^\rho(\widehat\theta; z, x) = \sum_{k=1}^K N_k \min(0, \discr{\widehat{F}_k}{F_{\phi_k}} - \rho).
+% \]
+% We emphasize that this version of the loss will only be applicable to mixture modeling.
+
+
+
+%the true component distribution $F_{ok}$ by obtaining $D(F_{ok} \mid F_{\phi_{k}})$.
+% -----------------------------------------------------------
+% The set of observations assigned to component $k$, which we denote $X_{k}(z) = \{ \data{n} \mid z_{nk} = 1, n =1,\ldots,\numobs\}$,
+% provides samples that are approximately distributed according to $F_{ok}$.
+% So, we require an estimator $\discrest{X_{k}(z)}{F_{\phi_{k}}}$ which, when the empirical distribution of $X_{k}(z)$
+% converges to some limiting distribution $\widetilde{P}_{k}$ as $\numobs \to \infty$, provides a consistent estimate of
+% $\discr{\widetilde{P}_{k}}{F_{\phi_{k}}}$.
+% For clarity, we will often write $\allparam^{(\numcomps)}$, $X_{k}^{(\numcomps)}(z^{(\numcomps)})$, etc.\ to denote that these quantities are
+% associated with the mixture model with $\numcomps$ components.
+% %
+% Then substituting the scaling term $N_k$ with $|X_{k}^{(\numcomps)}(z^{(\numcomps)})|$, we have the loss
+% \[\mcR^{\rho}(\allparam^{(\numcomps)}; z^{(\numcomps)}, \data{1:\numobs}) = \sum_{k = 1}^{\numcomps} |X_{k}^{(\numcomps)}(z^{(\numcomps)})|\max(0, \discrest{X_{k}^{(\numcomps)}(z^{(\numcomps)})}{F_{\param_{k}^{(\numcomps)}}) - \rho}.\]
+% %
+% To asymptotically rule out $\numcomps > \numcomps_{o}$, we introduce an Akaike information criterion-like penalty term, leading to the \emph{penalized structurally aware loss}
+% \begin{equation}
+% 	\mathcal{R}^{\rho,\lambda}(\allparam^{(\numcomps)}; z^{(\numcomps)}, \data{1:\numobs}) = \mathcal{R}^{\rho}(\allparam^{(\numcomps)}; z^{(\numcomps)},\data{1:\numobs}) + \lambda \numcomps, \label{eq:pen-general-modified-loglik}
+% \end{equation}
+% where $\lambda > 0$ controls the strength of the penalty.
+%\subsection{Incorporating Causal Structural Knowledge}
+
+%%Such scenarios naturally lead to questions about where the cutoff value should be placed in a model and how the model is presented affects the inference.
+%To understand why the coarsening approach can fail and how we might improve upon it, our key observation is
+%that the misspecification occurred at the level of individual mixture components is different.
+%However, the coarsened posterior as well as other standard methods are, roughly speaking, indifferent to the details of how a model is represented and thus ``unaware'' of the difference between the mixture components.
+%%This indifference is exact for Bayesian inference and asymptotically true for point estimation methods like maximum likelihood.
+
+% Our starting point for developing our robust model selection approach is to rewrite the model in a
+% form which captures the known causal structure and makes the component distributions -- which are the source of misspecification -- explicit.
+% The posterior, the coarsened posterior, and standard model selection methods based on point estimates are all based (at least asymptotically)
+% on formulating the mixture model as
+% \[
+% 	\data{n} \sim  G_{\theta} = \sum_{k=1}^{K} \eta_{k}F_{\param_{k}} \quad (n=1,\ldots, N).  \label{eq:marginal-mixture-model}
+% \]
+% However, \cref{eq:marginal-mixture-model} implicitly posits that the structural causal model for each observation is
+% $
+% 	x_{n} \gets h(\param, \eta; \varepsilon_{n}),
+% $
+% where $\param = (\param_{1}, \dots, \param_{\numcomps})$, $\eta = (\eta_{1},\dots, \eta_{\numcomps})$, $h$ is a deterministic function, and $\varepsilon_{n}$ is an
+% independent ``noise'' random variable.
+% Since $h$ is treated as a black box, it is impossible for inference methods based on \cref{eq:marginal-mixture-model} to always
+% correctly account for component-level misspecification.
+%\PROBLEM{can we give a concrete example here? for example, of what happens conceptually when
+%one component has a much larger degree of misspecification or one component has a small mixture weight?}
+%In particular, it is hard to distinguish clusters if, f
+% This can lead to deceptive identification regarding the actual model fit from the perspective of individual components, as illustrated in \cref{sec:motivation}.
+%For instance, consider two models designed to fit two clusters, one large and the other small. In both models, the large cluster is well-fitted, but for the small cluster, Model 1 fits it well while Model 2 performs poorly.
+%In scenarios like these, a structurally-indifferent method might fail to distinguish these discrepancies, potentially classifying these models as similar, despite their significantly differing performance at the individual component level.
+%Hence, we propose the \emph{structurally aware} inference.
+%%For example, $f_{\param_{k}}$ would have to be close to the
+%%``true'' component when $\eta_{k}$ is large and no other $f_{\param_{k'}}$ $(k' \ne k)$ is close to $f_{\param_{k}}$ -- with the case when 
+%%$\eta_{k}$ is small or $f_{\param_{k}}$ and some $f_{\param_{k'}}$ $(k' \ne k)$ are close. 
+%%In such cases, closeness in divergence no longer means closeness of the components of the causal generative process. 
+
+% An alternative way to formulate the mixture model is in the ``uncollapsed'' (latent variable) form
+% \begin{equation}
+% 	\begin{aligned}
+% 		z_{n}                   & \sim \distCat(\eta), \quad &                          % & (n=1,\ldots,\numobs) \\
+% 		\data{n} \mid z_{n} = k & \sim F_{\param_{k} }      &   & (n=1,\dots,\numobs).
+% 	\end{aligned} \label{eq:mixture-model}
+% \end{equation}
+% \Cref{eq:mixture-model} can also be written as the structural causal model
+% \begin{equation}
+% 	\begin{aligned}
+% 		z_{n} & \gets h_{z}(\eta; \varepsilon_{z,n}), \quad    &
+% 		x_{n} & \gets h_{x}(\param, z_{n}; \varepsilon_{x,n}) &   & (n=1,\dots,\numobs),
+% 		\label{eq:stare-mixture-model}
+% 	\end{aligned}
+% \end{equation}
+% where $h_{z}$ and $h_{x}$ are deterministic functions and $\varepsilon_{z,n}$ and $\varepsilon_{x,n}$ are independent ``noise'' random variables.
+% For a model selection criterion to reliably select the true number of components, it must make use of the causal structure given in \cref{eq:stare-mixture-model}.
+% In particular, we want a method that exploits the fact that we know the relationship $x_{n} \gets h_{x}(\param, z_{n}; \varepsilon_{x,n})$ is misspecified.
+% Hence, we describe our approach as being ``structurally aware.''
+% We also rely on the assumption that $z_{n} \gets h_{z}(\eta; \varepsilon_{z,n})$ is well-specified, although it is possible that assumption could be relaxed as well.
+%An equivalent way of rewriting \cref{eq:mixture-model} is to integrate out the component assignments $z^{\numobs}$, which leads to the marginal model
+%The ``equivalence'' is stressed in terms of the behavior of posterior over $K$, $\param^{\numcomps}$, and $\eta^{K}$. 
+%
+%However, the original generative model given in \cref{eq:mixture-model} implicitly posits a \emph{structural causal model} $\mcM$ for a single observation
+%$x$ (with full dataset generated assuming independence):
+%\begin{equation}
+%\begin{aligned}
+%	z &\gets g_{z}(\eta^{\numcomps}; \numobs_{z}) \\
+%	x &\gets g_{x}(\param^{\numcomps}, z; \numobs_{x}),
+%	\label{eq:stare-mixture-model}
+%\end{aligned}
+%\end{equation}
+%where $g_{z}$ and $g_{x}$ are deterministic functions and $\numobs_{z}$ and $\numobs_{x}$ are jointly independent ``noise'' variables. 
+%On the other hand, the marginal model in \cref{eq:marginal-mixture-model} posits a different structural causal model $\widetilde{\mcM}$ for $x$:
+%
+%In this way, the model formulation ignores the causal structure.
+%%instead operate on the distribution $p(x^{\numobs}, z^{\numobs}; \eta^{\numcomps}, \theta^{\numcomps})$.
+%That is, they are \emph{structurally-indifferent}. 
+%An example of structurally-indifferent inference is coarsening on the entire mixture density described in \citep{Miller:2019}. 
+%Such inference can cause misleading results in certain scenarios.
+
+
+%As verified in the motivating example, such structurally aware inference method that operates on \cref{eq:stare-mixture-model} can 
+%correctly account for component-level misspecification even if the mixture weights or degree of misspecification are unbalanced. 
+%%Furthermore, with the goal of locating the correct number of latent structures despite minor model misspecification, we propose a new model selection criteria and call our method as structurally aware and robust inference.
+%\Cref{fig:motivate-stare-1,fig:motivate-stare-2} shows the results for the skew-normal examples using the model selection method we develop in the next section. 
+%In both scenarios our structurally aware approach identifies the number of components $\numcomps_{o}$ correctly.
+%However, the coarsened inference adds additional cluster to account for the cluster with larger misspecification scaled by size.
+
+
+%\subsection{Method}
+%
+%\subsection{A toy example: Gaussian mixture models}
+%\label{sec:toy-exa}
+%We use a toy example to explain scenarios where the structurally-indifferent coarsening will fail to capture the correct number of components while our method, which we describe in the next section, shows superior performance.
+%
+%Consider fitting a Gaussian mixture model to independent and identically distributed data generated from a mixture of skew normal distributions, where the skewness parameter encodes the degree of of misspecification. 
+%Letting skewness parameter equal to 0 degenerates to Gaussian distributions and thus does not introduce model misspecification.
+%We consider two scenarios for the true underlying distributions: (i) two equal-sized components with different levels of model misspecification; (ii) two different-sized components with same level of model misspecification.
+%
+
+%
+%\begin{figure}[tp]
+%	\centering	
+%	\subfloat[ Scenario~(\ref{eg:s3})]{\label{fig:motivate-coarsen3}\includegraphics[width=.48\textwidth]{skewnorm-coarsen-pdfs-n=10000-close-False-rsize-equal-rmis-bbig-small-legend}}
+%	\subfloat[ Scenario~(\ref{eg:s4})]{\label{fig:motivate-coarsen4}\includegraphics[width=.48\textwidth]{skewnorm-coarsen-pdfs-n=5000-close-False-rsize-big-small-rmis-equal-legend}}\\
+%	\subfloat[ Scenario~(\ref{eg:s3})]{\label{fig:motivate-stare-pdfs-1}\includegraphics[width=.48\textwidth]{skewnorm-stare-pdfs-n=5000-close-False-rsize-equal-rmis-big-small-legend}}
+%	\subfloat[ Scenario~(\ref{eg:s4})]{\label{fig:motivate-stare-pdfs-2}\includegraphics[width=.48\textwidth]{skewnorm-stare-pdfs-n=5000-close-False-rsize-big-small-rmis-equal-legend}}
+%	\caption{Component PDFs with coarsened (first row) and STARE inference (second row) under Scenarios (\ref{eg:s3}) and (\ref{eg:s4}) in \cref{exa:motivating}.} 
+%	\label{fig:coarsen-stare-comparison}
+%\end{figure}
+%
+%	
+
+
+
+%Similar to coarsening, STARE also requires calibration for a hyperparameter $\rho$. Instead of training data with a grid of $\rho$ values, STARE can be done all at once due to the construction of the modified loss, which we discuss the model selection procedures with more detail in \cref{sec:algorithm}. 
+
+
+%Hence, with the same training dataset used in coarsening calibration, we select $\rho = 0.2$ as the selected model and run on test dataset.
+
+% To construct a structurally aware model selection method that is robust to misspecification, we must have a way of measuring how different the estimated
+% parametric component distribution $F_{\phi_{k}}$ is from the true component distribution $F_{ok}$.
+% Therefore, we introduce a divergence $\discr{F_{ok}}{F_{\phi_{k}}}$, which can be chosen by the user based on application-specific considerations.
+% We assume that for some $\rho > 0$ representing the degree of misspecification, we can estimate component parameters $\phi_{\star k} \in \Phi$ such that
+% $\discr{F_{ok}}{F_{\phi_{\star k}}} < \rho$ ($k = 1,\dots, \numcomps_{o}$).
+% Let $z = (z_1, \ldots, z_{\numobs})$ denote the cluster assignments for the observations defined in \cref{eq:mixture-model}.
+% The set of observations assigned to component $k$, which we denote $X_{k}(z) = \{ \data{n} \mid z_{n} = k, n =1,\ldots,\numobs\}$,
+% provides samples that are approximately distributed according to $F_{ok}$.
+% So, we require an estimator $\discrest{X_{k}(z)}{F_{\phi_{k}}}$ which, when the empirical distribution of $X_{k}(z)$
+% converges to some limiting distribution $\widetilde{P}_{k}$ as $\numobs \to \infty$, provides a consistent estimate of
+% $\discr{\widetilde{P}_{k}}{F_{\phi_{k}}}$.
+
+%%In this section, we formally define structurally aware inference.
+%The main idea for structurally aware inference is to introduce the cutoff on the discrepancy between model and true distribution from the component level.
+%%Our approach to creating a structurally aware model selection method that is robust to modest amounts of misspecification is to apply a coarsening-like idea at the component level. 
+%To measure the discrepancy between the data-generating component distribution and the parametric model distribution,
+%we use divergence between two probability measures $P$ and $Q$ denoted as $\discr{P}{Q}$.
+%Given independent samples $y_{1:M} = (y_{1}, \dots, y_{M})$ from $P$, we assume there exists a consistent estimator $\discrest{y_{1:M}}{Q}$ for $\discr{P}{Q}$. 
+%Combining the coarsened techniques with structurally aware inference, 
+%We also assume that there is a cutoff $\rho>0$ such that $\discr{F_{ok}}{F_{\param_{k}}} < \rho$ for some $\param_{k}\in\Phi$ ($k = 1,\ldots,\numcomps_o$). 
+%Let $z_{1:\numobs} = (z_1, \ldots, z_{\numobs})$ denote the cluster assignment for the observations 
+%defined in \cref{eq:mixture-model} and let $X_{k}(z_{1:\numobs}) = \{ \data{n} \mid z_{n} = k, n =1,\ldots,\numobs\}$ denote the set of observations assigned to component $k$.
+% and assume that for all $\param$, the distribution $F_{\param}$ has a density $f_{\param}$ with respect to a fixed reference measure.
+% For clarity, we will often write $\allparam^{(\numcomps)}$, $X_{k}^{(\numcomps)}(z^{(\numcomps)})$, etc.\ to denote that these quantities are
+% associated with the mixture model with $\numcomps$ components.
+% Given $\discr{\cdot}{\cdot}$, $\discrest{\cdot}{\cdot}$, and $\rho$, we would like to design a loss function that will be minimized when $K = K_{o}$.
+% Hence, the loss function should not decrease if all estimated discrepancies are less than $\rho$.
+% Based on this requirement, define the \emph{structurally aware loss}
+% \PROBLEM{Address directly comparing the data distributions instead of through proxy noise}
+% \[
+% 	\mcR^{\rho}(\allparam^{(\numcomps)}; z^{(\numcomps)}, \data{1:\numobs}) = \sum_{k = 1}^{\numcomps} |X_{k}^{(\numcomps)}(z^{(\numcomps)})|\max(0, \discrest{X_{k}^{(\numcomps)}(z^{(\numcomps)})}{F_{\param_{k}^{(\numcomps)}}) - \rho}. \label{eq:general-modified-loglik}
+% \]
+% By construction, the structurally aware loss is nonnegative and equal to zero (and therefore minimized) if $\discrest{X_{k}^{(\numcomps)}(z^{(\numcomps)})}{F_{\param_{k}^{(\numcomps)}}} < \rho$ for all $k$.
+%  is at its minimum when each model component closely matches the real generating component distribution. This closeness is evaluated using the discrepancy estimate $\discrest{X_{k}(z_{1:\numobs})}{F_{\param_{k}})}$, which compares each model component to the actual one. When this measure is lower than a set threshold, $\rho$, the loss becomes zero.
+% On the one hand, if $\lim_{\numobs \to \infty}\discrest{X_{k}^{(\numcomps)}(z^{(\numcomps)})}{F_{\param_{k}^{(\numcomps)}}}> \rho$ for some $k$, then the scaling by $|X_{k}^{(\numcomps)}(z^{(\numcomps)})|$ ensures
+% the loss tends to $\infty$ as $N \to \infty$.
+% %, exhibit a greater mismatch than is expected, as quantified by the chosen divergence measure.
+% %Such noticeable misspecification is further scaled by the component size so that as the dataset becomes large, insufficient $\numcomps$ will result in a large loss.
+% Therefore, by minimizing \cref{eq:general-modified-loglik} with respect to $K$, we can exclude $\numcomps < \numcomps_{o}$.
+
+%\begin{figure}[t]
+%	\centering
+%	\subfloat[]{\label{fig:pen-loss}\includegraphics[width = .48\textwidth]{pen-stare-loss-legend}}	
+%	\subfloat[]{\label{fig:loss-rho}\includegraphics[width = .48\textwidth]{pen-stare-loss-linear-in-rho}}
+%	\caption{(a) The penalized loss versus number of components fixing $\rho$. The true number of clusters is marked with vertical dashed line. (b) the structurally aware loss against $\rho$ fixing $\numcomps$ under Scenario (\ref{eg:s3}) in \cref{exa:motivating}. }	
+%	\label{fig:intuition-loss}
+%\end{figure}
+
+
+% On the other hand, to asymptotically rule out $\numcomps > \numcomps_{o}$, we
+% introduce an Akaike information criterion-like penalty term, leading to the \emph{penalized structurally aware loss}
+% \begin{equation}
+% 	\mathcal{R}^{\rho,\lambda}(\allparam^{(\numcomps)}; z^{(\numcomps)}, \data{1:\numobs}) = \mathcal{R}^{\rho}(\allparam^{(\numcomps)}; z^{(\numcomps)},\data{1:\numobs}) + \lambda \numcomps, \label{eq:pen-general-modified-loglik}
+% \end{equation}
+% where $\lambda > 0$ controls the strength of the penalty. % shrinkage of the model complexity.
+% %In practice it can be set $\lambda$ to a small constant as its primary function is to favor the smallest value of $\numcomps$ for which
+% %$\mcR^{\rho}(\allparam^{(\numcomps)};z_{1:\numobs}, \data{1:\numobs}) = 0$. 
+% Given choices for $\lambda$, $\discr{\cdot}{\cdot}$, $\discrest{\cdot}{\cdot}$, and the maximum
+% number of components to consider,  $\numcomps_{\max}$, our robust, structurally aware model selection procedure is as follows:
+%\begin{enumerate}
+%\item For $\numcomps = 1,\dots, \numcomps_{\max}$, use whatever inference procedure you wish to 
+%compute a parameter estimate $\widehat\theta^{(\numcomps)}$. 
+%\item For $n = 1,\dots, \numobs$, sample $z_{n}$ from its conditional distribution given $\widehat\theta^{(\numcomps)}$
+%and $\data{n}$. 
+%\item If necessary, determine an appropriate value for $\rho$. 
+%\item Compute $\widehat{\numcomps} = \argmin_{\numcomps} \mathcal{R}^{\rho,\lambda}(\widehat\param^{(\numcomps)}; \data{1:\numobs})$.
+%\item Return $\widehat{\theta}^{(\widehat{\numcomps})}$. 
+%\end{enumerate}
+
+% \begin{algorithm}[H]
+% 	\SetKwInOut{Input}{Input}
+% 	\SetKwInOut{Output}{Output}
+
+% 	%	\Input{
+% 	%		data $x_{1:\numobs}$,
+% 	%		maximum number of components $\numcomps_{\max}$ and penalty parameter $\lambda$ %\\
+% 	%		%number of parameter update iterations $T_{\para}$,\\
+% 	%		%break threshold $\varepsilon$.
+% 	%	} 
+% 	%	\tcc{With fixed $\numcomps$, update model parameters and labels to reach local optimum in terms of log-likelihood }		
+% 	\For{$\numcomps=1,\ldots, \numcomps_{\max}$ }{
+% 		Obtain parameter estimate $\widehat{\allparam}^{(\numcomps)} \in \Theta^{(\numcomps)}$ \\
+% 		%\For{$n=1,\ldots,\numobs$}{
+% 		Sample $z^{(\numcomps)}$ from $p(z^{(\numcomps)} \mid \widehat{\allparam}^{(\numcomps)}; x_{1:\numobs})$
+% 		%}
+% 	}
+% 	If necessary, determine an appropriate value for $\rho$ \\
+% 	Compute $\widehat{\numcomps} = \argmin_{\numcomps} \mathcal{R}^{\rho,\lambda}(\widehat\allparam^{(\numcomps)}; z^{(\numcomps)}, \data{1:\numobs})$
+
+% 	\Return{$\widehat{\allparam}^{(\widehat{\numcomps)}}$}
+% 	\caption{Robust, structurally aware model selection for mixture models}
+% 	\label{algo:model-selection-mixture}
+
+% \end{algorithm}
+% We next turn to rigorously justifying our proposed approach by proving a first-of-its-kind consistency result (\cref{sec:theory}).
+% We then provide detailed guidance on using our approach in practice (\cref{sec:guidance}).
+
+%An equivalent way to interpret this optimization problem is to minimize $		\mathcal{R}^{\rho,\lambda}(\param^{(\numcomps)}; \data{1:\numobs}) $ subject to $\numcomps \le \numcomps_o$. 
+%Such AIC penalty can exclude possibilities for $\numcomps > \numcomps_o$ as $\mcR^{\rho,\lambda}(\param_{\star}^{(\numcomps)};\data{1:\numobs})$ is close to $0$ in this case and a larger $\numcomps$ yields a larger penalty. 
+%Therefore it helps identify the minimum number of clusters that allows mixture models to fit data well under misspecification. 
+%The value of $\lambda$ reflects the user belief on the number of clusters. 
+%From a Bayesian perspective, it assigns a geometric prior on the number of component with $p = 1-\exp(\lambda)$. 
+%A larger value for $\lambda$ may overwhelm the loss counterpart in \cref{eq:pen-general-modified-loglik} and concentrate on $\numcomps < \numcomps^\star$. 
+%As shown in \cref{fig:pen-loss}, the penalized loss reaches the minimum if and only if $\widehat{\numcomps}=\numcomps_{o}$ for appropriate fixed $\rho$ values and it is insensitive to the value of penalty parameter $\lambda$. 
+%We now address three remaining methodological questions: the choice of divergence, how to determine $\rho$, and how to estimate the mixture model parameters each choice of $\numcomps$. 
+
+
+
+
+%\subsection{Consistency of number of components $\numcomps$}
+%In this section, we provide theoretical guarantees on the consistency of number of components chosen by STARE model selection rule. 
+
+% \paragraph{Application to Probabilistic Matrix Factorization.}
+% %Expanding on \cref{ex:pmf-formulations}, we assume the data ${x}_{1:N}$ is sampled through the following process for each $n=1,\dots,N$:
+% %\[
+% %	{\veps}_{nk} &\distiid G &&\text{for}\ k=1,\dots,K,\\
+% %	(z^{(K)}_{n1},\dots,z^{(K)}_{nK}) &\distiid H^{(K)}_{\eta}, \\
+% %	{y}^{(K)}_{nk} &= f(z^{(K)}_{nk},{\phi}^{(K)}_{k},{\veps}_{nk}),
+% %	&&\text{for}\ k=1,\dots,K, \label{eq:stare_formula} \\
+% %	{x}_{n} &=\sum^{K}_{k=1}{y}_{nk}.
+% %\]
+% %We note that distribution $H^{(K)}_{\eta}$ is often estimated nonparametrically. 
+% %solvers often arrives directly at the set of latent variables $z^{(K)}_{1:N,1:K}$.
+% The application to \cref{ex:mix-model-varying,ex:pmf-formulations} is direct.
+% We use the application to probabilistic matrix factorization as an illustration.
+% For the remainder of the paper we will take $G = \Unif([0,1]^{D})$, the uniform distribution on the $D$-dimensional hypercube.
+% This choice is without loss of generality when using KL divergence as the discrepancy measure since it is invariant to diffeomorphisms of the noise variables ${\veps}_{nk}$.
+% Moreover, it leads to a universal choice of $f(z, \phi, \cdot) = F^{-1}_{z\phi}$, the inverse CDF.
+% However, in specific scenarios other $G$ and $f$ might be preferred -- for example, due to ease of implementation or because
+% estimation of the KL divergence is more stable.
+% For example, in the Gaussian case, we could take $G = \Norm({0}, I)$ and $f(z, \phi, \veps) = z\phi + \sigma \veps$. %, where $\odot$ denotes element-wise multiplication.
+% %where $f$ is a deterministic function, and the randomness is driven by standard uniform noise terms ${\veps}_{n,k}$. These noise terms will be used as a proxy to ${y}_{n,k}$ in the component level comparisons. 
+% % Note that the left hand side can be though of as implicitly conditioned on the variables appearing on the right hand side of the equalities
+
+% Suppose we have a series of observations ${x}_{1:N}$, we can derive a sampling process of ${\veps}_{n,k}$ according to the relationship in \cref{eq:stare_formula}.
+% If ${x}_{1:N}$ is exactly sampled from the process described by \cref{eq:stare_formula}, we expect the empirical distributions
+% $$\widehat{G}^{(K,N)}_{k}=\frac{1}{N}\sum^{N}_{n=1}p_{{\veps}_{n,k}}\lrp{\blank\ \mid {x}_{n}, {\widehat{\phi}}^{(K,N)}_{1:K}, \widehat{z}^{(K,N)}_{n,1:K}}$$
+% to each approximate the true noise distribution $G$.
+% Thanks to this fact, we can characterize the misspecification of the data generating process through the divergence between $\widehat{G}^{(K,N)}_{k}$ and $G$.
+
+% With the reasoning above, we can define the structurally aware loss
+% \[
+% 	\mathcal{R}^{\rho,\lambda}\lrp{\widehat{G}^{(K,N)}_{1:K}}
+% 	=N\sum^{K}_{k=1}\mop{max}\lrp{0,\widehat{\mcD}\lrp{\widehat{G}^{(K,N)}_{k},G}-\rho}+\lambda K.
+% \]
+% After that, deriving an algorithm analogous to \cref{algo:model-selection-general} is straightforward.
+
+% \begin{algorithm}[H]
+% 	\caption{Model selection for PMF}
+% 	\label{algo:model-selection-pmf}
+% 	\SetKwInOut{Input}{Input}
+% 	\SetKwInOut{Output}{Output}
+%
+% 	\Input{data ${x}_{1:N}$, maximum number of components allowed $K_{\max}$, and penalty parameter $\lambda$}
+% 	\For{$K=1,\dots,K_{\max}$}{
+% 	Estimate parameters ${\widehat{\phi}}^{(K)}_{1:K},\widehat{z}^{(K)}_{1:N,1:K}$ \\
+% 	Compute $\widehat{G}^{(K,N)}_{1:K}$
+% 	}
+% 	Determine an appropriate value for $\rho$ \\
+%   Compute $\widehat{K}= \argmin_K\ \mathcal{R}^{\rho,\lambda}\lrp{\widehat{G}^{(K,N)}_{1:K}}$ \\
+% 	\Return{${\phi}^{(\widehat{K})},z^{(\widehat{K})}_{1:N,1:K}$}
+% \end{algorithm}
 
 
 \subsection{Choosing $\rho$} \label{sec:choosing-rho}
@@ -976,19 +1747,21 @@ can be determined by maximizing a problem-appropriate accuracy metric such as F-
 Because $\rho$ quantifies the divergence between the true process distributions and the model estimates,
 we expect the values found using this approach will generalize to new datasets that are reasonably similar.
 We illustrate this approach in \cref{sec:flow-cytometry}.
+Alternatively, if real data with ground truth $K_o$ is unavailable, plausible simulated data could 
+be used to calibrate $\rho$ instead \citep{Xue:2024}.
 %This approach is employed in flow cytometry data, discussed in \cref{sec:experiments}.
 %Data with available ground truths are frequently observed in cancer gene expression datasets, as illustrated in studies like .
 %These ground truths are obtained through extensive manual labeling efforts.
 %Leveraging the ground truth allows us to approximate the mismatch between the assumed model and the data, serving as crucial prior knowledge when determining appropriate $\rho$ values.
 %Consequently, when confronted with new, unlabeled data for clustering, our model selection criterion shows robustness in handling known model misspecification. This robustness is a result of the prior understanding gained from the ground truth labels.
 
-\paragraph{A general approach.}
+\paragraph{A generally applicable approach.}
 For applications where there are no related datasets with ground-truth labels available, we
 propose a second approach.  %This insight motivates our inference strategy. 
 %Instead of pre-selecting $\rho$ or doing a grid search, we propose a two-step process.
 After estimating the model parameters for each fixed $\numcomps$
 and computing all process-wise divergences, we plot the loss as a function of $\rho$ for each $\numcomps \in \{\numcomps_{\min},\dots,\numcomps_{\max}\}$.
-For readability, we introduce a small positive constant $\lambda \ll 1$ and plot $\mathcal{R}^{\rho}(\data{1:\numobs}, K) + \lambda \numcomps$
+For readability, introduce a small positive constant $\lambda \ll 1$ and plot $\mathcal{R}^{\rho}(\data{1:\numobs}, K) + \lambda \numcomps$
 so it is possible to distinguish the lines when the loss is exactly zero.
 The optimal model is determined by identifying the number of processes which is best over a substantial range of $\rho$ values,
 with $\rho$ as small as possible.
@@ -997,35 +1770,35 @@ However, subsequent stable regions that appear afterward might introduce too muc
 This approach is similar in spirit to the one introduced for heuristically selecting the $\alpha$ parameter for the coarsened posterior \citep{Miller:2019}.
 
 
-\begin{figure}[tp]
-	\centering
-	%	\subfloat{\includegraphics[width=.48\textwidth,height=40mm]{density-plot-true-K0=4}	\label{fig:stare-pois-den}}
-	%\subfloat{\label{fig:sn-penloss-s1}	\includegraphics[width=.48\textwidth,height=40mm]{	skewnorm-stare-loss-n=5000-close-False-rsize-equal-rmis-equal}}
-	%	\subfloat{\label{fig:sn-penloss-s2}	\includegraphics[width=.48\textwidth,height=40mm]{	skewnorm-stare-loss-n=5000-close-False-rsize-equal-rmis-bbig-small}}\\
-	\subfloat{%\label{fig:poismm-penloss}	
-		\includegraphics[width=.48\textwidth]{penloss-plot-N=20000-trueK=3-legend}}
-	\subfloat{%\label{fig:poismm-fmeasure}	
-		\includegraphics[width=.48\textwidth]{pois-hist-legend}}
-	%	\caption{\PROBLEM{JL: Biometrika requires no legends.} The penalized structurally aware loss against $\rho$ for Scenario~(\ref{eg:s2}) (top left) and Scenario~(\ref{eg:s3}) (top right). For Poisson mixture models on data from negative binomial mixtures, penalized loss plot (bottom left) and component pmfs by our model selection compared to true distribution (bottom right).} 
-	\caption{Fitting a Poisson mixture model to data from a mixture of negative binomial distributions (\cref{sec:choosing-rho}). \textbf{Left:} Penalized loss plot for $\numcomps \in \{1,2,3,4\}$. The cross mark indicates the first wide stable region and is labeled with the number of clusters \methodname selects. \textbf{Right:} Estimated model distribution compared to the observed data.}
-	\label{fig:poismm}
-\end{figure}
+% \begin{figure}[tp]
+% 	\centering
+% 	%	\subfloat{\includegraphics[width=.48\textwidth,height=40mm]{density-plot-true-K0=4}	\label{fig:stare-pois-den}}
+% 	%\subfloat{\label{fig:sn-penloss-s1}	\includegraphics[width=.48\textwidth,height=40mm]{	skewnorm-stare-loss-n=5000-close-False-rsize-equal-rmis-equal}}
+% 	%	\subfloat{\label{fig:sn-penloss-s2}	\includegraphics[width=.48\textwidth,height=40mm]{	skewnorm-stare-loss-n=5000-close-False-rsize-equal-rmis-bbig-small}}\\
+% 	\subfloat{%\label{fig:poismm-penloss}	
+% 		\includegraphics[width=.48\textwidth]{penloss-plot-N=20000-trueK=3-legend}}
+% 	\subfloat{%\label{fig:poismm-fmeasure}	
+% 		\includegraphics[width=.48\textwidth]{pois-hist-legend}}
+% 	%	\caption{\PROBLEM{JL: Biometrika requires no legends.} The penalized structurally aware loss against $\rho$ for Scenario~(\ref{eg:s2}) (top left) and Scenario~(\ref{eg:s3}) (top right). For Poisson mixture models on data from negative binomial mixtures, penalized loss plot (bottom left) and component pmfs by our model selection compared to true distribution (bottom right).} 
+% 	\caption{Fitting a Poisson mixture model to data from a mixture of negative binomial distributions (\cref{sec:choosing-rho}). \textbf{Left:} Penalized loss plot for $\numcomps \in \{1,2,3,4\}$. The cross mark indicates the first wide stable region and is labeled with the number of clusters \methodname selects. \textbf{Right:} Estimated model distribution compared to the observed data.}
+% 	\label{fig:poismm}
+% \end{figure}
 
-\begin{example}
-    \PROBLEM{TODO: use Gaussian mixture example instead or remove completely}
-	We illustrate our second approach using a Poisson mixture model simulation study.
-	Suppose data $x_1, \ldots, x_{\numobs}$ is generated from a negative binomial mixture
-	$P_o = \sum_{k=1}^{\numcomps_o} \eta_{ok}\distNBinom(m_k, p_k)$. %, where $\numcomps_o$ denotes the true number of clusters. 
-	The assumed model is $G_{\theta} = \sum_{k=1}^{\numcomps} \eta_k \distPoiss(\param_k)$.
-	We set $\numobs=20\,000, \numcomps_o = 3, m = (55, 75, 100), p = (0.5, 0.3, 0.5)$, and  $\eta_o = (0.3, 0.3, 0.4)$.
-	We use the plug-in Kullback--Leibler estimator (see \cref{eq:plug-in-KL} in \cref{sec:kl-estimation}).
-	%As \cref{thm:main} guarantees, structurally aware robust inference picks up the correct number of components with finite mixtures as data size is sufficiently large. 
-	Based on \cref{fig:poismm}(left), the first wide and stable region corresponds to the true number of components $K = 3$.
-	The observed data and fitted model distribution for $K = 3$ are shown in \cref{fig:poismm}(right).
-\end{example}
+% \begin{example}
+%     \PROBLEM{TODO: use Gaussian mixture example instead or remove completely}
+% 	We illustrate our second approach using a Poisson mixture model simulation study.
+% 	Suppose data $x_1, \ldots, x_{\numobs}$ is generated from a negative binomial mixture
+% 	$P_o = \sum_{k=1}^{\numcomps_o} \eta_{ok}\distNBinom(m_k, p_k)$. %, where $\numcomps_o$ denotes the true number of clusters. 
+% 	The assumed model is $G_{\theta} = \sum_{k=1}^{\numcomps} \eta_k \distPoiss(\param_k)$.
+% 	We set $\numobs=20\,000, \numcomps_o = 3, m = (55, 75, 100), p = (0.5, 0.3, 0.5)$, and  $\eta_o = (0.3, 0.3, 0.4)$.
+% 	We use the plug-in Kullback--Leibler estimator (see \cref{eq:plug-in-KL} in \cref{sec:kl-estimation}).
+% 	%As \cref{thm:main} guarantees, structurally aware robust inference picks up the correct number of components with finite mixtures as data size is sufficiently large. 
+% 	Based on \cref{fig:poismm}(left), the first wide and stable region corresponds to the true number of components $K = 3$.
+% 	The observed data and fitted model distribution for $K = 3$ are shown in \cref{fig:poismm}(right).
+% \end{example}
 
 \paragraph{Automation.}
-Building on the same heuristic intuition, we can further automate the selection of $K$  by defining a minimum width $\Delta_{\min}$ for which an interval can be recognized as the stability region. Specifically,
+Building on the same heuristic intuition, we can automate the selection of $\rho$ by defining a minimum width $\Delta_{\min}$ for which an interval can be recognized as the stability region. Specifically,
 % we define this stability interval by determining the range of $\rho$ over which the penalized loss for $K$ remains optimal. The lower bound is the first $\rho$ value where an $K$-specific loss first becomes the minimum among all losses, and the upper bound is the $\rho$ value where the loss is surpassed by the loss for a different $K$. By imposing a threshold on the length of such interval, we can automatically select the $K$ value corresponding to the first loss function satisfying this criterion.
 we keep track of the smallest $\rho$ value, $\rho_\mathrm{start}$, for which a $K$-specific penalized loss becomes minimal among all other $K$-specific losses.
 We then identify the next $\rho$ value, $\rho_\mathrm{end}$, at which this same loss curve is no longer the minimum.
@@ -1034,32 +1807,192 @@ If $\Delta \ge \Delta_{\min}$ (i.e., $\Delta$ has the predefined minimum width),
 and repeat the procedure to compute the new $\rho_\mathrm{end}$ and $\Delta$, check if $\Delta \ge \Delta_{\min}$, and so forth.
 The value of $\Delta_{\min}$ should be set based on preliminary manual experiments to estimate a suitable stability region width for automated selection in larger batches. This approach allows users to adjust the interval threshold to balance the tradeoff between avoiding underfitting ($\Delta_{\min}$ sufficiently small) and ensuring appropriately conservative and stable model selection ($\Delta_{\min}$ sufficiently large).
 We demonstrate the utility of this approach in \cref{sec:case-study}. %, where it is applied to complex scRNA-seq data.
+%For example, as in the two scenarios in the motivating example, we can plot the penalized loss against $\rho$ in \cref{fig:sn-penloss-s1,fig:sn-penloss-s2}.
+%For both cases, the first widest region appears when $\widehat{\numcomps}=2$ and as shown in \cref{fig:motivate-comparison}, our method picks up the correct number of components.
+%We propose to select the number of components that corresponds to the first widest and stable region. 
+%The idea behind this selection rule is to identify the first instance of stability, indicating that increasing $\rho$ further doesn't notably improve the loss. However, subsequent stable regions that appear afterward might introduce too much tolerance, potentially resulting in model underfitting.
+%The tolerance for the model misspecification increases and the penalized loss jumps down as $\rho$ grows.
+
+
+%we can conclude that the tolerance for the model misspecification increases and the penalized loss jumps down as $\rho$ grows.
+%\NA{We propose to select the number of components that corresponds to the first wide and stable region.}\PROBLEM{need to fine a clearer way of describing this}
+%The intuition is that the first stability only occurs when increasing $\rho$ values does not bring significant improvement. For stable regions occurred after the first appearance, they may underfit the model by introducing too much tolerance.
+%This indicates that for a large range of $\rho$ values, increasing the model misspecification tolerance does not improve the penalized loss significantly.
+%In \cref{fig:poismm}\fTBD{Updated loss figs to colorblind friendly. Please check}, we can see that  $\numcomps=4$ gives the correct number of components.
+
+
+%
+%\subsection{Choosing $\lambda$}
+%
+%The penalized structurally aware loss function requires selecting the penalty parameter $\lambda$.
+%In practice the primary purpose of the penalty is to select the smallest value of $\numcomps$ that results in $\mcR^{\rho}(\allparam^{(\numcomps)};z_{1:\numobs}, \data{1:\numobs}) = 0$.
+%So, we recommend setting $\lambda$ to a value that is small relative to the estimates of the divergence.
+%%, our method can accurately pinpoint the exact number of components needed. A larger value of $\lambda$ can dominate the loss and favors simpler models. In practice, we often choose a small value of $\lambda$ as a heuristic, for instance, 
+%For example, we set $\lambda=0.01$ in our simulation studies and set $\lambda=10$ in the real-data experiments
+%so as to ensure the $\rho$ versus loss plots were easy to read. In particular, choosing smaller values would not have changed the results.
+
+
+
+
+%\cref{prop:kl-upper-bound,prop:IPM-metric-upper-bound} show that the value of $\rho$ in theory should depend on the choice of divergence, the real discrepancy between the true data generating distribution and the optimal model component, the deviation between the component weights $\eta_{\star} / \eta_{o} $ and the conditional distributions $\Pr_{\star}(z=k \mid x)/ \Pr_{o}(z=k \mid x)$.
+
+
+
+
+%\fTBD{Discuss notation!}In this section, we design an efficient algorithm to do model selection with our robust structurally aware loss.
+%The algorithm consists of two parts: (i) parameter estimation and (ii) cutoff value $\rho$ selection.
+%For the parameter estimation, we use a particular expectation-maximization method. Bayesian or other approaches could also work here.
+%
+%For the cutoff value, different choices can lead to significantly different clustering results and pick up different number of components. 
+%To do inference for $\rho$, we observe that when $\numcomps$ is fixed and the model parameters $\param^{(\numcomps)}\in\Phi^{\otimes}$ already converge to one set of optimal parameters $\param_k^\star$, the structurally aware loss is a function of $\rho$
+%\begin{equation}
+%	\mathcal{R}(\rho) = \sum_{k = 1}^{\numcomps} |X_{k}(z_{1:\numobs})|\max(0, \discrest{X_{k}(z_{1:\numobs})}{f_{\param^\star_{k}}) - \rho}. \label{eq:general-modified-loglik-rho}
+%\end{equation} 
+%We take Kullback--Leibler divergence as an example to illustrate our algorithms.
+%For simplicity, denote the cross-entropy loss for component $k$ at iteration $\numcomps$ as
+%$
+%\mcD_k^{(K)} = \klest{X_{k}(z^{(K)})}{f_{\param^\star_{k}})}, k=1,\ldots,\numcomps-1.
+%$
+%Let $\param$ denote the parameters of interest and $\eta$ be the mixture weights. For the first part, we fix number of components $\numcomps$ and input an initialization for the assignment $z^{(0)}$. Model parameters and mixture weights. can be initialized based on $z^{(0)}$.   
+%%Then for a fixed number of iterations $T_{\para}$, we keep updating parameters, weights and labels accordingly; and compute the vanilla loss $\mcL$. Once the improvement between two iterations is negligible (quantified by pre-selected threshold $\varepsilon$), the algorithm terminates and outputs corresponding labels and parameters.
+%Our model selection algorithm, presented in \cref{algo:stare-increase-K}, makes use of the EM algorithm for fixed $\numcomps$, and takes into account the loss by allowing varying $\numcomps$. 
+%Our algorithm for obtaining parameter estimates for each possible value of $\numcomps$ is \cref{algo:model-selection}.
+%The first is the expectation--maximization algorithm $\operatorname{EM}$ with takes as input the data $x_{1:\numobs}$, the number of components $\numcomps$, and component assignments $z_{1:\numobs}$ for each observation. 
+%It outputs component assignments and parameter estimates for $\eta$ and $\phi_{1:\numcomps}$. 
+%The second is $\operatorname{split-component}$, which takes the data $x_{1:\numobs}$, $k$th component and previous component assignments $z^{(\numcomps-1)}$ as input. It splits the $k$th component into two parts using the $k$-means algorithm and outputs updated component assignments for each observations (now with $\numcomps$ possible components).
+%The algorithm starts with all points assigned to one component $\numcomps = 1$ and then split one existing component into two parts at each iteration. 
+%For iteration at $\numcomps$, for each existing component $k = 1,\ldots,\numcomps-1$,
+%we consider splitting that component in two by using $\operatorname{split-component}$, 
+%then optimizing the component parameters and assignments using expectation--maximization. 
+%Among all possible splits, we pick the one that results in minimum structurally aware loss with $\rho = 0$.
+%This process is repeated until the maximum $\numcomps_{\max}$ is reached.
+%We summarize the complete procedure in \cref{algo:stare-increase-K}. 
+%
+%\begin{algorithm}[H]
+%	\SetKwInOut{Input}{Input}
+%	\SetKwInOut{Output}{Output}
+%	\Input{
+%		data $X$, \\
+%		number of components $\numcomps$,\\
+%		labels $z^{(0)}$,\\
+%	%	minimum effective sample size for KL estimation $\Neff$,\\
+%		number of parameter update iterations $T_{\para}$,\\
+%	    break threshold $\varepsilon$.} 
+%%	\tcc{With fixed $\numcomps$, update model parameters and labels to reach local optimum in terms of log-likelihood }		
+%	
+%	Initialize parameters and loss based on $z^{(0)}$: $\textstyle\eta^{(0)}, \param^{(0)}, \mcL^{(0)} $
+%
+%	\For{$i=1,\ldots, T_{\para}$ }{
+%%		$\numcomps^\star, z^\star, \param^\star, \eta^\star= $ reassign($\Neff, \numcomps^{(i-1)}, z^{(i-1)}, \param^{(i-1)}, \eta^{(i-1)}$)\\
+%		$ \param^{(i)}, \eta^{(i)}= $ update-params($\param^{(i-1)}, \eta^{(i-1)}$)\\
+%		$z^{(i)}$ = update-labels($ \param^{(i)}, \eta^{(i)}$)
+%		
+%		$\mcR^{(i)} = \sum_{k = 1}^{\numcomps}  |S(k; z^{(i)})| \times \klest{S(k; z^{(i)})}{f_{\param^{(i)}_k} }   $
+%		
+%		\If{$|\mcR^{(i)} - \mcR^{(i-1)}| < \varepsilon$}{break}
+%	}
+%	\Return{ $z^{(i)}, \textstyle\eta^{(i)}, \param^{(i)}, \mcR^{(i)}$} \;
+%	\caption{STARE with fixed K}\label{algo:stare-fix-K}
+%	
+%\end{algorithm}
+
+%\begin{algorithm}[t]
+%	\SetKwInOut{Input}{Input}
+%	\SetKwInOut{Output}{Output}
+%	
+%	\Input{
+%		data $x_{1:\numobs}$ and
+%		maximum number of components allowed $\numcomps_{\max}$ %\\
+%		%number of parameter update iterations $T_{\para}$,\\
+%		%break threshold $\varepsilon$.
+%	} 
+%	%	\tcc{With fixed $\numcomps$, update model parameters and labels to reach local optimum in terms of log-likelihood }		
+%	\For{$\numcomps=1,\ldots, \numcomps_{\max}$ }{
+%		\eIf{$\numcomps=1$}{
+%			$z^{(1)}, \eta^{(1)}, \param^{(1)}\gets \operatorname{EM}(x_{1:\numobs}, \numcomps=1, z_{\mathrm{init}}=1)$ \\ %, $T_{\para}$, $\varepsilon$ 
+%			%$\mcD^{(1)} \gets \discrest{x_{1:\numobs}}{F_{\param_{1}^{(1)}}}$ \\
+%			%$\mathcal{R}^{(1)} \gets \numobs \mcD^{(1)}$ 
+%		}{
+%			\For{$k = 1, \ldots, \numcomps-1$}{
+%				$z_{\mathrm{split}}^{(K,k)} \gets \operatorname{split-component}(x_{1:\numobs},k, z^{(\numcomps-1)})$ \\
+%				$z^{(K,k)}, \eta^{(K,k)}, \param^{(K,k)} \gets \operatorname{EM}(x_{1:\numobs}, \numcomps, z_{\mathrm{init}}=z_{\mathrm{split}}^{(K,k)})$ \\ % , $T_{\para}$, $\varepsilon$
+%				$\mcD^{(K,k)}_{\ell} \gets \discrest{X_{\ell}(z^{(K,k)})}{F_{\param_{\ell}^{(K,k)}}}$ $(\ell = 1,\dots,K)$ \\
+%				$\mathcal{R}^{(K,k)} \gets  \sum_{\ell=1}^{K} |X_{\ell}(z^{(K,k)})| \mcD^{(K,k)}_{\ell}$
+%			}
+%		$k^\star \gets \argmin_{k=1,\ldots,\numcomps-1} \mathcal{R}^{(K,k)}$ \\
+%		$z^{(K)}, \eta^{(K)}, \param^{(K)}, \mcD^{(K)} \gets z^{(K,k^\star)}, \eta^{(K,k^\star)}, \param^{(K,k^\star)},  \mcD^{(K,k^\star)}$
+%	}
+%	}
+%	\Return{ $(z^{(\numcomps)}, \eta^{(\numcomps)}, \param^{(\numcomps)}, \mcD^{(\numcomps)})_{k=1}^{\numcomps_{\max}}$} \;
+%	\caption{Estimate model parameters for all possible $\numcomps$}
+%	\label{algo:stare-increase-K}
+%\end{algorithm}
+
+%\begin{algorithm}
+%	
+%	%	\SetKwInOut{Input}{Input}
+%	%	\SetKwInOut{Output}{Output}
+%	\For{$n = 1,\ldots, \numobs$}{
+%		$w_{nk} \gets \frac{\eta_k f(x_n | \param_k)}{\sum_{l=1}^{\numcomps}\eta_l f(x_n | \param_l)}$ for $k = 1, \ldots, \numcomps$\\
+%		Sample $z_n \propto w_{nk}$
+%	}
+%	return $z$
+%	\caption{update-labels($\eta, \param$)}
+%\end{algorithm}
+%\begin{algorithm}
+
+
+%\section{Theory}
+
+
+%\subsection{Other divergences: Maximum Mean Discrepancy}
+%As discussed in previous section, estimating Kullback--Leibler divergence between high dimensional distributions is challenging. 
+%We seek to other possible divergences to replace the Kullback--Leibler divergence in modified log-likelihood.
+%A desired alternative should be both computationally efficient and scalable to high dimensions.
+
+% \section{Practical Considerations}
+% \label{sec:guidance}
+
+% \subsection{Computation}
+% \label{sec:algorithm}
+
+% STARE with fix K;
+% increasing K by 1 each iteration 
+
+
+%Numerous approaches exist for estimating other metrics such as the maximum mean discrepancy \citep{Gretton:2012,Krause:2023}.
+
+%\begin{figure}[tp]
+%	\centering	
+%	%	\subfloat{\includegraphics[width=.48\textwidth,height=40mm]{density-plot-true-K0=4}	\label{fig:stare-pois-den}}
+%	%\subfloat{\label{fig:sn-penloss-s1}	\includegraphics[width=.48\textwidth,height=40mm]{	skewnorm-stare-loss-n=5000-close-False-rsize-equal-rmis-equal}}
+%	%	\subfloat{\label{fig:sn-penloss-s2}	\includegraphics[width=.48\textwidth,height=40mm]{	skewnorm-stare-loss-n=5000-close-False-rsize-equal-rmis-bbig-small}}\\
+%	\subfloat{\label{fig:penloss-K}	\includegraphics[width=.48\textwidth,height=40mm]{pen-stare-loss}}
+%	\subfloat{\label{fig:penloss-rho}	\includegraphics[width=.48\textwidth,height=40mm]{pen-stare-loss-linear-in-rho}}
+%	%	\caption{\PROBLEM{JL: Biometrika requires no legends.} The penalized structurally aware loss against $\rho$ for Scenario~(\ref{eg:s2}) (top left) and Scenario~(\ref{eg:s3}) (top right). For Poisson mixture models on data from negative binomial mixtures, penalized loss plot (bottom left) and component pmfs by our model selection compared to true distribution (bottom right).} 
+%	\caption{\PROBLEM{I'm not convinced we need this figure. JL: aims to show its global minimum}\textbf{Left:} Penalized loss for different $\lambda$ values. $\lambda=0.001$ (dashed) and $\lambda=0.01$ (dotted). The red line indicates the correct $\numcomps$. \textbf{Right:} The linearity of penalized loss in $\rho$. Dotted line represents $\numcomps=1$ and dashed line denotes $\numcomps=3$. The markers represent the turning points of the loss.} 
+%	\label{fig:penloss}
+%\end{figure}
+
+
 
 \subsection{Related Work} \label{sec:related-work}
 
-\PROBLEM{TODO: update to focus on general-purpose methods; move discussion of model-specific methods to the applications section}
-To address the overfitting problem in the misspecified setting, various robust methods have been developed for specific models.
-For example, in the mixture model setting, heavy-tailed mixtures  \citep{Archambeau:2007,Christopher:2004,Wang:2018} and sample re-weighting \citep{Forero:2011}
-both aim to account for slight model mismatches and outlier effects.
-However, these methods do not directly address the question of how to choose the number of clusters for the mixture model beforehand.
+% To address the overfitting problem in the misspecified setting, various robust methods have been developed for specific models.
+% For example, in the mixture model setting, 
 %and their performance heavily relies knowing the number of subpopulations.
-In the matrix factorization setting, \citet{Liu_Support-Union_2019} proposes a robust model selection method; however, it is limited to Gaussian nonnegative matrix factorization (NMF).
-%, using the second-order moment from the empirical fourth-order cumulant tensor.
-%However, the work had no mention of robustness against misspecification.
-\citet{Pelizzola_NegBin-NMF_2023} aim to address the problem of robustness for the case of Poisson NMF using two different approaches: a negative binomial instead of a Poisson likelihood to improve the model's ability to handle overdispersed data, and a testing routine inspired by cross validation.
-While this approach provides reasonable results, using the negative binomial only targets a very specific type of data--model mismatch, and the cross validation approach does not have any correctness guarantees.
-\citet{Bai_DeterminingNumberFactors_2002} propose an information criterion based approach for factor analysis
-and provide an asymptotic consistency result for the case where the input dimension tends towards infinity. However, the main result
-applies only to the Gaussian NMF model with principle component analysis (PCA) as the estimation method.
-Specific to the area of gene analysis, one common approach to selecting the number of signatures (K) is to evaluate the stability of the NMF solution across multiple runs. The cophenetic correlation coefficient method \citep{brunet_CCC_2004a} is one such example. A similar stability-based principle is adopted by the widely-used toolset SigProfilerExtractor \citep{islam_sigprofiler_extractor_2022}, which uses a consensus bootstrap approach to ensure results are consistent and reproducible. While this class of solutions is thorough, it can be computationally costly due to its reliance on repeated NMF executions. Furthermore, a recent study by \citet{Xue:2024} argues that this consensus bootstrap methodology may lead to a lack of robustness under model misspecification.
+
 %Another significant limitation of the approaches just described is that they are limited to a specific model (e.g., mixture model or Poisson NMF), which limits modeling flexibility.
 %Most closely related to our approach, 
 
-There is limited work on general-purpose approaches to address overfitting.
-Some recent work on robustifying likelihoods to small model perturbations \citep{Chakraborty:2023,Dewaskar:2023,Wu:2024} could provide a promising direction.
-However, these methods cannot be used with existing parameter estimation methods -- which, as discussed above, is a key goal of the present work.
-Additionally, \citet{Miller:2019} propose a conceptually simple robust Bayesian model selection
-procedure by employing a technique they call \emph{coarsening}.
+There is limited work on general-purpose approaches to robust model selection with the goal
+of ensuring interpretability.
+Recent work on robustifying likelihoods to small model perturbations offer one promising 
+strategy \citep{Chakraborty:2023,Dewaskar:2023,Wu:2024} .
+However, these methods aim to replace existing parameter estimation methods rather than augment them
+-- which is a key goal of the present work.
+Perhaps most closely related to our work is \citet{Miller:2019}, which proposes an elegant robust Bayesian model selection
+procedure that employs a technique they call \emph{coarsening}.
 Unlike the standard posterior, which assumes the data were generated from the assumed model (that is, it conditions on $\data{} = \data{\mathrm{obs}}$), the \emph{coarsened posterior} conditions on the ``true model data'' being close to the observed data
 (that is, it conditions on the estimated Kullback--Leibler divergence between $\data{}$ and $\data{\mathrm{obs}}$ being less than some threshold $\gamma$) -- hence, sacrificing predictive power for greater robustness.
 %This flexibility permits the overall mixture model to deviate from the true underlying data by a set threshold.
@@ -1067,39 +2000,57 @@ Unlike the standard posterior, which assumes the data were generated from the as
 %\fTBD{Thinking about removing this sentence.}When such deviation is measured by relative entropy and an exponential prior is placed on the allowed deviation threshold, they show that the coarsened posterior is equal to the standard posterior to an appropriate power between zero and one. 
 However, using the coarsened posterior approach has a potentially high computational cost because
 it requires running Markov chain Monte Carlo dozens of times to heuristically determine a suitable robustness threshold \citep{Miller:2019,Xue:2024}.
-Moreover, while coarsening offers good robustness in many scenarios, it does not have have any formal correctness guarantees
-and can fail in simple situations.
+In addition, our experiments show that, while coarsening offers good robustness in many scenarios, it does not have have any formal correctness guarantees
+and can fail in simple situations (see \cref{sec:coarsening-limitations}). \PROBLEM{TODO(Meng): please update this appendix to be self-contained, given the changes to the experiments in the main text}
 
 \section{Applications}
 \label{sec:experiments}
 
-\PROBLEM{TODO: update intro to reflect changes in content }
-We now demonstrate the practical utility of our robust model selection approach.
+We now turn to illustrating the use of \methodname in some representative applications while 
+also providing theoretical support for our approach by showing that \methodname is robustly consistent.  
+For readability, theorems are stated informally in the main text.
+Formal statements of assumptions and results are deferred to \cref{sec:theory}. 
 %h across a wide variety of applications using both mixture and probabilistic matrix factorization models. 
-In each experiment, we compare to BIC since, like \methodname, it only requires a point estimate for each value of $K$.
+
+For the experiments in this section, we use the KL divergence as the discrepancy measure $\mcD$ for the 
+calculation of the estimated component-level discrepancy $\compDiscEst^{(K,k)}$ defined in \cref{eq:general-Dcomp}.
+We compare to BIC since, like \methodname, it only requires a point estimate for each value of $K$.
 Alternative criteria like AIC and DIC would give similar results.
-However, note that BIC has a larger penalty than AIC (which DIC generalizes), so we choose BIC since it will be more conservative and hence tend to choose smaller values of $K$.
-See, for example, \citet{Miller:2019,Xue:2024,Cai:2021} for numerical examples showing that Bayesian model selection does
-not resolve the overfitting problem.
-All experiments in this section we use the KL divergence as the discrepancy measure.
-Mixture model experiments in this section and \cref{sec:case-study} use the EM algorithm to obtain parameter estimates.
+However, since BIC has a larger penalty than AIC (which DIC generalizes), it will be more conservative and hence tend to choose smaller values of $K$.
+See, for example, \citet{Miller:2019,Xue:2024,Cai:2021} for numerical examples showing that Bayesian 
+model selection does not resolve the overfitting problem.
+
 
 \subsection{Mixture Models}
 
-In \cref{sec:mixture-model-consistency}, we show that \methodname is robustly consistent for mixture models 
-when the discrepancy measure is the KL divergence, Wasserstein distance, or maximum mean discrepancy.
-\PROBLEM{TODO: discuss the required choices of gap function and $\distDisc$.}
-\PROBLEM{TODO: describe alternative approaches that we will compare to.}
-We compare ACDC against three mixture model selection criteria that rely on within-cluster dispersion. For $K$ clusters, the total within-cluster sum of squares is defined as
-\[\mathrm{WCSS}(K) = \sum_{k=1}^{K} \sum_{i \in C_k} \| x_i - \mu_k \|^2,\]
-where $x_i$ is the $i^{th}$ data point, $C_k$ is the set of points assigned to cluster $k$, and $\mu_k$ is its centroid. 
-The Elbow method identifies the point beyond which additional clusters no longer show significant improvement in dispersion reduction. 
-The Silhouette coefficient assesses how well each point fits within its assigned cluster relative to its distance to the nearest neighboring cluster \citep{siluet_coef}. It favors clusters with high cohesion where points are close to others in the same cluster, and high separation where clusters are well isolated from one another. 
-The Gap statistic compares the observed clustering dispersion in the data to what is expected under a null reference where data comes from uniform distribution \citep{gap_stats}. The selection is based on the number of clusters that maximizes the deviation from its baseline. 
+As a first application, we consider mixture modeling, for which \methodname is robustly consistent. 
+\begin{theorem} \label{thm:mixture-model-robust-consistency}
+\methodname using $\compDiscEst^{(K,k)}$ defined in \cref{eq:general-Dcomp} is $\kappa$-robustly consistent for mixture models if the underlying component discrepancy $\mcD$ is the KL divergence, Wasserstein distance, or maximum mean discrepancy (MMD). 
+For the KL divergence, $\kappa(\rho, K) = \sqrt{\rho}$ and $\distDisc = d_\mathrm{BL}$, the bounded Lipschitz distance. 
+For Wasserstein distance and MMD, $\kappa(\rho, K) = \rho$ and $\distDisc = \mcD$. 
+\end{theorem}
+%See \cref{sec:mixture-model-consistency} for the precise definitions, technical conditions, and further discussion. 
+
+In addition to BIC, we compare \methodname to three nonparametric mixture model selection criteria that rely on within-cluster dispersion. 
+For $K$ clusters, the \emph{total within-cluster sum of squares} $\mathrm{WCSS}(K)$ is defined as
+\[
+    \mathrm{WCSS}(K) = \sum_{k=1}^{K} \sum_{m \in C_k} \| x_n - \mu_k \|^2,
+\]
+where $x_n$ is the $n$th observation, $C_k$ is the set of points assigned to cluster $k$, 
+and $\mu_k$ is its centroid. 
+One approach is the \emph{elbow method}, which identifies the point beyond which additional clusters no longer show significant improvement in dispersion reduction \citep{Thorndike_1953} \PROBLEM{TODO(Meng): citation}. 
+The \emph{silhouette coefficient}, on the other hand, assesses how well each point fits within its assigned cluster relative to its distance to the nearest neighboring cluster \citep{siluet_coef}. It favors clusters with high cohesion where points are close to others in the same cluster, and high separation where clusters are well isolated from one another. 
+Finally, \emph{gap statistic} compares the observed clustering dispersion in the data to what is expected under a null reference where data comes from uniform distribution \citep{gap_stats}. The selection is based on the number of clusters that maximizes the deviation from its baseline. 
+For all mixture model experiments, we use the EM algorithm to obtain parameter estimates.
+
+% Some other approaches to robust model-based clustering exist -- for example, heavy-tailed mixtures  \citep{Archambeau:2007,Christopher:2004,Wang:2018} and sample re-weighting \citep{Forero:2011}
+% both aim to account for slight model mismatches and outlier effects.
+% However, these methods do not directly address the question of how to correctly choose the number of clusters for the mixture model beforehand and so these methods can be used in combination with \methodname. 
 
 \subsubsection{High Dimensional Simulation Study}
 \label{sec:high-dim-simulation}
 
+\PROBLEM{TODO(Meng): rewrite once new experiments complete}
 We now provide further details about the motivating example in \cref{fig:motivate-comparison}, and illustrate
 that \methodname selects the correct number of components under a variety of conditions on the level of misspecification,
 the relative sizes of the mixture components, and the data dimension.
@@ -1144,7 +2095,7 @@ projections of the data give the appearance of there being four clusters in tota
 \subsubsection{Cell Type Discovery using Flow Cytometry}
 \label{sec:flow-cytometry}
 
-Flow cytometry is a technique used to analyze properties of individual cells in a biological material.
+Flow cytometry is a technique used to analyze properties of individual cells in a biological material \citep{flow_cytometry} \PROBLEM{TODO(Meng): add citation}.
 Typically, flow cytometry data measures 3--20 properties of tens of thousands cells.
 Cells from distinct populations tend to fall into clusters and discovering cell types by identifying clusters
 is of primary interest in practice.
@@ -1157,7 +2108,8 @@ Manual cluster assignments of all dataset are treated as the ground truth.
 The datasets consist of $D=4$ dimensions and varying number of observations for each dataset.
 %We set the scale as $k = \numobs^{1/2}$ in the adaptive $k$-nearest-neighbor based Kullback--Leibler estimator, which shows superior performance when $D= 4$.
 
-We follow \citet{Miller:2019} and use F-measure to quantify clustering accuracy and calibrate $\rho$ using the first 6 datasets.
+To calibrate $\rho$, we follow the domain knowledge-aided approach described in \cref{sec:choosing-rho}. 
+For comparability with the results of \citet{Miller:2019}, we use F-measure to quantify clustering accuracy and calibrate $\rho$ using the first 6 datasets.
 %For these datasets, we  %and then use this value $\rho$ for model selection for the other 6 datasets. 
 %More precisely, we find the $\rho$ value maximizes the average F-measure across the first 6 datasets.
 As shown in \cref{fig:flowcyt-train}, the training datasets 1--6 have a nearly identical trend of
@@ -1225,7 +2177,7 @@ These results provide evidence that our approach is taking better advantage of t
 
 For test datasets 7--12, we pick the value of $\numcomps$ based on a value of $\rho$ that is as close as possible to the estimated $\rho$ value of $1.16$ while also being stable for a range of $\rho$ values.
 As shown in \cref{tab:flowcyto-test}, \methodname provides the same average accuracy as the coarsened posterior
-while being substantially more computationally efficient, despite using a much slower programming language for implementation (2 hours using Python versus 30 hours using Julia). % rounded 1.9 and 30.4
+while being substantially more computationally efficient, despite using a much slower programming language for implementation (\methodname took 2 hours using Python while the coarsened posterior took 30 hours using Julia). % rounded 1.9 and 30.4
 %However, it takes approximately $30$ min to obtain similar clustering accuracy on the test datasets as coarsened posterior shows while running coarsened posterior takes $2.5$ hours which is significantly longer than structurally aware robust inference procedure.
 
 
@@ -1276,22 +2228,48 @@ while being substantially more computationally efficient, despite using a much s
 
 \subsection{Probabilistic Matrix Factorization} \label{sec:pmf-applications}
 
-In \cref{sec:PMF-consistency-proof}, we show that \methodname is robustly consistent for probabilistic matrix factorization models 
-when the discrepancy measure is the KL divergence.
-\PROBLEM{TODO: discuss the required choices of gap function and $\distDisc$.}
+As a second application, we consider probabilistic matrix factorization.
+As with mixture modeling, \methodname is robustly consistent. 
+\begin{theorem} \label{thm:pmf-robust-consistency}
+\methodname using $\compDiscEst^{(K,k)}$ defined in \cref{eq:general-Dcomp} is $\kappa$-robustly consistent for probabilistic matrix factorization if the underlying component discrepancy $\mcD$ is the KL divergence,  $\distDisc = d_\mathrm{BL}$, and $\kappa(\rho, K) = \sqrt{K\rho/2}$. 
+\end{theorem}
+%See \cref{sec:PMF-consistency-proof} for further details and precise technical conditions. 
+%, we show that \methodname is robustly consistent for probabilistic matrix factorization models 
+%when the discrepancy measure is the KL divergence.
 
-For our applications, we take $G = \Unif([0,1]^{D})$, the uniform distribution on the $D$-dimensional hypercube.
+In our numerical experiments, we take $G = \Unif([0,1]^{D})$, the uniform distribution on the $D$-dimensional hypercube.
 This choice is without loss of generality when using KL divergence as the discrepancy measure since it is invariant to diffeomorphisms of the noise variables ${\veps}_{nk}$.
 Moreover, it leads to a universal choice of $f(z, \phi, \cdot) = F^{-1}_{z\phi}$, the inverse CDF.
-However, in specific scenarios other $G$ and $f$ might be preferred due to considerations such as ease of implementation or because
-estimation of the KL divergence is more stable.
+However, in specific scenarios other choices for $G$ and $f$ might be preferred due to considerations such as ease of implementation or stability of KL divergence estimation. 
 For example, in the Gaussian case, we could take $G = \Norm({0}, I)$ and $f(z, \phi, \veps) = z\phi + \sigma \veps$. 
 
-We will be comparing \methodname against the Bayesian Information Criterion (BIC) and Parallel Analysis (PA), both very commonly used method for model selection in NMF and FA scenarios. BIC is computed by
+In addition to BIC, we compare \methodname to \emph{parallel analysis} (PA) \citep{Horn_ParallelAnalysis_1965,Buja_RemarksParallelAnalysis_1992}, which is a 
+commonly used method for model selection for probabilistic matrix factorization \PROBLEM{TODO(JH): add PA methodology reference (Done, can you check?)}. 
+To account for permutation invariance of the parameters, BIC is computed as
 \[
 BIC\left(x_{1:N},z^{(K)}_{1:K,1:N},\phi^{(K)}_{1:K}\right) = K\log(N) - 2\log\left(p\left(x_{1:N}~\middle|~ z^{(K)}_{1:K,1:N},\phi^{(K)}_{1:K}\right)\right)+2\log(K!).
 \]
-And PA is carried out by generating the scree plot (PCA eigenvalues) of the data against that of randomly generated matrices of the same size. These random matrices are generated by independently permuting each row of the data matrix.
+Parallel analysis is carried out by generating the scree plot (ordered PCA eigenvalues) of the data against that of randomly generated matrices of the same size. These random matrices are generated by independently permuting each row of the data matrix. 
+The results of \citet{Dobriban_PA-for-FA_2020} show that, in general, PA can be conservative 
+and miss factors with a low signal-to-noise ratio. 
+
+While other robust model selection approaches for matrix factorization exist, they all have limitations
+that lead us to not include them in our empirical comparison. 
+The method of \citet{Liu_Support-Union_2019} is limited to Gaussian nonnegative matrix factorization (NMF).
+%, using the second-order moment from the empirical fourth-order cumulant tensor.
+%However, the work had no mention of robustness against misspecification.
+\citet{Pelizzola_NegBin-NMF_2023} aim to address the problem of robustness for the case of 
+Poisson NMF using two different approaches: a negative binomial instead of a Poisson likelihood to improve the model's ability to handle overdispersed data, and a testing routine inspired by cross validation.
+While this approach provides reasonable results, using the negative binomial only targets a very specific type of data--model mismatch, and the cross validation approach does not have any correctness guarantees.
+\citet{Bai_DeterminingNumberFactors_2002} propose an information criterion-based approach for factor analysis
+and provide an asymptotic consistency result for the case where the input dimension tends towards infinity. 
+However, their main result
+applies only to the Gaussian NMF model with principle component analysis (PCA) as the estimation method.
+Particularly in NMF applications, another common approach is to evaluate the stability of the 
+NMF solution across multiple runs. 
+The \emph{cophenetic correlation coefficient} \citep{brunet_CCC_2004a} is one such example. 
+A similar stability-based principle is adopted by the widely-used toolset SigProfilerExtractor \citep{islam_sigprofiler_extractor_2022}, which uses a consensus bootstrap approach to ensure results are consistent and reproducible. 
+However, these approaches are computationally costly due to its reliance on repeated NMF executions. Furthermore, the results of \citet{Xue:2024} demonstrate empirically that consensus the bootstrap methodology -- much like PA -- tend to be conservative, underestimating the true number of factors. 
 
 \subsubsection{Mutational Process Discovery} \label{sec:mutsigs}
 
@@ -1304,7 +2282,7 @@ The most widely used approach to signature discovery is to fit a Poisson non-neg
 %\subsubsection{Reverse sampling for Poisson PMF}
 % In mutational signature discovery, a Poisson nonnegative matrix factorization (NMF) model is typically used \citep{Alexandrov_mut-sig-NMF_2013,Nik-zainal_MutationalProcessesMolding_2012}\PROBLEM{TODO(JHH): add whatever citations we use in \citep{Xue:2024} to support the choice of NMF}.
 %In the Poisson NMF model, 
-For each of $N$ tumor sample, the data consist of a count vector ${x}_{n}\in\nats^{D}$,
+For the $n$th tumor sample, the data consist of a count vector ${x}_{n}\in\nats^{D}$,
 where $D$ is the number of mutation types being considered (e.g., there are $D=96$ single-base substitution types with a trinucleotide context).
 % \[\label{eq:Pois_PMF}    
 %   {y}^{(K)}_{n,k}&\mop{\sim}^{\mathrm{e.w}}\mathrm{Pois}\lrp{{\phi}^{(K)}_{k}z^{(K)}_{n,k}} \quad 
@@ -1355,6 +2333,8 @@ To evaluate the quality of an estimate as a whole, we perform bipartite matching
 		+0.1\, \tanh\, D_{\mathrm{rad}}\lrp{{z}^{(K)}_{k},{z}_{o\sigma(k)}}},
 \]
 where $\sigma \colon [K_o] \to [K]$ denotes an injective matching function.
+We bound and down-weight the $D_{\mathrm{rad}}$ using the $0.1 \tanh$ transform so that signature reconstruction accuracy is the main determinant for matching 
+and exposure accuracy acts a tiebreaker when the signature accuracies are ambiguous. 
 Given the optimal matching $\sigma_{\star} = \argmin_\sigma D^{(K)}(\sigma)$, the accuracy scores are defined
 as the worst-case cosine and relative average errors, given by
 $
@@ -1367,7 +2347,7 @@ $
 
 \Cref{fig:mutsig_result,fig:mutsig_result_appendix_1} show that, across all four datasets,
 BIC selects $\widehat{K} = K_{\max}$ -- even when the data is well specified.
-On the opposite spectrum, PA consistently underestimatess the number of signatures at $K = 2$. Finally, \methodname selects $\widehat K = 7$ or $8$, which correspond to the some of the largest values of $K$ for which the parameter estimates still have reasonably small error and meaningful decomposition.
+On the other hand, PA consistently underestimates $K_o$, estimating $\hat K = 2$. Finally, \methodname selects $\widehat K = 7$ or $8$, which correspond to the some of the largest values of $K$ for which the parameter estimates still have reasonably small error and meaningful decomposition.
 These results suggest \methodname is a promising alternative to existing approaches for selecting the number of mutational signatures, which all suffer from some combination of high computational cost and lack of statistical rigor \citep{Xue:2024,pcawg2020}.
 
 \subsubsection{Materials Discovery using Hyperspectral Imaging} \label{sec:hyperspectral}
@@ -1434,29 +2414,36 @@ using the soft adjusted Rand index \citep[sARI;][]{Flynt_sARI_2019}.
 %, a way to evaluate the similarity between two soft (probabilistic) partitions.
 %Again, we compare our evaluations to BIC.
 %Quantitative results are shown in .
-\Cref{fig:urban_results} shows that \methodname selects $\widehat{K}=K_{o} =5$,
-which also agrees with the sARI. %, also indicating that $K=5$ yields material abundance closest to ground truth.
-BIC overfits, selecting $\widehat{K} = 7$, while PA underfits, selecting $\widehat{K}=3$.
+\Cref{fig:urban_results} shows that \methodname selects $\widehat{K} = K_{o} = 5$,
+which also maximizes the sARI. %, also indicating that $K=5$ yields material abundance closest to ground truth.
+BIC overfits, selecting $\widehat{K} = 7$, while PA underfits, selecting $\widehat{K} = 3$.
 \Cref{fig:hyprunmix_gt}(b)--(e) provides a qualitative understanding of the result.
 %providing intuition to the performance gaps seen in \cref{fig:urban_results_rho_k}.
-The small gap between $K=3$ and $K=4$ can be explained through the addition of the ``grass'' material.
-However, since ``grass'' and ``tree'' are fairly similar to each other, this gap is not very large.
-The large gap between $K=4$ and $K=5$ can be explained by the addition of the ``asphalt'' material -- a meaningful and significant contribution.
+The small gap between $K=3$ and $K=4$ can be explained through the addition of the ``grass'' material that is
+very similar to the already included ``tree'' material. 
+The large gap between $K=4$ and $K=5$ can be explained by the addition of the very different ``asphalt'' material, 
 Finally, $K=6$ only adds a ``residual'' material compared to $K=5$, which can be interpreted as a different shade of ``grass''
 and is clearly an artifact of overfitting.
 %Accordingly, this is reflected in the fact that there is no gap between $K=5$ and $K=6$.
 
 \section{Case Study: Cell Type Discovery using Single-Cell RNA Sequencing Data} \label{sec:case-study}
 
+We now turn to a more in-depth case study that illustrate how
+\methodname provides flexibility to adapt to problem-specific features while still performing well using defaults. 
 %To demonstrate the benefits of \methodname on a challenging problem that is , we   
-Cell type discovery from single-cell RNA sequencing (scRNA-seq) data is a common task in bioinformatics workflows  
-that is currently solved using complicated heuristic workflows. 
+A common task in bioinformatics workflows is using 
+single-cell RNA sequencing (scRNA-seq) for cell type discovery. 
+In current practice, determining the number of cell types is done
+using heuristics.
+\methodname offers simple, theoretically justified alternative. 
 %As such, it provides a practically important  \methodname 
-We first compare our default discrepancy measure choice (KL divergence) to 
-the problem-specific choice of the Wasserstein distance with cosine distance, using the Sinkhorn distance as an estimator. %, ensuring a more comprehensive assessment. 
-Next, we illustrate the automation of \methodname using the approach described in \cref{sec:choosing-rho}, 
-which provides comparable results to those obtained through manual selection.
-Finally, we highlight the superior performance of our approach compared to state-of-the-art scRNA-seq clustering pipelines.
+
+In this section, we first compare our default discrepancy measure choice (KL divergence) to 
+the problem-specific choice of the Wasserstein distance with cosine distance (using the Sinkhorn distance as an estimator). %, ensuring a more comprehensive assessment. 
+Next, we show that automating \methodname using the approach described in \cref{sec:choosing-rho} 
+provides comparable results to those obtained through manual selection.
+Finally, we highlight the superior performance of \methodname compared to the heuristics used 
+in current state-of-the-art scRNA-seq clustering pipelines.
 %,  helps mitigate the common issue of cluster overestimation in existing methods.
 % Additionally, we compare our default discrepancy measure -- KL divergence -- to a problem-specific choice of the Wasserstein distance with cosine distance in \cref{supp:div_comp}, using the Sinkhorn distance as an estimator.
 
@@ -1478,23 +2465,23 @@ We evaluate cell clustering performance by examining both the accuracy of cluste
 For each dataset, we (1) check the difference in the estimated number of cell types $\widehat K$ from the true
 number of cell types $K_o$ and (2) quantify the agreement between the ground truth labels and the estimated labels using the Adjusted Rand Index (ARI) and Adjusted Mutual Information (AMI) \citep{ari,ami}.
 
-\begin{figure}[h!]
+\begin{figure}[t]
 	\centering
 	\subfloat{\includegraphics[width=.55\textwidth]{sh_kl_hist.pdf}}
 	\subfloat{\includegraphics[width=.44\textwidth]{sh_kl_dots.pdf}}
 	%\subfloat{\includegraphics[width=50mm]{figures/sh_k_diff.png}}
 
-	\caption{Comparison of KL to Sinkhorn as divergence estimators for scRNA-seq clustering. \textbf{Left:} Difference in $K$ estimates using \methodname with KL divergence.
-		\textbf{Middle:} Difference in $K$ estimates using \methodname with Wasserstein distance.
-		The dashed vertical lines indicate the medians.
-		\textbf{Right:} True number of cell types vs. estimated number of cell types (jittered).
+	\caption{Comparison of KL to Sinkhorn as divergence estimators for scRNA-seq clustering. Difference in $K$ estimates using \methodname with KL divergence \textbf{(left)} 
+    and Wasserstein distance \textbf{(middle}.
+    The dashed vertical lines indicate the medians.
+	\textbf{Right:} True number of cell types vs. estimated number of cell types (jittered).
 	}
 	\label{fig:sh_kl_comp}
 \end{figure}
 
 \subsection{Comparison of Divergences}
 
-One benefit of \methodname is that the user can select a discrepancy measures
+One benefit of \methodname is that the user can select a discrepancy measure $\mcD$ 
 that best captures the underlying structure of the data.
 %and hence makes the framework suitable for diverse clustering scenarios. 
 While the KL divergence is our recommended default,
@@ -1503,7 +2490,7 @@ For single-cell clustering, the cosine distance is able to capture the direction
 This is particularly useful with high-dimensional scRNA-seq data where the magnitude of total gene counts in each cell can vary
 significantly, while the expression proportions across genes remain informative. %Sinkhorn divergence are two widely used distance metrics.
 %
-For numerical experiments, we use the bias-corrected KL estimator (\cref{sec:kl-estimation}) and the unbalanced Sinkhorn distance to estimate the Wasserstein distance.
+For numerical experiments, we use the bias-corrected KL estimator (see \cref{sec:kl-estimation}) and the unbalanced Sinkhorn distance to estimate the Wasserstein distance.
 See \cref{sec:case-study-details} for details.
 %with parameter setting described in supplemental material.
 %
@@ -1526,10 +2513,9 @@ See \cref{sec:case-study-details} for details.
 As illustrated in \cref{fig:sh_kl_comp}, both choices of discrepancy lead to good estimates of the true number of cell types
 in each dataset.
 %In the scatter plot, the estimated number of cell types $\widehat{K}$ lies close to the true value $K_o$, with most trial points near the diagonal line. 
-However, the KL divergence version has a bias toward overestimation (median difference of $2$ from the ground-truth $K_o$),
+However, the KL divergence version has a slight bias toward overestimation (median difference of $2$ from the ground-truth $K_o$),
 while the Wasserstein version has slight bias toward underestimation (median difference of $-1$).
 %with a range from $-6$ to 3, 
-%showing a slight bias toward underestimation. % ($\widehat{K} < K_o$), which
 These results demonstrate the robustness of our default choice (KL divergence) while also highlighting the benefits of being able to improve performance by making a problem-specific choice (the Wasserstein distance).
 Since we view underestimation as preferable to overestimation (i.e., overfitting),
 for our remaining experiments we consider only the Wasserstein distance variant.
@@ -1584,17 +2570,20 @@ Hence, there appears to be no practically significant difference between the aut
 \subsection{Comparison with Existing Tools}
 
 There are many specialized tools for single-cell RNA sequencing clustering.
-However, a common challenge with these tools is the tendency to overestimate the number of cell types, particularly in datasets with complex structures. In this section, we demonstrate that \methodname not only mitigates the issue of overestimation but also achieves strong clustering agreement. We compare \methodname with the popular Seurat  \citep{seurat} and SC3  \citep[Single-Cell Consensus Clustering;][]{sc3} packages; see \cref{sec:existing-tools} for further details about each tool.
+However, a common challenge with these tools is the tendency to overestimate the number of cell types, particularly in datasets with complex structures. 
+In this section, 
+%we demonstrate that \methodname not only mitigates the issue of overestimation but also achieves strong clustering agreement. 
+we compare \methodname with the popular Seurat  \citep{seurat} and SC3  \citep[Single-Cell Consensus Clustering;][]{sc3} packages; see \cref{sec:existing-tools} for further details about these tools.
 
 % To compare the performance of our  with Seurat and SC3, we evaluated their accuracy in cell type estimation and cluster label agreements across the uniform cluster datasets with different numbers of cell types and equal cluster sizes.
 \Cref{fig:tool_comp_unif} shows that \methodname has superior accuracy in cell type number estimation compared to Seurat and SC3. The estimates produced by \methodname closely track $K_o$ while Seurat and SC3 tend to overestimate $K_o$.
-While Seurat shows a consistent level of overestimation for datasets with differing numbers of clusters,
+While Seurat shows a constant level of overestimation for datasets with differing numbers of clusters,
 SC3 overestimates the number of clusters more as $K_o$ increases.
 %indicating declining performance in more challenging datasets. 
 %Overall, our approach outperforms Seurat and SC3 in accurately predicting the true number of cell types.
 %
-In terms of clustering agreement, our framework and Seurat achieve comparable ARI and AMI values across datasets.
-While ARI for Seurat and SC3 is lower in datasets with $K_{o} < 5$,
+In terms of clustering agreement, \methodname and Seurat achieve comparable ARI and AMI values across datasets.
+While ARI for Seurat and SC3 is lower in datasets with small $K_{o}$ ($< 5$),
 % datasets with more cell types, 
 \methodname maintains stable clustering agreement across all values of $K_o$.
 SC3 performs poorly on both ARI and AMI due to its significant overestimation of cell types.
@@ -1605,24 +2594,49 @@ two carefully engineered pipelines designed specially for clustering single-cell
 
 \section{Discussion} \label{sec:discussion}
 
-While we have demonstrated the practical utility and broad applicability of \methodname to robustly discovering latent processes with real-world interpretations, that are a number of important limitations that motivate directions for future work.
+In this paper, we have developed a general theoretical and methodological framework for ensuring 
+mechanistic interpretability when selecting the number of latent components in a latent variable model. 
+As two applications, we showed that our \methodname method is robustly consistent and empirically 
+effective for mixture models and probababilistic matrix factorization. 
+These results open the door to a number of directions for future work.
 
-First, in applications where related labeled datasets are not available, we are only able to provide a heuristic method for calibrating the degree of misspecification, as quantified by $\rho$.
+In applications where related labeled datasets are not available, we are only able to provide a heuristic method for calibrating the degree of misspecification, as quantified by $\rho$.
 Ideally, we would like to have a more rigorous criteria.
-However, given the nonparametric nature of misspecification, we suspect that a fully general solution does not exist; indeed, the coarsened posterior similarly requires a heuristic calibration step.
-One alternative to explore in future is the simulation-based calibration method from \citet{Xue:2024}, which was developed for the coarsened posterior but could easily be used with \methodname as well.
-However, generally speaking, a user must have \emph{some} prior knowledge about the degree of model misspecification -- and believe that the misspecification will be reasonably small as measured by the chosen discrepancy.
+However, given the nonparametric nature of misspecification, we suspect that a fully general solution does not exist; for example, the coarsened posterior similarly requires a heuristic calibration step.
+One alternative to explore in the future is the simulation-based calibration method from \citet{Xue:2024}, which was developed for the coarsened posterior but could easily be used with \methodname as well.
+However, generally speaking, a user must have \emph{some} prior knowledge about the degree of model misspecification -- and believe that the misspecification will be reasonably small as measured by the chosen discrepancy $\mcD$.
 Moreover, if the degree of misspecification is very large, we should not expect any robust model selection procedure to
 work well (cf.\ $P_{o}^{E}$ in \cref{fig:consistency-illustration}).
 
-Second, our current robust consistency guarantees are limited to mixture models and matrix factorization.
-It would be valuable to have a more general consistency theory that either covers other common model classes
-or the general modeling framework from \cref{sec:framework}.
-It would also be valuable to characterize how quickly $\Pr(\widehat{K} = K_o)$ converges to 1 and to quantify the variability of $\widehat{K}$.
-Another interesting direction for future work is to apply \methodname to other model classes such as supervised factor analysis and extend it to apply to more flexible models such as (nonlinear) variational autoencoders \citep{Kingma2014,Kingma2019VAEs} and semiparametric matrix factorization models \citep{Anandkumar2014uc,rohe2023vintage-7f4}.
+It would be valuable to further develop our robust consistency theory; for example  
+similar results could be proved for other common model classes. 
+It would also be useful to characterize how quickly $\Pr(\widehat{K} = K_o)$ converges to 1 
+and to quantify the variability of $\widehat{K}$.
+Another interesting direction for future work is to apply \methodname to other model classes such as supervised factor analysis and extend it to apply to models outside of the framework we developed in
+\cref{sec:framework} -- for example, (nonlinear) variational autoencoders \citep{Kingma2014,Kingma2019VAEs} and semiparametric matrix factorization models \citep{Anandkumar2014uc,rohe2023vintage-7f4}.
 
-Finally, \methodname does not provide any uncertainty quantification.
-A Bayesian version of our method that provides a distribution over $K$ would be useful,
-as it could quantify uncertainty in $K$ even as $N \to \infty$.
-A fully generalized Bayesian version that simultaneously quantifies parameter uncertainty would also be valuable.
+% Finally, \methodname does not provide any uncertainty quantification.
+% A Bayesian version of our method that provides a distribution over $K$ would be useful,
+% as it could quantify uncertainty in $K$ even as $N \to \infty$.
+% A fully generalized Bayesian version that simultaneously quantifies parameter uncertainty would also be valuable.
+
+% \PROBLEM{TODO(Jonathan/anyone): add discussion of the following limitations/directions for future work:
+% \begin{itemize}
+%     \item doesn't provide UQ; Bayesian version that induces distribution of the K's could be interesting
+%     \item 
+%     %\item more general consistency theory or for other model classes
+%     \item numerical applications to other models such as various versions of VAEs 
+%     %\item convergence rate of $\Pr(\widehat{K} = K_o)$ to 1
+%     %\item more rigorous approaches to selecting $\rho$; however, likely only so much that can be done; 
+%     \item 
+% \end{itemize}}
+
 \section*{Acknowledgments}
+Thanks to Yixin Wang for invaluable discussions and detailed feedback on an earlier version of this manuscript.
+J.~Li and J.~H.~Huggins were partially supported by the National Institute of General Medical Sciences of the National Institutes of Health (NIH)
+as part of the Joint NSF/NIGMS Mathematical Biology Program under grant 1R01GM144963-01
+and by the National Science Foundation (NSF) under grant IIS-2340586.
+N.~Nguyen and I.C.~Paschalidis were partially supported by the National Science Foundation (NSF) under grants IIS-1914792, CCF-2200052, ECCS-2317079, and DEB-2433726, the Department of Energy (DOE) under grant DE-AC02-05CH11231, the Office of Naval Research (ONR) under grant N00014-19-1-2571, and Merck Research.
+The content is solely the responsibility of the authors and does not necessarily represent the official views of the NIH, NSF, DOE, ONR or Merck.
+
+\chapter{Discussion and Future Work}\label{chap:discussion}
