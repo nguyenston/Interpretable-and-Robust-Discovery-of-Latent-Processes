@@ -1,6 +1,6 @@
 % !TEX root =  manuscript_arxiv.tex
 \chapter{Introduction}
-Many critical real-world applications in areas such as healthcare, autonomous systems, and scientific discoveryare fundamentally driven by unobserved, or latent, processes. 
+Many critical real-world applications in areas such as healthcare, autonomous systems, and scientific discovery are fundamentally driven by unobserved, or latent, processes. 
 For example, processes might correspond to subpopulations that cannot be directly observed such as
 types of cells \citep{Gorsky:2020,Prabhakaran:2016}, behavioral genotypes \citep{Stevens:2019}, or
 groups with canonical patterns of IQ development \citep{Bauer:2007}.
@@ -56,19 +56,20 @@ This work addresses the problem by presenting two primary contributions:
 Collectively, these contributions aim to provide valuable alternative and complementary methods for applying machine learning 
 in high-stakes situations. Continue on, \cref{chap:Spectral_HIL} will provide details to 
 the spectral HIL method, including relevant background and related works. 
-\cref{chap:ACDC} will similarly provide the background and details to the ACDC. 
+\cref{chap:ACDC} will similarly provide the background and details to the ACDC, 
+with particular focus on its application to the class of probabilistic matrix factorization (PMF) models. 
 Finally, \cref{chap:discussion} will discuss the limitations of the proposed methods and the way forward.
 
  
 \chapter{Spectral method of moments for Hierarchical Imitation Learning}\label{chap:Spectral_HIL}
-\section{Introduction}
-\label{sec:introduction}
+\section{Introduction} \label{sec:HIL_introduction}
+Hierarchical Reinforcement Learning (HRL) seeks to address the scalability and interpretability problem of Reinforcement Learning (RL) by introducing layers of abstraction over the decision process, enabling high-level decisions over larger time scales and low-level decisions over smaller time scales \citep{SUTTON1999181, Barto2003}. The success of HRL relies on discovering suitable abstractions. 
 In the literature, the problem of discovering suitable abstractions has been tackled both separately and in conjunction (in a single end-to-end process) with learning the optimal policy \citep{Barto2003}.
 In specific instances where expert demonstrations are available, the process of discovering abstractions and learning optimal policies can be accelerated via \emph{Hierarchical Imitation Learning} (HIL).
 Specifically, HIL involves computing a hierarchy of policies from expert demonstrations and is the extension of \emph{Imitation Learning} (IL) to HRL.
-In this paper, we develop a novel HIL approach for the HRL with options framework of \citet{SUTTON1999181}.
+In this chapter, we develop a novel HIL approach for the HRL with options framework of \citet{SUTTON1999181}.
 
-The HRL with options framework proposed by \citet{SUTTON1999181} involves a two-tiered hierarchy of policies, with a high-level policy governing ``options'' or decision as to which of a finite set of low-level policies are used to select actions.
+The HRL with options framework proposed by \cite{SUTTON1999181} involves a two-tiered hierarchy of policies, with a high-level policy governing ``options'' or decision as to which of a finite set of low-level policies are used to select actions.
 A key challenge of HIL in this options framework is that in practice, only (low-level) states and actions are directly observed through expert demonstrations, not the (high-level) options.
 The options thus constitute hidden (or latent) variables, and so recent HIL works have drawn inspiration from Expectation-Maximization (EM) techniques for learning Hidden Markov models (HMMs) and other latent variable models \citep{Daniel2016,zhiyu20,Giammarino_2021}.
 These EM techniques process state-action pairs from expert demonstrations with a Bayesian smoother to compute a surrogate function for the (log)likelihood, and subsequent maximization of this surrogate function over the policy space.
@@ -82,10 +83,10 @@ Nevertheless, moment methods have not previously been investigated for HIL in th
 %An few examples of moments are the second or third order consecutive moments, where the joint probability of pairs or triplets of consecutive observations are examined \cite{hsu08}. 
 %Unlike EM methods, 
 
-The key contribution of this paper is the development of a new method of moments for HIL in the HRL options framework of \citep{SUTTON1999181}. Inspired by the method of moments for HMMs developed in \citep{hsu08}, our method of moments for HIL offers global convergence under mild regularity and non-degeneracy conditions, and has the practical advantage of only requiring a single pass through the expert demonstrations.
+This chapter describes a new method of moments for HIL in the HRL options framework of \citep{SUTTON1999181}. Inspired by the method of moments for HMMs developed in \citep{hsu08}, the proposed method of moments for HIL offers global convergence under mild regularity and non-degeneracy conditions, and has the practical advantage of only requiring a single pass through the expert demonstrations.
 It therefore serves as both a useful alternative and complementary technique to the previously developed but locally-convergent EM algorithms of \citep{Daniel2016,Giammarino_2021, zhiyu20}.
 
-\emph{Notation:}
+\emph{Notation used in this chapter:}
 Uppercase letters denote random variables, lowercase letters denote realizations. Uppercase bold letters denote matrices, lowercase bold letters denote vectors. Superscript on a quantity acts like a label in case there are many quantities with the same symbol. Subscript on a quantity denotes it being a subclass of the original quantity.
 The Kronecker product $\otimes$ is defined as
 \[
@@ -248,6 +249,7 @@ Then the product matrix
 \]
 is invertible.
 \end{lemma}
+\PROBLEM{TODO: Move all proofs to appendix}
 \begin{proof}
 We have
 \[
@@ -275,7 +277,7 @@ Therefore, $\bm{\Pi}^{lo}_s\bm{V}_s$ is invertible. Since $s$ is chosen arbitrar
 %     \bm{\Pi}^{lo}\bm{V} = \bmat{\bm{\Pi}^{lo}_1\bm{V}_1&&\\&\ddots&\\&&\bm{\Pi}^{lo}_\zeta\bm{V}_\zeta}.
 % \]
 Because $\bm{\Pi}^{lo}_s\bm{V}_s$ is invertible for all $s$, it follows that $\bm{\Pi}^{lo}\bm{V}$ is also invertible.
-\hspace*{\fill} \qed
+% \hspace*{\fill} \qed
 \end{proof}
 
 We next examine the properties of the moments $\bm{M}_a$.
@@ -365,7 +367,7 @@ Let
 % \end{multline}
 Then,
 \[
-  &\bm{M}_a\lrb{s_2\zeta+s_1,s_3\alpha+a_3}\\
+  \bm{M}_a\lrb{s_2\zeta+s_1,s_3\alpha+a_3}
   %=\ &P(S_2=s_2,S_1=s_1,A_2=a,S_3=s_3,A_3=a_3)\\
   =\ &\sum_{s_2',o_1}
       \sum_{s_2'',o_2}
@@ -417,14 +419,14 @@ By the Definition \eqref{eq:mathcalM_sum}
 \]
 Finally, we can write Equation \eqref{eq:diagonalize} as
 \[
-    &\bm{V}\transpose\bm{\hat{M}}^+\bm{\hat{M}}_a\bm{V}\\
-    =&\lrp{\bm{\Pi}^{hi}\bm{\Pi}^{lo}\bm{V}}\inv
+    \bm{V}\transpose\bm{\hat{M}}^+\bm{\hat{M}}_a\bm{V}
+    =\lrp{\bm{\Pi}^{hi}\bm{\Pi}^{lo}\bm{V}}\inv
         \lrp{\bm{\Psi}\inv\otimes\identity_\omega}
         \bm{\Lambda}_a(\bm{\Psi}\otimes \identity_\omega)
         \bm{\Pi}^{hi}\bm{\Pi}^{lo}\bm{V},\label{eq:diagonalize_detailed}
 \]
 and the proof is complete.
-\hspace*{\fill} \qed
+% \hspace*{\fill} \qed
 \end{proof}
 
 In order to compute the eigenbasis that jointly diagonalize \eqref{eq:diagonalize} for all $a\in\mathcal{A}$, we find a vector $\bm{\eta}\in\mathbb{R}^{\alpha}$ such that the eigenvalues of
@@ -468,7 +470,7 @@ According to Definition \eqref{eq:hat_K_definition} and Equation \eqref{eq:overl
 \]
 Therefore,
 \[
-    &\bm{\Pi}^{lo}_s{\bm{K}_s}^+\bm{\hat{K}}_{ss'}{\bm{\Pi}^{lo}_{s'}}^+\\
+    \bm{\Pi}^{lo}_s{\bm{K}_s}^+\bm{\hat{K}}_{ss'}{\bm{\Pi}^{lo}_{s'}}^+
     =\ &\bm{\Psi}[s,s']\lrp{\bm{\Pi}^{lo}_s{\bm{\Pi}^{lo}_s}^+{\bm{\Pi}^{hi}_s}\inv
         {\bm{\Xi}_s}^+\bm{\Xi}_s\bm{\Pi}^{hi}_s\bm{\Pi}^{hi}_{s'}\bm{\Pi}^{lo}_{s'}{\bm{\Pi}^{lo}_{s'}}^+}\\
     =\ &\bm{\Psi}[s,s']\bm{\Pi}^{hi}_{s'}.%\numberthis
@@ -483,7 +485,7 @@ With that, we contract the left hand side of Equation \eqref{eq:pihi_recovery}
     %\numberthis
 \]
 The last equality holds because we chose $\bm{w}_{s'}$ such that $\sum_s \bm{w}_{s'}[s]\bm{\Psi}[s,s']=1$. Analysis of the choice of $\bm{w}_{s'}$ will be reserved for future work.
-\hspace*{\fill} \qed
+% \hspace*{\fill} \qed
 \end{proof}
 
 \subsection{Proposed Method of Moments for HIL}
@@ -491,16 +493,14 @@ Given the observed sequence $\{(s_t,a_t)\}_{t = 1}^T$, our method of moments to 
 \begin{enumerate}[leftmargin=2cm, label=Step \arabic*:]
     \item Estimate $\bm{M}_a$, $\bm{K}_s$, and $\bm{\Phi}^A_a$ from data via:
     \[
-        &\bm{M}_a\lrb{s_2\zeta+s_1,s_3\alpha+a_3}\\
+        \bm{M}_a\lrb{s_2\zeta+s_1,s_3\alpha+a_3}
         =\ &\frac{\sum_{t=1}^{T-2}\indicator{s_t=s_1,s_{t+1}=s_2,a_{t+1}=a,s_{t+2}=s_3,a_{t+2}=a_3}}{T-2},
             %\numberthis 
             \\
-        &\bm{K}_s\lrb{s_1,a_2}
-        =\ \frac{\sum_{t=1}^{T-1}\indicator{s_t=s_1,s_{t+1}=s,a_{t+1}=a_2}}{T-1},
+        \bm{K}_s\lrb{s_1,a_2}
+        =\ &\frac{\sum_{t=1}^{T-1}\indicator{s_t=s_1,s_{t+1}=s,a_{t+1}=a_2}}{T-1},\\
             %\numberthis
-    \]
-    \[
-        \bm{\Phi}^A_a[s,s'] &= \frac{\sum_{t=1}^{T-1}\indicator{s_t=s, a_t=a, s_{t+1}=s'}}{\sum_{t=1}^{T-1}\indicator{s_t=s, a_t=a}}.
+        \bm{\Phi}^A_a[s,s'] =\ &\frac{\sum_{t=1}^{T-1}\indicator{s_t=s, a_t=a, s_{t+1}=s'}}{\sum_{t=1}^{T-1}\indicator{s_t=s, a_t=a}}.
     \]
     \item Compute the surrogate moments $\bm{\hat{M}}_a$ and $\bm{\hat{M}}$ according to Equations \eqref{eq:mathcalM} and \eqref{eq:mathcalM_sum}.
 
@@ -551,7 +551,7 @@ For intuition, we can think of the states as locations on a number line (i.e., s
 
 \begin{figure}
     \centering
-    \resizebox{0.4\textwidth}{!}{\begin{tikzpicture}
+    \resizebox{0.6\textwidth}{!}{\begin{tikzpicture}
     \begin{loglogaxis}[
         width = 0.5\textwidth,
         height = 0.25\textwidth,
@@ -585,7 +585,7 @@ In Fig.\ \ref{fig:error} we plot the error versus the number of samples for a fe
 For comparison purposes, Fig.\ \ref{fig:EM_error} depicts a few EM runs with randomized initialization and a sample size of $3 \times 10^5$. It can be seen that initialization have a significant effect on EM's rate of convergence and whether or not it arrives at the correct optima. In contrast, the proposed method of moments does not require initialization.
 \begin{figure}
     \centering
-    \resizebox{0.4\textwidth}{!}{\begin{tikzpicture}
+    \resizebox{0.6\textwidth}{!}{\begin{tikzpicture}
     \begin{semilogyaxis}[
         width = 0.5\textwidth,
         height = 0.25\textwidth,
@@ -625,8 +625,7 @@ For comparison purposes, Fig.\ \ref{fig:EM_error} depicts a few EM runs with ran
     \label{fig:EM_error}
 \end{figure}
 
-\section{Conclusions and Future Work}
-\label{sec:conclusions}
+\section{Chapter summary}
 We developed a novel method of moments for Hierarchical Imitation Learning (HIL) that offers global convergence under mild regulatory conditions.
 Our method of moments for HIL is based on similar methods for HMMs and other latent variable models, and avoids the local convergence issues inherent in previous Expectation-Maximization (EM) approaches to HIL.
 Future work could include further relaxation of the conditions under which the method holds and examining its extension to situations in which the options form a semi-Markov (rather than a Markov) process.
@@ -651,33 +650,6 @@ Future work could include further relaxation of the conditions under which the m
 %Learning latent structures with real-world interpretations is a commonly encountered task. 
 Characterizing latent structures with meaningful real-world interpretations is a common task in scientific applications of statistical methods.
 This task often amounts to discovering unobserved physical ``processes'' that generate observable quantities.
-%To be concrete, consider two common classes of models aimed at the discovery of latent processes (although our setting and methods will be more general. 
-For example, processes might correspond to subpopulations that cannot be directly observed such as
-types of cells \citep{Gorsky:2020,Prabhakaran:2016}, behavioral genotypes \citep{Stevens:2019}, or
-groups with canonical patterns of IQ development \citep{Bauer:2007}.
-Processes could correspond to a variety of scientifically important objects such cell programs \citep{Kotliar_Identify_Cell_Idendity_Activity_NMF_2019,Buettner_FscLVM_ScalableVersatile_FA_2017,Risso_General_Flexible_Signal_Extract_2018},
-mutational processes in tumors %(e.g., using whole genome sequencing data) 
-\citep{Levitin_DeNovo_Gene_Signature_Identification_2019,Kinker_Pan_Cancer_2020,Seplyarskiy_PopulationSequencingData_2021},
-or material types
-%on the ground that observed using a remote sensing platform such as a drone or satellite %(e.g., from hyperspectral data) 
-\citep{Fevotte_NonlinearHyperspectralUnmixing_2015,Rajabi_SpectralUnmixingHyperspectral_2015}.
-% Latent  discovery is typically carried out using familiar models such as mixture and latent class models, probabilistic matrix factorization and factor analysis models, and generalized bilinear models. 
-%For example, mixture models are used to discover unobserved subpopulations
-%There is a wide range of areas that mixture models provide invaluable insights, including 
-%such as cell types %(e.g., using single-cell assays) 
-%,  %(e.g., using gene expression data) 
-%, and ;
-% and much more  \citep{Greenspan:2006,Adelino:2007,Ghorbani:2016}. 
-%Further examples include disease recognition \citep{Greenspan:2006,Adelino:2007,Ghorbani:2016}, anomaly detection  \citep{Zong:2018},
-%and discovery of abnormal heart rhythm types \citep{Ghorbani:2016}.
-%In the mixture modeling case, each observation is associated with a single latent process (i.e., type).
-%are used to discover  %(e.g., using gene expression data) 
-%,
-%;
-%\NA{while and generalized bilinear models can serve similar functions while also incorporating covariates and other structured...}\PROBLEM{TODO: finish this}
-%%and, in recent years, deep generative models have been used for similar purposes
-%%\citep{Moran_IdentifiableDeepGenerative_2022}.
-
 In practice, it is necessary to not only characterize each latent process but also determine \emph{how many} such processes there are.
 This requires solving a model selection problem for a sequence of model families $\model{K} = \{ P_\theta : \theta \in \Theta_K\}$, $K = 1, 2, \dots,$ where $K$ denotes the number of latent processes in the model.
 For example, $K$ could be the number of components in a mixture model or the number of factors in a factor analysis model.
@@ -782,7 +754,7 @@ We defer more detailed discussion of related work to \cref{sec:related-work,sec:
 
 
 \paragraph{Summary of Contributions.}
-In this paper, we make the following contributions to the development of more reliable
+In this chapter, we make the following contributions to the development of more reliable
 and robust methods for model selection for discovering real-world latent processes:
 %overcome the limitations of existing approaches:
 \begin{enumerate}
@@ -794,29 +766,16 @@ and robust methods for model selection for discovering real-world latent process
     and argue that it captures key features any robust model selection method 
     should satisfy. 
 	\item We propose the \emph{accumulated cutoff discrepancy criterion} (\methodname), as a simple, flexible approach to robust model selection. 
-	\item We show how to apply \methodname to a broad class of models
 	in which the observations are determined by combining unobserved outputs from $K$ latent processes.
-	% \methodname combines ideas from minimum distance estimation and coarsening, and
-	% can incorporate expert and prior knowledge about the nature of the model misspecification.
-	%       \methodname can be used with any parameter estimation technique, so it is easy to incorporate
-	      % into existing data analysis workflows. % (see \cref{sec:case-study} for a comprehensive illustration of this).
-	      %      Our minimum distance approach enables the use of any discrepancy measure between distributions,
-	      %     which can be chosen in an application-specific manner.
-	      %    Given fitted models each possible number of components, the computational cost required to compute our criterion is determined by the cost of estimating the discrepancy measure, which is typically quite small.
+\item We show how to apply \methodname to the class of PMF models
 	\item We prove that \methodname provides robust model selection 
-    consistency for mixture models and probabilistic matrix factorization models. 
-	      %for our model class (\cref{sec:motivation}).
-	      %   We show that, under intuitive assumptions, our procedure is robustly consistent (\cref{sec:theory}), 
-	      % as illustrated in the third row of \cref{fig:motivate-comparison}.
-	\item We illustrate the advantages of \methodname through four numerical experiments with 
+    consistency for PMF models. 
+	\item We illustrate the advantages of \methodname through two numerical experiments with 
 	    simulated and real data.\footnote{Code to reproduce all experiments is available on GitHub: \url{https://github.com/TARPS-group/robust-model-selection-for-discovery}.} % (\cref{sec:experiments}).
-	      % Experiments include cell type discovery using flow cytometry data and mutational process discovery using Poisson nonnegative matrix factorization.
-	    A case study to the common bioinformatics task of clustering single-cell RNA-seq gene expression data
-        demonstrates \methodname provides state-of-art performance
-        compared to standard tools. 
-          % ~(\cref{sec:case-study})
-	% \item We conclude in \cref{sec:discussion} with a discussion of some limitations of our approach and directions for future work.
 \end{enumerate}
+Note that while ACDC is broadly applicable, the primary focus of this chapter, and the core contribution of this thesis regarding ACDC, centers on its application within the domain of PMF models, including non-negative matrix factorization (NMF).
+We will be using mixture modeling as a simple scenario to facilitate an intuition to the component-level discrepancy, 
+then move on to detail a more general way to construct this quantity.
 
 
 % -- in contrast to adding it on the overall model as described in \citep{Miller:2019}.  % such that the coarsening technique is applied to each component. 
@@ -1136,8 +1095,7 @@ Hence, an estimate of discrepancy for the $k$th component is given by
 
 In some scenarios, it is necessary to replace the divergence with an estimator because 
 $\discr{\widehat G_k^{(K)}}{G}$ is undefined (e.g., the KL divergence) or not efficiently computable (e.g., the Wasserstein distance).
-%However, if $\mcX$ is not discrete, the KL divergence becomes 
-%more challenging to estimate because the empirical distribution $\widehat G_{k}$ is not absolutely continuous with respect to $G$.
+\PROBLEM{NOTE: Maybe skim out on this part?}
 In \cref{sec:kl-estimation}, we discuss how best to estimate the KL divergence in practice and provide supporting
 consistency theory by modifying the two-sample KL divergence estimation theory developed in \citet{Wang:2009} to the one-sample estimation setting applicable to \methodname. 
 In \cref{sec:case-study-details}, we discuss using the entropy-regularized Wasserstein distance (the Sinkhorn distance) 
@@ -2003,7 +1961,7 @@ it requires running Markov chain Monte Carlo dozens of times to heuristically de
 In addition, our experiments show that, while coarsening offers good robustness in many scenarios, it does not have have any formal correctness guarantees
 and can fail in simple situations (see \cref{sec:coarsening-limitations}). \PROBLEM{TODO(Meng): please update this appendix to be self-contained, given the changes to the experiments in the main text}
 
-\section{Applications}
+\section{Application to PMF}
 \label{sec:experiments}
 
 We now turn to illustrating the use of \methodname in some representative applications while 
@@ -2019,212 +1977,6 @@ Alternative criteria like AIC and DIC would give similar results.
 However, since BIC has a larger penalty than AIC (which DIC generalizes), it will be more conservative and hence tend to choose smaller values of $K$.
 See, for example, \citet{Miller:2019,Xue:2024,Cai:2021} for numerical examples showing that Bayesian 
 model selection does not resolve the overfitting problem.
-
-
-\subsection{Mixture Models}
-
-As a first application, we consider mixture modeling, for which \methodname is robustly consistent. 
-\begin{theorem} \label{thm:mixture-model-robust-consistency}
-\methodname using $\compDiscEst^{(K,k)}$ defined in \cref{eq:general-Dcomp} is $\kappa$-robustly consistent for mixture models if the underlying component discrepancy $\mcD$ is the KL divergence, Wasserstein distance, or maximum mean discrepancy (MMD). 
-For the KL divergence, $\kappa(\rho, K) = \sqrt{\rho}$ and $\distDisc = d_\mathrm{BL}$, the bounded Lipschitz distance. 
-For Wasserstein distance and MMD, $\kappa(\rho, K) = \rho$ and $\distDisc = \mcD$. 
-\end{theorem}
-%See \cref{sec:mixture-model-consistency} for the precise definitions, technical conditions, and further discussion. 
-
-In addition to BIC, we compare \methodname to three nonparametric mixture model selection criteria that rely on within-cluster dispersion. 
-For $K$ clusters, the \emph{total within-cluster sum of squares} $\mathrm{WCSS}(K)$ is defined as
-\[
-    \mathrm{WCSS}(K) = \sum_{k=1}^{K} \sum_{m \in C_k} \| x_n - \mu_k \|^2,
-\]
-where $x_n$ is the $n$th observation, $C_k$ is the set of points assigned to cluster $k$, 
-and $\mu_k$ is its centroid. 
-One approach is the \emph{elbow method}, which identifies the point beyond which additional clusters no longer show significant improvement in dispersion reduction \citep{Thorndike_1953} \PROBLEM{TODO(Meng): citation}. 
-The \emph{silhouette coefficient}, on the other hand, assesses how well each point fits within its assigned cluster relative to its distance to the nearest neighboring cluster \citep{siluet_coef}. It favors clusters with high cohesion where points are close to others in the same cluster, and high separation where clusters are well isolated from one another. 
-Finally, \emph{gap statistic} compares the observed clustering dispersion in the data to what is expected under a null reference where data comes from uniform distribution \citep{gap_stats}. The selection is based on the number of clusters that maximizes the deviation from its baseline. 
-For all mixture model experiments, we use the EM algorithm to obtain parameter estimates.
-
-% Some other approaches to robust model-based clustering exist -- for example, heavy-tailed mixtures  \citep{Archambeau:2007,Christopher:2004,Wang:2018} and sample re-weighting \citep{Forero:2011}
-% both aim to account for slight model mismatches and outlier effects.
-% However, these methods do not directly address the question of how to correctly choose the number of clusters for the mixture model beforehand and so these methods can be used in combination with \methodname. 
-
-\subsubsection{High Dimensional Simulation Study}
-\label{sec:high-dim-simulation}
-
-\PROBLEM{TODO(Meng): rewrite once new experiments complete}
-We now provide further details about the motivating example in \cref{fig:motivate-comparison}, and illustrate
-that \methodname selects the correct number of components under a variety of conditions on the level of misspecification,
-the relative sizes of the mixture components, and the data dimension.
-We generate data $x_1, \ldots,x_{\numobs} \in \reals^{D}$ from the mixture distribution
-$P_{o} = \sum_{k=1}^{\numcomps_{o}}\eta_{ok}\distSNorm(m_{ok}, \Sigma_{ok}, \gamma_{ok})$,
-where $\distSNorm(m, \Sigma, \gamma)$ denotes a skew normal distribution with location vector $m \in \reals^{D}$, scale matrix $\Sigma \in \reals^{D \times D}$,
-and shape $\gamma \in \reals^{D}$, which controls the skewness.
-The density of multivariate skew normal distribution is $f(x; m, \Sigma, \gamma) = 2\phi(x; m, \Sigma)\Phi(\gamma \odot x; m, \Sigma)$, where $\phi(x; m, \Sigma)$ and $\Phi(x; m, \Sigma)$ are, respectively, the probability density function
-and cumulative distribution function of the multivariate normal $\distNorm(m, \Sigma)$.
-When $D > 1$, we introduce weak correlations by letting $\Sigma_{ok} = \Sigma$,
-where $\Sigma_{ij}=\exp\{-(i-j)^2/\sigma^2\}$ and $\sigma$ controls the strength of the correlation.
-
-When $D = 1$, our results confirm that \methodname robustly recovers the correct number of components.
-Full details can be found in \cref{sec:simulation-gauss}.
-As discussed in \cref{sec:kl-estimation}, the KL divergence $k$-nearest-neighbor estimator becomes less accurate with increasing data dimension.
-While a general solution is unlikely to exist, we illustrate one approach to address this challenge.
-Specifically, if we believe the coordinates are likely to be only weakly correlated, we can employ the $k$-nearest-neighbor
-method on each coordinate by assuming the coordinates are independent.
-For this higher-dimensional illustration, we set $D = 25$, $N=10\,000$, $K_{o}=3$, and $\sigma=0.6$.
-As shown in \cref{fig:high-dim}(left), the wide and stable region corresponds to the true correct number of components.
-\cref{fig:high-dim}(right) illustrates the value of model-based clustering, particularly in high dimensions: 2-dimensional
-projections of the data give the appearance of there being four clusters in total, when in fact there are only three.
-
-%to further explore the applicability of \methodname in high-dimensional cases.
-\begin{figure}[tp]
-	\centering
-	\subfloat{\label{fig:high-dim-stare-loss}\includegraphics[width=.48\textwidth]{multiGMM-penloss-rho-n=10000-d=50-legend}}
-	\subfloat{\label{fig:high-dim-true}\includegraphics[width=.48\textwidth]{selected-cluster-plot-comparison-K=3}}
-
-	\caption{Application of \methodname clustering simulated high dimensional data (\cref{sec:high-dim-simulation}).
-		\textbf{Left:} The penalized loss plot for $\numcomps \in \{1,2,3,4\}$.
-		Since the loss for $K=3$ is very close to equal to or much less than the loss for $K \ne 3$, it shows the greatest
-		stability, resulting in $\widehat K = 3$ (indicated by the ``$X$'').
-		\textbf{Right:} Selected two-dimensional projections of the data.}
-	\label{fig:high-dim}
-\end{figure}
-
-
-
-
-
-\subsubsection{Cell Type Discovery using Flow Cytometry}
-\label{sec:flow-cytometry}
-
-Flow cytometry is a technique used to analyze properties of individual cells in a biological material \citep{flow_cytometry} \PROBLEM{TODO(Meng): add citation}.
-Typically, flow cytometry data measures 3--20 properties of tens of thousands cells.
-Cells from distinct populations tend to fall into clusters and discovering cell types by identifying clusters
-is of primary interest in practice.
-Usually scientists identify clusters manually, which is labor-intensive and subjective.
-Therefore, clustering methods that provide interpretable groups of cells is invaluable.
-We follow the setup of \citet{Miller:2019} using 12 flow cytometry datasets originally from a longitudinal study of graft-versus-host disease %(GvHD) 
-in patients undergoing blood or marrow transplantation \citep{Brinkman:2007}.
-Manual cluster assignments of all dataset are treated as the ground truth.
-%the manual clustering is available and we take it as the ground truth. % to measure the performance of \methodname.
-The datasets consist of $D=4$ dimensions and varying number of observations for each dataset.
-%We set the scale as $k = \numobs^{1/2}$ in the adaptive $k$-nearest-neighbor based Kullback--Leibler estimator, which shows superior performance when $D= 4$.
-
-To calibrate $\rho$, we follow the domain knowledge-aided approach described in \cref{sec:choosing-rho}. 
-For comparability with the results of \citet{Miller:2019}, we use F-measure to quantify clustering accuracy and calibrate $\rho$ using the first 6 datasets.
-%For these datasets, we  %and then use this value $\rho$ for model selection for the other 6 datasets. 
-%More precisely, we find the $\rho$ value maximizes the average F-measure across the first 6 datasets.
-As shown in \cref{fig:flowcyt-train}, the training datasets 1--6 have a nearly identical trend of
-clustering accuracy as a function of $\rho$.
-The averaged F-measure achieves the maximum when $\rho \approx 1.16$, which is a point of maximum F-measure for all 6 datasets.
-The consistency of \methodname compares favorably to using coarsening, where drastically different $\alpha$ values maximize the F-measure \citep[Figure 5]{Miller:2019}.
-These results provide evidence that our approach is taking better advantage of the common structure and degree of misspecification across datasets.
-
-\begin{figure}[tp]
-	\centering
-	\includegraphics[width=80mm]{GvHD-train}
-	\caption{Selecting an optimal value of $\rho$ using the first 6 flow cytometry datasets (\cref{sec:flow-cytometry}).
-		The solid lines show $\rho$ vs.\ F-measure for datasets 1--6.
-		The black dashed line indicates averaged F-measure over the training datasets.
-		The vertical black line shows the value $\rho = 1.16$ that maximizes the averaged F-measure.}
-	\label{fig:flowcyt-train}
-\end{figure}
-
-
-\begin{table}[tp]
-	\centering
-	\def~{\hphantom{0}}
-	% 	\tbl{F-measures on flow cytometry test datasets 7--12}{
-	\caption{F-measures on flow cytometry test datasets 7--12} {
-		\begin{tabular}{ccccccc}
-			\hline
-			                                                   & 7             & 8             & 9             & 10            & 11            & 12            \\ \hline
-			Structurally aware                                 & 0.63          & \textbf{0.92} & \textbf{0.94} & \textbf{0.99} & \textbf{0.99} & \textbf{0.98} \\ \hline
-			\begin{tabular}[c]{@{}c@{}}Coarsened \end{tabular} & \textbf{0.67} & 0.88          & \textbf{0.93} & \textbf{0.99} & \textbf{0.99} & \textbf{0.99} \\ \hline
-		\end{tabular}}
-	\label{tab:flowcyto-test}
-\end{table}
-
-%
-%\begin{figure}[tp]
-%	\begin{minipage}{0.48\textwidth}
-%		\centering	
-%	\includegraphics[width=.48\textwidth]{GvHD-train}
-%	\end{minipage}\hfill
-%	\begin{minipage}{0.48\textwidth}
-%	\caption*{Table 1: F-measures on flow cytometry test datasets 7-12.}
-%		\label{tab:flowcyto-test}
-%		\begin{tabular}{ccc}
-%			\hline
-%			Dataset & Structurally aware   & Coarsened \\ 
-%			\hline
-%			7     & 0.63    & \textbf{0.67}      \\ 
-%			8       & \textbf{0.92} & 0.88       \\ 
-%			9        & \textbf{0.94}    & \textbf{0.93}   \\
-%			10       & \textbf{0.99}  & \textbf{0.99}    \\ 
-%			11       & \textbf{0.99}  & \textbf{0.99}     \\ 
-%			12        & \textbf{0.98}    & \textbf{0.99}   \\ \hline
-%	\end{tabular}
-%	\end{minipage}
-% \caption{F-measure against $\rho$ for training datasets 1-6. The black dashed line indicates averaged F-measure over the training datasets. Solid lines correspond to datasets 1-6.}
-%	\label{fig:flowcyt-train}
-%\end{figure}
-
-
-
-%To determine the misspecification level $\rho$, we run structurally aware robust selection on the first 6 datasets.
-%We aim to pick up $\rho$ such that the F-measure attains the maximum on the overall 6 training datasets.
-%The clustering performance is measured by comparing the assignment to the ground truth and computing the F-scores accordingly.
-%For each $\rho$, select $\numcomps$ that achieves the minimum penalized loss and then we can use the associated parameters to compute the F-measure.
-
-For test datasets 7--12, we pick the value of $\numcomps$ based on a value of $\rho$ that is as close as possible to the estimated $\rho$ value of $1.16$ while also being stable for a range of $\rho$ values.
-As shown in \cref{tab:flowcyto-test}, \methodname provides the same average accuracy as the coarsened posterior
-while being substantially more computationally efficient, despite using a much slower programming language for implementation (\methodname took 2 hours using Python while the coarsened posterior took 30 hours using Julia). % rounded 1.9 and 30.4
-%However, it takes approximately $30$ min to obtain similar clustering accuracy on the test datasets as coarsened posterior shows while running coarsened posterior takes $2.5$ hours which is significantly longer than structurally aware robust inference procedure.
-
-
-%Set  $\rho = 1.16$ and run structurally aware robust selection on the remaining flow cytometry datasets 7-12. 
-
-
-
-%\subsection{Single-cell RNA mosquito data}
-%\label{sec:scRNA}
-%
-%The RNA expression data for olfactory receptors in mosquito neurons is stored as binary signals. 
-%Assume data $X\in R^{M\times N}$ and $X_{ij} = 1$ indicates that the receptor $j$ is expressed in neuron $i$, for $i=1,\ldots,M$ and $j=1,\ldots,N$ and $X_{ij} = 0$ vice versa.
-%In practice, some receptors show similar expression on several types of neurons and therefore a clustering method is often utilized to learn the structure and similarities between receptors and neurons.
-%However, the unknown total number of types makes the problem challenging. 
-%
-%To better understand the performance of our method, we first apply our model selection rule with a synthetic cell-type model. 
-%The generative model assumes that in one model, each receptor $X_i$ has a uniform probability of expression $\alpha_j$, and is expressed in each neuron independently and with identical distributions. 
-%
-%
-%We test our model selection method in this case to pick up a model of receptor expression.
-%As shown in \cref{fig:scRNA}, our method picks up the true underlying number of types $\numcomps=3$ and it shows consistency with the F-measure plot.
-%
-%
-%
-%\begin{figure}[tp]
-%	\centering	
-%	\subfloat{\includegraphics[height=40mm,width=.48\textwidth]{mosquito-loss-plot-Kt=3-M=10000-N=10}}
-%	\subfloat{\includegraphics[height=40mm,width=.48\textwidth]{mosquito-fmeasure-plot-Kt=3-M=10000-N=10}}
-%	
-%	\caption{Left: penalized structurally aware loss against $\rho$; Right: F-measure against $\numcomps$ for simulated single-cell RNA mosquito data.} 
-%	\label{fig:scRNA}
-%\end{figure}
-%
-
-\begin{figure}[h!]
-	\centering
-	\includegraphics[width=.8\textwidth]{figures/composite-multdiv-600-breast-custom-seed-1-perturbed-0.0025.pdf}
-	\caption{
-	Estimation quality of mutational signature discovery for
-	perturbed synthetic breast cancer data (\cref{sec:mutsigs}).
-	\textbf{(top)} Errors of signature and loadings estimates.
-	\textbf{(middle top)} $K$ versus value of BIC. BIC selects $\widehat K=K_{\max}$.
-	\textbf{(middle bottom)} Scree plot generated from the dataset, indicating that $K = 2$ is the optimal choice of $K$.
-	\textbf{(bottom)} Structurally aware loss for $K\in \{1,\dots,K\}$, the wide region with the smallest $\rho$ is marked by the cross mark, indicating $K=7$ or $K=8$ is the most appropriate choice of $K$.
-	}
-	\label{fig:mutsig_result}
-\end{figure}
 
 \subsection{Probabilistic Matrix Factorization} \label{sec:pmf-applications}
 
@@ -2271,7 +2023,7 @@ The \emph{cophenetic correlation coefficient} \citep{brunet_CCC_2004a} is one su
 A similar stability-based principle is adopted by the widely-used toolset SigProfilerExtractor \citep{islam_sigprofiler_extractor_2022}, which uses a consensus bootstrap approach to ensure results are consistent and reproducible. 
 However, these approaches are computationally costly due to its reliance on repeated NMF executions. Furthermore, the results of \citet{Xue:2024} demonstrate empirically that consensus the bootstrap methodology -- much like PA -- tend to be conservative, underestimating the true number of factors. 
 
-\subsubsection{Mutational Process Discovery} \label{sec:mutsigs}
+\subsection{Mutational Process Discovery} \label{sec:mutsigs}
 
 Exposure to, and presence of, carcinogenic processes such as UV radiation, tobacco smoke, defective DNA repair mechanisms, and naturally occurring biochemical reactions, generate characteristic patterns of somatic mutations known as \emph{mutational signatures} \citep{Alexandrov_mut-sig-NMF_2013,Nik-zainal_MutationalProcessesMolding_2012}.
 %as well as the mutational load due to each signature in each tumor sample. 
@@ -2350,7 +2102,20 @@ BIC selects $\widehat{K} = K_{\max}$ -- even when the data is well specified.
 On the other hand, PA consistently underestimates $K_o$, estimating $\hat K = 2$. Finally, \methodname selects $\widehat K = 7$ or $8$, which correspond to the some of the largest values of $K$ for which the parameter estimates still have reasonably small error and meaningful decomposition.
 These results suggest \methodname is a promising alternative to existing approaches for selecting the number of mutational signatures, which all suffer from some combination of high computational cost and lack of statistical rigor \citep{Xue:2024,pcawg2020}.
 
-\subsubsection{Materials Discovery using Hyperspectral Imaging} \label{sec:hyperspectral}
+\begin{figure}[h!]
+	\centering
+	\includegraphics[width=.8\textwidth]{figures/composite-multdiv-600-breast-custom-seed-1-perturbed-0.0025.pdf}
+	\caption{
+	Estimation quality of mutational signature discovery for
+	perturbed synthetic breast cancer data (\cref{sec:mutsigs}).
+	\textbf{(top)} Errors of signature and loadings estimates.
+	\textbf{(middle top)} $K$ versus value of BIC. BIC selects $\widehat K=K_{\max}$.
+	\textbf{(middle bottom)} Scree plot generated from the dataset, indicating that $K = 2$ is the optimal choice of $K$.
+	\textbf{(bottom)} Structurally aware loss for $K\in \{1,\dots,K\}$, the wide region with the smallest $\rho$ is marked by the cross mark, indicating $K=7$ or $K=8$ is the most appropriate choice of $K$.
+	}
+	\label{fig:mutsig_result}
+\end{figure}
+\subsection{Materials Discovery using Hyperspectral Imaging} \label{sec:hyperspectral}
 
 Hyperspectral remote sensing data is used in applications such as environmental monitoring and city planning \citep{Brook_Dust_over_Green_Canopy_2016,Ji_Estimatng_Vegetation_Fractional_Cover_2016,Lin_RetrievingHydrousMinerals_2017}.
 Hyperspectral data is collected as an image in which each pixel specifies the intensity of light at each observed wavelength.
