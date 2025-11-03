@@ -249,36 +249,6 @@ Then the product matrix
 \]
 is invertible.
 \end{lemma}
-\PROBLEM{TODO: Move all proofs to appendix}
-\begin{proof}
-We have
-\[
-    \bm{K}_s[s_1,a_2]
-    %=&P(S_1=s_1,S_2=s,A_2=a_2)\\
-    &=\sum_{o_1}\sum_{o_2} P(O_1=o_1,S_1=s_1,S_2=s)\\
-    &\qquad\times \pi_{hi}(O_2=o_2\vert O_1=o_1,S_2=s)\\
-    &\qquad\times \pi_{lo}(A_2=a_2\vert O_2=o_2,S_2=s)\\
-    &=\lrc{\bm{\Xi}_s\bm{\Pi}^{hi}_s\bm{\Pi}^{lo}_s}[s_1,a_2].\label{eq:overline_K_derive}
-\]
-
-This implies $\mathrm{rowspan}(\bm{K}_s)\subseteq\mathrm{rowspan}(\bm{\Pi}^{lo}_s)$. In addition, because $\bm{\Xi}_s$ is full column rank and $\bm{\Pi}^{hi}_s$ is full rank (Assumptions \ref{asu:pihi} and \ref{asu:invertibility}),
-\[
-    \bm{\Pi}^{lo}_s=(\bm{\Xi}_s\bm{\Pi}^{hi}_s)^+\bm{K}_s,
-\]
-which implies $\mathrm{rowspan}(\bm{\Pi}^{lo}_s)\subseteq\mathrm{rowspan}(\bm{K}_s)$. Thus,
-\[
-    \mathrm{rowspan}(\bm{V}_s\transpose)
-        =\mathrm{rowspan}(\bm{K}_s)
-        =\mathrm{rowspan}(\bm{\Pi}^{lo}_s).
-\]
-Therefore, $\bm{\Pi}^{lo}_s\bm{V}_s$ is invertible. Since $s$ is chosen arbitrarily, this applies for all $s$.
-% Now consider
-% \[
-%     \bm{\Pi}^{lo}\bm{V} = \bmat{\bm{\Pi}^{lo}_1\bm{V}_1&&\\&\ddots&\\&&\bm{\Pi}^{lo}_\zeta\bm{V}_\zeta}.
-% \]
-Because $\bm{\Pi}^{lo}_s\bm{V}_s$ is invertible for all $s$, it follows that $\bm{\Pi}^{lo}\bm{V}$ is also invertible.
-% \hspace*{\fill} \qed
-\end{proof}
 
 We next examine the properties of the moments $\bm{M}_a$.
 Before doing so, note that the moments $\bm{M}_a$ involve the transition dynamics $\bm{\Phi}^A_a$ as well as the underlying low- and high-level policies we are interested in. 
@@ -308,7 +278,7 @@ for $a \in \mathcal{A}$ and
 that do not depend on the transition dynamics where $\bm{\hat{M}}_a$ and $\bm{\hat{M}}$ have the same dimensions as $\bm{M}_a$.
 
 These surrogate moments combined with Lemma \ref{lem:actionProjection} lead to the following theorem that establishes that the observable moments allow the recovery of the low-level policy via matrix diagonalization.
-\begin{theorem}\label{theo:central}
+\begin{theorem}\label{theo:centralHIL}
 The product $\bm{V}\transpose\bm{\hat{M}}^+\bm{\hat{M}}_a\bm{V}$ admits the factorization:
 \[\label{eq:diagonalize}
     \bm{V}\transpose\bm{\hat{M}}^+\bm{\hat{M}}_a\bm{V} = \bm{B}\inv\bm{\Lambda}_a\bm{B},
@@ -317,117 +287,13 @@ where
 \[\label{eq:Lambda_definition}
     \bm{\Lambda}_a = \bmat{\mathrm{diag}(\bm{\Pi}^{lo}_1\unit_a)&&\\
               &\ddots&\\
-              &&\mathrm{diag}(\bm{\Pi}^{lo}_{\zeta}\unit_a)}.
+              &&\mathrm{diag}(\bm{\Pi}^{lo}_{\zeta}\unit_a)},
+\]
+and
+\[
+ \bm{B}=(\bm{\Psi}\otimes \identity_\omega)\bm{\Pi}^{hi}\bm{\Pi}^{lo}\bm{V}.
 \]
 \end{theorem}
-\begin{proof}
-% Let us define
-% \[
-%     \bm{\Xi}\lrb{s_2\zeta+s_1, s_2'\omega+o_1}
-%     &=\ P(O_1=o_1,S_1=s_1,S_2=s_2=s_2')\notag\\
-%     &=\ \begin{cases}
-%             \bm{\Xi}_{s_2}[s_1,o_1]\ &\text{if}\ s_2=s_2'\\
-%             0\ &\text{otherwise}.
-%         \end{cases}
-% \]
-Let 
-\[
-    \bm{\Xi}=\bmat{\bm{\Xi}_1&&\\&\ddots&\\&&\bm{\Xi}_\zeta}
-    \text{ and } \bm{\Pi}^{hi}=\bmat{\bm{\Pi}^{hi}_1&&\\&\ddots&\\&&\bm{\Pi}^{hi}_\zeta}.
-\]
-% Next, we define
-% \[
-%     &\bm{\Pi}^{lo}[s_1\omega+o_1,s_1'\alpha+a_1]\\
-%     =\ &\pi_{lo}(A_1=a_1,S_1=s_1'\vert O_1=o_1,S_1=s_1)\\
-%     =\ &\left\{\begin{aligned}
-%         &\bm{\Pi}^{lo}_{s_1}[o_1,a_1]\ &\text{if}\ s_1=s_1'\\
-%         &0\ &\text{otherwise}
-%     \end{aligned}\right. ,\numberthis
-% \]
-% \[
-%     &\bm{\Pi}^{hi}[s_2\omega+o_1,s_2'\omega+o_2]\\
-%     =\ &\pi_{hi}(O_2=o_2,S_2=s_2'\vert O_1=o_1,S_2=s_2)\\
-%     =\ &\left\{\begin{aligned}
-%         &\bm{\Pi}^{hi}_{s_2}[o_1,o2]\ &\text{if}\ s_2=s_2'\\
-%         &0\ &\text{otherwise}
-%     \end{aligned}\right. .\numberthis
-% \]
-
-% As defined in \eqref{eq:Lambda_definition},
-% \[
-%     \bm{\Lambda}_a = \bmat{\mathrm{diag}(\bm{\Pi}^{lo}_1\unit_a)&&\\
-%               &\ddots&\\
-%               &&\mathrm{diag}(\bm{\Pi}^{lo}_{\zeta}\unit_a)}.
-% \]
-
-% The entries of $\bm{\Lambda}_a$ can be interpreted as
-% \begin{multline}
-%     \bm{\Lambda}_a[s_t\omega+o_t,s_t'\omega+o_t']\\
-%     =\pi_{lo}(A_1=a_1,S_t=s_1',O_1=o_1'\vert O_1=o_1,S_t=s_1)
-% \end{multline}
-Then,
-\[
-  \bm{M}_a\lrb{s_2\zeta+s_1,s_3\alpha+a_3}
-  %=\ &P(S_2=s_2,S_1=s_1,A_2=a,S_3=s_3,A_3=a_3)\\
-  =\ &\sum_{s_2',o_1}
-      \sum_{s_2'',o_2}
-      \sum_{s_2''', o_2'}
-      \sum_{s_3, o_2'}
-      \sum_{s_3', o_2''}\\
-  &\qquad \phantom{\times}\ P(O_1=o_1,S_1=s_1,S_2=s_2=s_2')\\
-  &\qquad \times\pi_{hi}(O_2=o_2,S_2=s_2''\vert O_1=o_1,S_2=s_2')\\
-  &\qquad \times\pi_{lo}(A_2=a,S_2=s_2''',O_2=o_2'\vert O_2=o_2, S_2=s_2'')\\
-  &\qquad \times P(S_3=s_3,O_2=o_2''\vert A_2=a,S_2=s_2''', O_2=o_2')\\
-  &\qquad \times\pi_{hi}(O_3=o_3,S_3=s_3'\vert O_2=o_2'',S_3=s_3)\\
-  &\qquad \times\pi_{lo}(A_3=a_3,S_3=s_3''\vert O_3=o_3,S_3=s_3')\\
-  =\ &\lrc{\bm{\Xi}\bm{\Pi}^{hi}\bm{\Lambda}_a(\bm{\Phi}^A_a\otimes
-      \identity_\omega)\bm{\Pi}^{hi}\bm{\Pi}^{lo}}
-  \lrb{s_2\zeta+s_1,s_3\alpha+a_3}.%\numberthis
-\]
-Consider the $\zeta\times\alpha$ submatrix
-\[
-    \bm{U}^a_{s_2s_3}[s_1, a_3] &= 
-        \bm{M}_a[s_2\zeta+s_1,s_3\alpha+a_3]\\
-    \Leftrightarrow \bm{U}^a_{s_2s_3} &=
-        \bm{\Xi}_{s_2}\bm{\Pi}^{hi}_{s_2}\mathrm{diag}(\bm{\Pi}^{lo}_{s_2}\unit_a)
-        \bm{\Phi}^A_a[s_2,s_3]\bm{\Pi}^{hi}_{s_3}\bm{\Pi}^{lo}_{s_3}. %\numberthis
-\]
-Notice that $\bm{\Phi}^A_a[s_2,s_3]$ is a real number that can be estimated using observable data. We define
-\[
-    \bm{\hat{U}}^a_{s_2s_3} &= \frac{1}{\bm{\Phi}^A_a[s_2,s_3]}\bm{U}^a_{s_2s_3} \\
-    &=\bm{\Xi}_{s_2}\bm{\Pi}^{hi}_{s_2}\mathrm{diag}(\bm{\Pi}^{lo}_{s_2}\unit_a)
-        \bm{\Pi}^{hi}_{s_3}\bm{\Pi}^{lo}_{s_3} \label{eq:sub_mathcalM}
-\]
- for all $s_2, s_3\in\mathcal{S}$ such that $\bm{\Phi}^A_a[s_2,s_3]>0, \forall a\in\mathcal{A}$, and $\bm{\hat{U}}^a_{s_2s_3} = \zero_{\zeta\times\alpha}$ otherwise.
-
-
-By the Definitions (\ref{eq:mathcalM},~\ref{eq:sub_mathcalM})
-\[
-    \bm{\hat{M}}_a &=(\bm{\Psi}\otimes\one_{\zeta\times\alpha})\circ\bmat{\bm{\hat{U}}^a_{11}
-        &\dots&\bm{\hat{U}}^a_{1\zeta}\\
-    \vdots&\ddots&\vdots\\ \bm{\hat{U}}^a_{\zeta 1}&\dots&\bm{\hat{U}}^a_{\zeta\zeta}}\\
-    &=\bm{\Xi}\bm{\Pi}^{hi}\bm{\Lambda}_a
-        (\bm{\Psi}\otimes \identity_\omega)\bm{\Pi}^{hi}\bm{\Pi}^{lo}.%\numberthis
-\]
-
-By the Definition \eqref{eq:mathcalM_sum}
-\[
-    \bm{\hat{M}} &= \sum_{a\in\mathcal{A}}\bm{\hat{M}}_a\\
-    &=\bm{\Xi}\bm{\Pi}^{hi}\lrp{\sum_{a\in\mathcal{A}}\bm{\Lambda}_a}
-        (\bm{\Psi}\otimes \identity_\omega)\bm{\Pi}^{hi}\bm{\Pi}^{lo}\\
-    &=\bm{\Xi}\bm{\Pi}^{hi}(\bm{\Psi}\otimes \identity_\omega)\bm{\Pi}^{hi}\bm{\Pi}^{lo}.%\numberthis
-\]
-Finally, we can write Equation \eqref{eq:diagonalize} as
-\[
-    \bm{V}\transpose\bm{\hat{M}}^+\bm{\hat{M}}_a\bm{V}
-    =\lrp{\bm{\Pi}^{hi}\bm{\Pi}^{lo}\bm{V}}\inv
-        \lrp{\bm{\Psi}\inv\otimes\identity_\omega}
-        \bm{\Lambda}_a(\bm{\Psi}\otimes \identity_\omega)
-        \bm{\Pi}^{hi}\bm{\Pi}^{lo}\bm{V},\label{eq:diagonalize_detailed}
-\]
-and the proof is complete.
-% \hspace*{\fill} \qed
-\end{proof}
 
 In order to compute the eigenbasis that jointly diagonalize \eqref{eq:diagonalize} for all $a\in\mathcal{A}$, we find a vector $\bm{\eta}\in\mathbb{R}^{\alpha}$ such that the eigenvalues of
 \[\label{eq:jointDiag}
@@ -1039,21 +905,21 @@ Our framework captures many common model types:
 	Finally, take $g^{(K)}$ to be the summation operator.
 	Hence, if $z_{nk} = 1$, then $x_n = y_{nk} \distas F_{\phi_k}$.
 \end{example}
-\begin{example}[Mixture Model with Varying Component Probabilities] \label{ex:mix-model-varying}
-	When covariates are available for each observation, the mixture model can be generalized to
-	allow the mixture probabilities to depend on observed covariates \citep{Jaspers_BayesianEstimationMixtureCovariate_2018,Huang_MixtureRegressionModels_2012}.
-	We can recover this model by using the same setup as \cref{ex:mix-model}
-	but instead letting $H_{\eta,w_n}^{(\numcomps)} = \distCat(h(\eta, w_{n}))$ for some fixed function
-	$h \colon \mcE^{(K)} \times \mcW \to \Delta_{\numcomps}$.
-	% In particular, we have $z_{nk} \in \{0,1\}$
-	% 	and $\sum_{k=1}^K z_{nk} = 1$.
-	% 	Given a mixture component distribution family
-	% 	$\mcF = \{ F_{\phi} \mid \phi \in \Phi \}$,
-	% 	we can define $f$ such that $f(0, \phi, \varepsilon) = 0$ and $f(1, \phi, \varepsilon) \distas F_\phi$
-	% 	if $\varepsilon \distas G$.
-	% 	Finally, take $g^{(K)}$ to be the summation operator.
-	% 	Hence, if $z_{nk} = 1$, then $x_n = y_{nk} \distas F_{\phi_k}$.
-\end{example}
+% \begin{example}[Mixture Model with Varying Component Probabilities] \label{ex:mix-model-varying}
+% 	When covariates are available for each observation, the mixture model can be generalized to
+% 	allow the mixture probabilities to depend on observed covariates \citep{Jaspers_BayesianEstimationMixtureCovariate_2018,Huang_MixtureRegressionModels_2012}.
+% 	We can recover this model by using the same setup as \cref{ex:mix-model}
+% 	but instead letting $H_{\eta,w_n}^{(\numcomps)} = \distCat(h(\eta, w_{n}))$ for some fixed function
+% 	$h \colon \mcE^{(K)} \times \mcW \to \Delta_{\numcomps}$.
+% 	% In particular, we have $z_{nk} \in \{0,1\}$
+% 	% 	and $\sum_{k=1}^K z_{nk} = 1$.
+% 	% 	Given a mixture component distribution family
+% 	% 	$\mcF = \{ F_{\phi} \mid \phi \in \Phi \}$,
+% 	% 	we can define $f$ such that $f(0, \phi, \varepsilon) = 0$ and $f(1, \phi, \varepsilon) \distas F_\phi$
+% 	% 	if $\varepsilon \distas G$.
+% 	% 	Finally, take $g^{(K)}$ to be the summation operator.
+% 	% 	Hence, if $z_{nk} = 1$, then $x_n = y_{nk} \distas F_{\phi_k}$.
+% \end{example}
 \begin{example}[Probabilistic Matrix Factorization]\label{ex:pmf-formulations}
 	For probabilistic matrix factorization (PMF), $x_n \in \reals^{D}$.
 	Let $\mcZ \subseteq \reals$ and $\Phi \subseteq \reals^{D}$.
@@ -2191,170 +2057,170 @@ Finally, $K=6$ only adds a ``residual'' material compared to $K=5$, which can be
 and is clearly an artifact of overfitting.
 %Accordingly, this is reflected in the fact that there is no gap between $K=5$ and $K=6$.
 
-\section{Case Study: Cell Type Discovery using Single-Cell RNA Sequencing Data} \label{sec:case-study}
-
-We now turn to a more in-depth case study that illustrate how
-\methodname provides flexibility to adapt to problem-specific features while still performing well using defaults. 
-%To demonstrate the benefits of \methodname on a challenging problem that is , we   
-A common task in bioinformatics workflows is using 
-single-cell RNA sequencing (scRNA-seq) for cell type discovery. 
-In current practice, determining the number of cell types is done
-using heuristics.
-\methodname offers simple, theoretically justified alternative. 
-%As such, it provides a practically important  \methodname 
-
-In this section, we first compare our default discrepancy measure choice (KL divergence) to 
-the problem-specific choice of the Wasserstein distance with cosine distance (using the Sinkhorn distance as an estimator). %, ensuring a more comprehensive assessment. 
-Next, we show that automating \methodname using the approach described in \cref{sec:choosing-rho} 
-provides comparable results to those obtained through manual selection.
-Finally, we highlight the superior performance of \methodname compared to the heuristics used 
-in current state-of-the-art scRNA-seq clustering pipelines.
-%,  helps mitigate the common issue of cluster overestimation in existing methods.
-% Additionally, we compare our default discrepancy measure -- KL divergence -- to a problem-specific choice of the Wasserstein distance with cosine distance in \cref{supp:div_comp}, using the Sinkhorn distance as an estimator.
-
-\subsection{Setup}
-
-We use the Tabula Muris dataset \citep{mice}, a single-cell transcriptome collection covering nearly 100,000 cells from 20 different mouse tissues with ground-truth cell types available for each observation.
-% Specifically, for a given cell $j$, the observed expression profile is modeled as a draw from a mixture of Gaussians with mean $\mu_k$ and covariance $\Sigma_k$ such that $x_{\cdot j}\sim p(x) = \sum_{k=1}^{K_o} \eta_k \cdot N(x|\mu_k,\Sigma_k)$ where $\eta_k$ is the probability that an observation belongs to cluster $k$ and $\sum_{k=1}^{K_o} \eta_k = 1 $.
-% \NA{To ensure a fair evaluation of clustering performance, we subsample datasets to reflect real-world scenarios with varying cell type proportions.}
-To systematically evaluate performance across a range of realistic scenarios, we construct two dataset types.
-In the main text we provide results for 80 \textsf{uniform} datasets which have equally sized clusters and the number of clusters varies from 2 to 16 (see \cref{tab:subsampled-datasets}).
-We provide results for 15 \textsf{non-uniform} datasets in which the cluster sizes are unequal in \cref{sec:non-unif-data}.
-All datasets undergo the same preprocessing steps, including filtering of low quality observations, log normalization, and dimensionality reduction via PCA.
-Details of the datasets and preprocessing pipeline are provided in \cref{sec:rna-data}.
-
-Following common practice in single-cell clustering,  we assume that the log-transformed gene expression counts $x_{nd}$
-follow a Gaussian mixture model, where each cluster corresponds to a distinct cell type.
-Hence, the model is clearly misspecified and so a robust clustering approach is needed.
-We evaluate cell clustering performance by examining both the accuracy of cluster assignments and the precision in estimating the number of cell types.
-For each dataset, we (1) check the difference in the estimated number of cell types $\widehat K$ from the true
-number of cell types $K_o$ and (2) quantify the agreement between the ground truth labels and the estimated labels using the Adjusted Rand Index (ARI) and Adjusted Mutual Information (AMI) \citep{ari,ami}.
-
-\begin{figure}[t]
-	\centering
-	\subfloat{\includegraphics[width=.55\textwidth]{sh_kl_hist.pdf}}
-	\subfloat{\includegraphics[width=.44\textwidth]{sh_kl_dots.pdf}}
-	%\subfloat{\includegraphics[width=50mm]{figures/sh_k_diff.png}}
-
-	\caption{Comparison of KL to Sinkhorn as divergence estimators for scRNA-seq clustering. Difference in $K$ estimates using \methodname with KL divergence \textbf{(left)} 
-    and Wasserstein distance \textbf{(middle}.
-    The dashed vertical lines indicate the medians.
-	\textbf{Right:} True number of cell types vs. estimated number of cell types (jittered).
-	}
-	\label{fig:sh_kl_comp}
-\end{figure}
-
-\subsection{Comparison of Divergences}
-
-One benefit of \methodname is that the user can select a discrepancy measure $\mcD$ 
-that best captures the underlying structure of the data.
-%and hence makes the framework suitable for diverse clustering scenarios. 
-While the KL divergence is our recommended default,
-the Wasserstein distance can better align with the underlying metric structure of the data.
-For single-cell clustering, the cosine distance is able to capture the directional relationship between gene expression profiles.
-This is particularly useful with high-dimensional scRNA-seq data where the magnitude of total gene counts in each cell can vary
-significantly, while the expression proportions across genes remain informative. %Sinkhorn divergence are two widely used distance metrics.
+% \section{Case Study: Cell Type Discovery using Single-Cell RNA Sequencing Data} \label{sec:case-study}
 %
-For numerical experiments, we use the bias-corrected KL estimator (see \cref{sec:kl-estimation}) and the unbalanced Sinkhorn distance to estimate the Wasserstein distance.
-See \cref{sec:case-study-details} for details.
-%with parameter setting described in supplemental material.
+% We now turn to a more in-depth case study that illustrate how
+% \methodname provides flexibility to adapt to problem-specific features while still performing well using defaults. 
+% %To demonstrate the benefits of \methodname on a challenging problem that is , we   
+% A common task in bioinformatics workflows is using 
+% single-cell RNA sequencing (scRNA-seq) for cell type discovery. 
+% In current practice, determining the number of cell types is done
+% using heuristics.
+% \methodname offers simple, theoretically justified alternative. 
+% %As such, it provides a practically important  \methodname 
 %
-% The Unbalanced Sinkhorn \citep{unbsinkhorn} solves the unbalanced Optimal Transport (OT) problem that
-% \[
-% 	d_{M,\varepsilon, \rho}(r, c) = \min_{P \in U(r, c)}  \langle P, M \rangle + \varepsilon \cdot \mathrm{KL}(P \| rc^T)
-% 	+ \rho_1 \cdot \mathrm{KL}(P {1} \| r)
-% 	+ \rho_2 \cdot \mathrm{KL}(P^T {1} \| c),
-% \]
-% where $P$ is the transport plan and  $r$ and $c$ are probability vectors.
-% Higher weight $\varepsilon$ on estimated divergence from independence transport plan $rc^T$ (max entropy) encourages smoother transport plans which are numerically stable and less sensitive to small changes in $M$.
-% Smaller marginal penalty $\rho$ introduces robustness to the marginal constraints of the transport plan.
-% The balanced OT is retrieved in the limit of $\rho \to + \infty$.
+% In this section, we first compare our default discrepancy measure choice (KL divergence) to 
+% the problem-specific choice of the Wasserstein distance with cosine distance (using the Sinkhorn distance as an estimator). %, ensuring a more comprehensive assessment. 
+% Next, we show that automating \methodname using the approach described in \cref{sec:choosing-rho} 
+% provides comparable results to those obtained through manual selection.
+% Finally, we highlight the superior performance of \methodname compared to the heuristics used 
+% in current state-of-the-art scRNA-seq clustering pipelines.
+% %,  helps mitigate the common issue of cluster overestimation in existing methods.
+% % Additionally, we compare our default discrepancy measure -- KL divergence -- to a problem-specific choice of the Wasserstein distance with cosine distance in \cref{supp:div_comp}, using the Sinkhorn distance as an estimator.
 %
-% In our experiments, the cost matrix
-% $M$ is computed based on For low-dimensional data, we impose a higher marginal penalty to recover the balanced OT problem. To account for the increased noise introduced by higher-dimensional data, we relax the marginal constraint as the data dimensionality increases.
-
-%\NA{To evaluate the performance of our framework with the Sinkhorn distance and KL divergence, we applied both approaches to the uniform cluster data across three replications.}
+% \subsection{Setup}
 %
-As illustrated in \cref{fig:sh_kl_comp}, both choices of discrepancy lead to good estimates of the true number of cell types
-in each dataset.
-%In the scatter plot, the estimated number of cell types $\widehat{K}$ lies close to the true value $K_o$, with most trial points near the diagonal line. 
-However, the KL divergence version has a slight bias toward overestimation (median difference of $2$ from the ground-truth $K_o$),
-while the Wasserstein version has slight bias toward underestimation (median difference of $-1$).
-%with a range from $-6$ to 3, 
-These results demonstrate the robustness of our default choice (KL divergence) while also highlighting the benefits of being able to improve performance by making a problem-specific choice (the Wasserstein distance).
-Since we view underestimation as preferable to overestimation (i.e., overfitting),
-for our remaining experiments we consider only the Wasserstein distance variant.
-
-
-
-\subsection{Effectiveness of Automation}
-
-To achieve accurate estimation of the number of clusters $K_o$, the application of \methodname requires careful selection of the regularization parameter $\rho$. Automating the selection of $\rho$ can reduce the need for manual intervention, particularly when applied to a large number of datasets.
-Here, we apply the automated approach proposed in \cref{sec:choosing-rho}.
-%based on the penalized loss graph that leverages the same intuition used for selecting $\rho$ by tracking the convergence of the penalized loss for each $K$ value.
+% We use the Tabula Muris dataset \citep{mice}, a single-cell transcriptome collection covering nearly 100,000 cells from 20 different mouse tissues with ground-truth cell types available for each observation.
+% % Specifically, for a given cell $j$, the observed expression profile is modeled as a draw from a mixture of Gaussians with mean $\mu_k$ and covariance $\Sigma_k$ such that $x_{\cdot j}\sim p(x) = \sum_{k=1}^{K_o} \eta_k \cdot N(x|\mu_k,\Sigma_k)$ where $\eta_k$ is the probability that an observation belongs to cluster $k$ and $\sum_{k=1}^{K_o} \eta_k = 1 $.
+% % \NA{To ensure a fair evaluation of clustering performance, we subsample datasets to reflect real-world scenarios with varying cell type proportions.}
+% To systematically evaluate performance across a range of realistic scenarios, we construct two dataset types.
+% In the main text we provide results for 80 \textsf{uniform} datasets which have equally sized clusters and the number of clusters varies from 2 to 16 (see \cref{tab:subsampled-datasets}).
+% We provide results for 15 \textsf{non-uniform} datasets in which the cluster sizes are unequal in \cref{sec:non-unif-data}.
+% All datasets undergo the same preprocessing steps, including filtering of low quality observations, log normalization, and dimensionality reduction via PCA.
+% Details of the datasets and preprocessing pipeline are provided in \cref{sec:rna-data}.
 %
-%Specifically, we determine the interval of $\rho$ over which each $K$-specific loss remains optimal. The starting point of this interval is identified as the $\rho$ value where the $K$-specific loss first becomes the minimum among all losses, and the endpoint is the $\rho$ value where this loss is surpassed by the loss for a different $K$. By setting a threshold for the length of this stability interval, we can automatically select the $K$ value corresponding to the first loss function that satisfies this criterion.
-%This automation approach allows users to adjust the interval threshold to balance the tradeoff between avoiding underfitting with smaller intervals and ensuring more conservative and stable $K$ selections with wider intervals.
-%     #####################
+% Following common practice in single-cell clustering,  we assume that the log-transformed gene expression counts $x_{nd}$
+% follow a Gaussian mixture model, where each cluster corresponds to a distinct cell type.
+% Hence, the model is clearly misspecified and so a robust clustering approach is needed.
+% We evaluate cell clustering performance by examining both the accuracy of cluster assignments and the precision in estimating the number of cell types.
+% For each dataset, we (1) check the difference in the estimated number of cell types $\widehat K$ from the true
+% number of cell types $K_o$ and (2) quantify the agreement between the ground truth labels and the estimated labels using the Adjusted Rand Index (ARI) and Adjusted Mutual Information (AMI) \citep{ari,ami}.
+%
+% \begin{figure}[t]
+% 	\centering
+% 	\subfloat{\includegraphics[width=.55\textwidth]{sh_kl_hist.pdf}}
+% 	\subfloat{\includegraphics[width=.44\textwidth]{sh_kl_dots.pdf}}
+% 	%\subfloat{\includegraphics[width=50mm]{figures/sh_k_diff.png}}
+%
+% 	\caption{Comparison of KL to Sinkhorn as divergence estimators for scRNA-seq clustering. Difference in $K$ estimates using \methodname with KL divergence \textbf{(left)} 
+%     and Wasserstein distance \textbf{(middle}.
+%     The dashed vertical lines indicate the medians.
+% 	\textbf{Right:} True number of cell types vs. estimated number of cell types (jittered).
+% 	}
+% 	\label{fig:sh_kl_comp}
+% \end{figure}
+%
+% \subsection{Comparison of Divergences}
+%
+% One benefit of \methodname is that the user can select a discrepancy measure $\mcD$ 
+% that best captures the underlying structure of the data.
+% %and hence makes the framework suitable for diverse clustering scenarios. 
+% While the KL divergence is our recommended default,
+% the Wasserstein distance can better align with the underlying metric structure of the data.
+% For single-cell clustering, the cosine distance is able to capture the directional relationship between gene expression profiles.
+% This is particularly useful with high-dimensional scRNA-seq data where the magnitude of total gene counts in each cell can vary
+% significantly, while the expression proportions across genes remain informative. %Sinkhorn divergence are two widely used distance metrics.
+% %
+% For numerical experiments, we use the bias-corrected KL estimator (see \cref{sec:kl-estimation}) and the unbalanced Sinkhorn distance to estimate the Wasserstein distance.
+% See \cref{sec:case-study-details} for details.
+% %with parameter setting described in supplemental material.
+% %
+% % The Unbalanced Sinkhorn \citep{unbsinkhorn} solves the unbalanced Optimal Transport (OT) problem that
+% % \[
+% % 	d_{M,\varepsilon, \rho}(r, c) = \min_{P \in U(r, c)}  \langle P, M \rangle + \varepsilon \cdot \mathrm{KL}(P \| rc^T)
+% % 	+ \rho_1 \cdot \mathrm{KL}(P {1} \| r)
+% % 	+ \rho_2 \cdot \mathrm{KL}(P^T {1} \| c),
+% % \]
+% % where $P$ is the transport plan and  $r$ and $c$ are probability vectors.
+% % Higher weight $\varepsilon$ on estimated divergence from independence transport plan $rc^T$ (max entropy) encourages smoother transport plans which are numerically stable and less sensitive to small changes in $M$.
+% % Smaller marginal penalty $\rho$ introduces robustness to the marginal constraints of the transport plan.
+% % The balanced OT is retrieved in the limit of $\rho \to + \infty$.
+% %
+% % In our experiments, the cost matrix
+% % $M$ is computed based on For low-dimensional data, we impose a higher marginal penalty to recover the balanced OT problem. To account for the increased noise introduced by higher-dimensional data, we relax the marginal constraint as the data dimensionality increases.
+%
+% %\NA{To evaluate the performance of our framework with the Sinkhorn distance and KL divergence, we applied both approaches to the uniform cluster data across three replications.}
+% %
+% As illustrated in \cref{fig:sh_kl_comp}, both choices of discrepancy lead to good estimates of the true number of cell types
+% in each dataset.
+% %In the scatter plot, the estimated number of cell types $\widehat{K}$ lies close to the true value $K_o$, with most trial points near the diagonal line. 
+% However, the KL divergence version has a slight bias toward overestimation (median difference of $2$ from the ground-truth $K_o$),
+% while the Wasserstein version has slight bias toward underestimation (median difference of $-1$).
+% %with a range from $-6$ to 3, 
+% These results demonstrate the robustness of our default choice (KL divergence) while also highlighting the benefits of being able to improve performance by making a problem-specific choice (the Wasserstein distance).
+% Since we view underestimation as preferable to overestimation (i.e., overfitting),
+% for our remaining experiments we consider only the Wasserstein distance variant.
 %
 %
-%To compare the clustering performance of our method with automatically and manually selected $K$, we analyzed pairwise differences in ARI and AMI across clustering results of the uniform cluster data and evaluate their difference in estimating the number of cell types.
-% their accuracy in estimating the true number of cell types $K_o$. 
-As shown in Fig.~\ref{fig:auto_comp_unif},
-% both methods tend to slightly underestimate the true count, likely due to some cell types being rare.
-the manually selected $K$ achieves slightly better ARI values
-% (ranging from $-0.04$ to $0.06$)
-(ranging from $-0.27$ to $0.37$), while automated $K$ selection results in higher AMI values
-% (ranging from $0$ to $0.12$). 
-(ranging from $-0.19$ to $0.33$).
-To assess whether the differences are significant, we conduct paired t-tests on the AMI and ARI scores. For AMI, the mean
-difference between the two methods is $0.0027$  (95\% CI: $[-0.0095, 0.0148])$.
-For ARI, the mean difference is $0.0084$ (95\% CI: $[-0.0069, 0.0237])$.
-%In both cases, the confidence intervals included zero, indicating 
-Hence, there appears to be no practically significant difference between the automated and manual approaches in terms of the two evaluation metrics.
-% hence the manual and automatic methods yield comparable clustering performance.
-% For both metrics, the differences are minor, with 13 out of 15 values within a magnitude of $0.02$, 
-% suggesting that automated $K$ selection achieves clustering agreement comparable to that of manual selection.
-%Overall, both methods demonstrate similar clustering performance across ARI, AMI, and cell type estimation.
-
-
-\begin{figure}[t!]
-	\centering
-	\subfloat{\includegraphics[height=.34\textwidth,trim=0in 0in 1.35in 0in,clip]{tool_comp_estk.pdf}}
-	\subfloat{\includegraphics[height=.34\textwidth]{tool_comp_ari.pdf}}
-	%\subfloat{\includegraphics[height=.34\textwidth]{tool_comp_ami.pdf}}
-	\caption{Comparison between \methodname and existing tools across datasets with equally
-		sized clusters.
-		\textbf{Left:} True number of cell types vs.\ estimated number of cell types.
-		\textbf{Right:}  True number of cell types vs.\ ARI.
-		%	\textbf{Right:} AMI vs. number of true cell types.
-	}
-	\label{fig:tool_comp_unif}
-\end{figure}
-
-\subsection{Comparison with Existing Tools}
-
-There are many specialized tools for single-cell RNA sequencing clustering.
-However, a common challenge with these tools is the tendency to overestimate the number of cell types, particularly in datasets with complex structures. 
-In this section, 
-%we demonstrate that \methodname not only mitigates the issue of overestimation but also achieves strong clustering agreement. 
-we compare \methodname with the popular Seurat  \citep{seurat} and SC3  \citep[Single-Cell Consensus Clustering;][]{sc3} packages; see \cref{sec:existing-tools} for further details about these tools.
-
-% To compare the performance of our  with Seurat and SC3, we evaluated their accuracy in cell type estimation and cluster label agreements across the uniform cluster datasets with different numbers of cell types and equal cluster sizes.
-\Cref{fig:tool_comp_unif} shows that \methodname has superior accuracy in cell type number estimation compared to Seurat and SC3. The estimates produced by \methodname closely track $K_o$ while Seurat and SC3 tend to overestimate $K_o$.
-While Seurat shows a constant level of overestimation for datasets with differing numbers of clusters,
-SC3 overestimates the number of clusters more as $K_o$ increases.
-%indicating declining performance in more challenging datasets. 
-%Overall, our approach outperforms Seurat and SC3 in accurately predicting the true number of cell types.
 %
-In terms of clustering agreement, \methodname and Seurat achieve comparable ARI and AMI values across datasets.
-While ARI for Seurat and SC3 is lower in datasets with small $K_{o}$ ($< 5$),
-% datasets with more cell types, 
-\methodname maintains stable clustering agreement across all values of $K_o$.
-SC3 performs poorly on both ARI and AMI due to its significant overestimation of cell types.
-Across all the \textsf{uniform} datasets, \methodname has an average ARI (respectively AMI) value of $0.71$ ($0.76$), versus Seurat's average of 0.71 (0.73) and SC3's average of 0.43 (0.57).
-It is notable that our simple, general approach outperforms
-two carefully engineered pipelines designed specially for clustering single-cell genomic data.
+% \subsection{Effectiveness of Automation}
+%
+% To achieve accurate estimation of the number of clusters $K_o$, the application of \methodname requires careful selection of the regularization parameter $\rho$. Automating the selection of $\rho$ can reduce the need for manual intervention, particularly when applied to a large number of datasets.
+% Here, we apply the automated approach proposed in \cref{sec:choosing-rho}.
+% %based on the penalized loss graph that leverages the same intuition used for selecting $\rho$ by tracking the convergence of the penalized loss for each $K$ value.
+% %
+% %Specifically, we determine the interval of $\rho$ over which each $K$-specific loss remains optimal. The starting point of this interval is identified as the $\rho$ value where the $K$-specific loss first becomes the minimum among all losses, and the endpoint is the $\rho$ value where this loss is surpassed by the loss for a different $K$. By setting a threshold for the length of this stability interval, we can automatically select the $K$ value corresponding to the first loss function that satisfies this criterion.
+% %This automation approach allows users to adjust the interval threshold to balance the tradeoff between avoiding underfitting with smaller intervals and ensuring more conservative and stable $K$ selections with wider intervals.
+% %     #####################
+% %
+% %
+% %To compare the clustering performance of our method with automatically and manually selected $K$, we analyzed pairwise differences in ARI and AMI across clustering results of the uniform cluster data and evaluate their difference in estimating the number of cell types.
+% % their accuracy in estimating the true number of cell types $K_o$. 
+% As shown in Fig.~\ref{fig:auto_comp_unif},
+% % both methods tend to slightly underestimate the true count, likely due to some cell types being rare.
+% the manually selected $K$ achieves slightly better ARI values
+% % (ranging from $-0.04$ to $0.06$)
+% (ranging from $-0.27$ to $0.37$), while automated $K$ selection results in higher AMI values
+% % (ranging from $0$ to $0.12$). 
+% (ranging from $-0.19$ to $0.33$).
+% To assess whether the differences are significant, we conduct paired t-tests on the AMI and ARI scores. For AMI, the mean
+% difference between the two methods is $0.0027$  (95\% CI: $[-0.0095, 0.0148])$.
+% For ARI, the mean difference is $0.0084$ (95\% CI: $[-0.0069, 0.0237])$.
+% %In both cases, the confidence intervals included zero, indicating 
+% Hence, there appears to be no practically significant difference between the automated and manual approaches in terms of the two evaluation metrics.
+% % hence the manual and automatic methods yield comparable clustering performance.
+% % For both metrics, the differences are minor, with 13 out of 15 values within a magnitude of $0.02$, 
+% % suggesting that automated $K$ selection achieves clustering agreement comparable to that of manual selection.
+% %Overall, both methods demonstrate similar clustering performance across ARI, AMI, and cell type estimation.
+%
+%
+% \begin{figure}[t!]
+% 	\centering
+% 	\subfloat{\includegraphics[height=.34\textwidth,trim=0in 0in 1.35in 0in,clip]{tool_comp_estk.pdf}}
+% 	\subfloat{\includegraphics[height=.34\textwidth]{tool_comp_ari.pdf}}
+% 	%\subfloat{\includegraphics[height=.34\textwidth]{tool_comp_ami.pdf}}
+% 	\caption{Comparison between \methodname and existing tools across datasets with equally
+% 		sized clusters.
+% 		\textbf{Left:} True number of cell types vs.\ estimated number of cell types.
+% 		\textbf{Right:}  True number of cell types vs.\ ARI.
+% 		%	\textbf{Right:} AMI vs. number of true cell types.
+% 	}
+% 	\label{fig:tool_comp_unif}
+% \end{figure}
+%
+% \subsection{Comparison with Existing Tools}
+%
+% There are many specialized tools for single-cell RNA sequencing clustering.
+% However, a common challenge with these tools is the tendency to overestimate the number of cell types, particularly in datasets with complex structures. 
+% In this section, 
+% %we demonstrate that \methodname not only mitigates the issue of overestimation but also achieves strong clustering agreement. 
+% we compare \methodname with the popular Seurat  \citep{seurat} and SC3  \citep[Single-Cell Consensus Clustering;][]{sc3} packages; see \cref{sec:existing-tools} for further details about these tools.
+%
+% % To compare the performance of our  with Seurat and SC3, we evaluated their accuracy in cell type estimation and cluster label agreements across the uniform cluster datasets with different numbers of cell types and equal cluster sizes.
+% \Cref{fig:tool_comp_unif} shows that \methodname has superior accuracy in cell type number estimation compared to Seurat and SC3. The estimates produced by \methodname closely track $K_o$ while Seurat and SC3 tend to overestimate $K_o$.
+% While Seurat shows a constant level of overestimation for datasets with differing numbers of clusters,
+% SC3 overestimates the number of clusters more as $K_o$ increases.
+% %indicating declining performance in more challenging datasets. 
+% %Overall, our approach outperforms Seurat and SC3 in accurately predicting the true number of cell types.
+% %
+% In terms of clustering agreement, \methodname and Seurat achieve comparable ARI and AMI values across datasets.
+% While ARI for Seurat and SC3 is lower in datasets with small $K_{o}$ ($< 5$),
+% % datasets with more cell types, 
+% \methodname maintains stable clustering agreement across all values of $K_o$.
+% SC3 performs poorly on both ARI and AMI due to its significant overestimation of cell types.
+% Across all the \textsf{uniform} datasets, \methodname has an average ARI (respectively AMI) value of $0.71$ ($0.76$), versus Seurat's average of 0.71 (0.73) and SC3's average of 0.43 (0.57).
+% It is notable that our simple, general approach outperforms
+% two carefully engineered pipelines designed specially for clustering single-cell genomic data.
 
 
 \section{Discussion} \label{sec:discussion}
