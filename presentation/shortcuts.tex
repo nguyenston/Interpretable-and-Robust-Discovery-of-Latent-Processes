@@ -1,0 +1,672 @@
+\newcommand{\methodname}{\textsf{ACDC}\xspace}
+
+%%%%%%%%%%%%%%%%%%
+%%% Commenting %%% 
+%%%%%%%%%%%%%%%%%%
+
+%% NA: needs attention (rough writing whose correctness needs to be verified)
+%% TBD: instructions for how to fix a gap ("Describe the propagation by ...")
+%% PROBLEM: bug or missing crucial bit 
+
+%% use \fXXX versions of these macros to put additional explanation into a footnote (in the margin).  
+%% The idea is that we don't want to interrupt the flow of the paper or make it 
+%% impossible to read because there are a bunch of comments.
+
+%% NA's (and TBDs, those less crucially) should be written so 
+%% that they flow with the text.
+
+\definecolor{WowColor}{rgb}{.75,0,.75}
+\definecolor{SubtleColor}{rgb}{0,0,.50}
+
+% inline
+\newcommand{\NA}[1]{\textcolor{SubtleColor}{ {\tiny \bf ($\star$)} #1}}
+\newcommand{\LATER}[1]{\textcolor{SubtleColor}{ {\tiny \bf ($\dagger$)} #1}}
+\newcommand{\TBD}[1]{\textcolor{SubtleColor}{ {\tiny \bf (!)} #1}}
+\newcommand{\PROBLEM}[1]{\textcolor{WowColor}{ {\bf (!!)} {\bf #1}}}
+
+% as margin notes
+\newcounter{margincounter}
+\newcommand{\displaycounter}{{\arabic{margincounter}}}
+\newcommand{\incdisplaycounter}{{\stepcounter{margincounter}\arabic{margincounter}}}
+
+\newcommand{\fTBD}[1]{\textcolor{SubtleColor}{$\,^{(\incdisplaycounter)}$}\marginpar{\tiny\textcolor{SubtleColor}{ {\tiny $(\displaycounter)$} #1}}}
+
+\newcommand{\fPROBLEM}[1]{\textcolor{WowColor}{$\,^{((\incdisplaycounter))}$}\marginpar{\tiny\textcolor{WowColor}{ {\bf $\mathbf{((\displaycounter))}$} {\bf #1}}}}
+
+\newcommand{\fLATER}[1]{\textcolor{SubtleColor}{$\,^{(\incdisplaycounter\dagger)}$}\marginpar{\tiny\textcolor{SubtleColor}{ {\tiny $(\displaycounter\dagger)$} #1}}}
+
+\DeclareRobustCommand{\suppresscomments}{
+	% For submission, make all render blank.
+	\renewcommand{\LATER}[1]{}
+	\renewcommand{\fLATER}[1]{}
+	\renewcommand{\TBD}[1]{}
+	\renewcommand{\fTBD}[1]{}
+	\renewcommand{\PROBLEM}[1]{}
+	\renewcommand{\fPROBLEM}[1]{}
+	\renewcommand{\NA}[1]{##1}  %% Note, NA's pass through!
+}
+
+
+\newcommand{\charalphabetmacro}[3]{
+	% #1: annotation prefix
+	% #2: annotation command (must be a single command!)
+	% #3: characters to define annotations for
+	% Create a macros of the form
+	%   \newcommand{\#1##1}{#2{##1}} for each ##1 in #3
+	\def\mydeffoo##1{\expandafter\def\csname #1##1\endcsname{#2{##1}}}
+	\def\mydefallfoo##1{\ifx##1\mydefallfoo\else\mydeffoo##1\expandafter\mydefallfoo\fi}
+	\expandafter \mydefallfoo #3\mydefallfoo
+}
+
+\newcommand{\texalphabetmacro}[3]{
+	% #1: annotation prefix
+	% #2: annotation command (must be a single command!)
+	% #3: latex symbol command text to define annotations for
+	% Create a macros of the form
+	%   \newcommand{\#1##1}{#2{\##1}} for each ##1 in #3
+	\def\mydeftex##1{\expandafter\def\csname #1##1\endcsname{#2{\csname ##1\endcsname}}}
+	\def\mydefalltex##1{\ifx\mydefalltex##1\else\mydeftex{##1}%
+			\lowercase{\mydeftex{##1}}\expandafter\mydefalltex\fi}
+	\expandafter \mydefalltex #3\mydefalltex
+}
+
+\newcommand{\upperCaseRomanLetters}{ABCDEFGHIJKLMNOPQRSTUVWXYZ}
+\newcommand{\lowerCaseRomanLetters}{abcdefghijklmnopqrstuvwxyz}
+\newcommand{\lowerCaseRomanLettersNoMHT}{abcdefgijklnopqrsuvwxyz}
+\newcommand{\lowerCaseRomanLettersNoG}{abcdefhijklmnopqrstuvwxyz}
+\newcommand{\lowerCaseRomanLettersNoMF}{abcdeghijklnopqrstuvwxyz}
+
+
+\newcommand{\lowerCaseGreekLetters}{{alpha}{beta}{gamma}{delta}{epsilon}{zeta}{eta}{theta}{iota}{kappa}{lambda}{mu}{nu}{xi}{omicron}{pi}{rho}{sigma}{tau}{upsilon}{phi}{chi}{psi}{omega}}
+\newcommand{\lowerCaseGreekLettersNoEta}{{alpha}{beta}{gamma}{delta}{epsilon}{zeta}{theta}{iota}{kappa}{lambda}{mu}{nu}{xi}{omicron}{pi}{rho}{sigma}{tau}{upsilon}{phi}{chi}{psi}{omega}}
+\newcommand{\upperCaseGreekLettersInLaTeX}{{Gamma}{Delta}{Theta}{Lambda}{Xi}{Pi}{Sigma}{Upsilon}{Phi}{Psi}{Omega}}
+
+
+% Bar everything shortcuts
+\charalphabetmacro{bar}{\bar}{\upperCaseRomanLetters}
+\charalphabetmacro{bar}{\bar}{\lowerCaseRomanLetters}
+
+\charalphabetmacro{b}{\boldorbar}{\upperCaseRomanLetters}
+\charalphabetmacro{b}{\boldorbar}{\lowerCaseRomanLettersNoMF} % avoid clash with \bm and \bf
+\newcommand{\boldf}{\bm{f}} % only need \boldf, since \barf already defined above
+
+\texalphabetmacro{b}{\boldorbar}{\lowerCaseGreekLettersNoEta} % avoid \beta <-> \bar{\eta} clash
+\newcommand{\bareta}{\bar{\eta}}
+\newcommand{\boldeta}{\bm{\eta}}
+\texalphabetmacro{b}{\boldorbar}{\upperCaseGreekLettersInLaTeX}
+
+% Mathcal shortcuts
+\charalphabetmacro{mc}{\mathcal}{\upperCaseRomanLetters}
+
+\newcommand{\widehatmathcal}[1]{\widehat{\mathcal{#1}}}
+\charalphabetmacro{hmc}{\widehatmathcal}{\upperCaseRomanLetters}
+
+% Hatted shortcuts
+\charalphabetmacro{h}{\widehat}{\upperCaseRomanLetters}
+\charalphabetmacro{h}{\widehat}{\lowerCaseRomanLettersNoMHT}
+\texalphabetmacro{h}{\widehat}{\lowerCaseGreekLetters}
+\texalphabetmacro{h}{\widehat}{\upperCaseGreekLettersInLaTeX}
+
+% Bold hatted shortcuts
+\newcommand{\boldhat}[1]{\mathbf{\widehat{#1}}}
+\charalphabetmacro{bh}{\boldhat}{\upperCaseRomanLetters}
+\charalphabetmacro{bh}{\boldhat}{\lowerCaseRomanLetters}
+\texalphabetmacro{bh}{\boldhat}{\lowerCaseGreekLetters}
+\texalphabetmacro{bh}{\boldhat}{\upperCaseGreekLettersInLaTeX}
+
+
+%Wide hatted shortcuts
+\charalphabetmacro{wh}{\widehat}{\upperCaseRomanLetters}
+\charalphabetmacro{wh}{\widehat}{\lowerCaseRomanLettersNoMHT}
+
+% Tilde shortcuts 
+\charalphabetmacro{td}{\tilde}{\upperCaseRomanLetters}
+\charalphabetmacro{td}{\tilde}{\lowerCaseRomanLetters}
+\texalphabetmacro{td}{\tilde}{\lowerCaseGreekLetters}
+\texalphabetmacro{td}{\tilde}{\upperCaseGreekLettersInLaTeX}
+
+
+\newcommand{\defas}{:=}
+
+% Stacked Relations
+%%%%%%%%%%%%%%%%%%%
+\newcommand{\stk}[2]{\ensuremath{\stackrel{\text{#2}}{#1}}}
+\newcommand{\stkm}[2]{\ensuremath{\stackrel{#2}{#1}}}
+
+
+\newcommand{\abscont}{\ll}  % absolutely continuous 
+\newcommand{\nnreals}{\reals_{+}}
+\newcommand{\cconj}[1]{\overline{#1}}  % complex conjugation 
+\newcommand{\im}{\operatorname{im}}
+
+\newcommand{\fracexp}[3]{\left(\frac{#1}{#2}\right)^{#3}}
+\newcommand{\gammafrac}[2]{\frac{\Gamma(#1)}{\Gamma(#2)}}
+\newcommand{\textder}[2]{\dee #1/\dee #2}
+
+\newcommand{\distSS}{\distNamed{SS}} % symmetric stable distribution 
+\newcommand{\ii}{i} % imaginary unit 
+\newcommand{\erfc}{\operatorname{erfc}}
+\newcommand{\logit}{\psi}
+\newcommand{\logistic}{\phi}
+\newcommand{\derivop}[1]{\grad^{#1}}
+\newcommand{\hessian}{\derivop{2}}
+\newcommand{\mean}[1]{\bar#1}
+\newcommand{\indicatorfn}{\mathds{1}}
+\newcommand{\id}{\operatorname{id}}
+
+\newtheorem*{notation}{Notation}
+\newcommand{\littleo}{o}
+\newcommand{\littleoP}{\littleo_{P}}
+\newcommand{\littleoPouter}{\littleo_{P^{+}}}
+\newcommand{\bigo}{O}
+\newcommand{\bigoP}{\bigo_{P}}
+\newcommand{\bigoPouter}{\bigo_{P^{+}}}
+\newcommand{\convto}{\overset{\Pr_{\trueparam}}{\rightarrow}}
+\newcommand{\convtodist}{\overset{d}{\rightarrow}}
+\newcommand{\empvar}[1]{\widehat\sigma^{2}(#1)}
+% \newcommand{\empcov}[1]{\widehat\Sigma(#1)}
+\newcommand{\empcov}{\widehat\Sigma}
+\newcommand{\empmean}[1]{\widehat\mu(#1)}
+
+\newcommand{\statistic}[1]{T_{#1}}
+\newcommand{\p}{p}
+
+
+%--------------------------------------------------------------------------------------
+% Sets
+%--------------------------------------------------------------------------------------
+\newcommand{\intersection}{\cap}
+
+%--------------------------------------------------------------------------------------
+% Bayesian stuff
+%--------------------------------------------------------------------------------------
+
+
+\newcommand{\model}[1]{\mcM^{(#1)}}
+\newcommand{\paramSpace}[1]{\Theta^{(#1)}}
+
+% Data
+\newcommand{\truesym}{\circ}
+\newcommand{\dataspace}{\mcX}
+\newcommand{\obsspace}{\mathbb X}
+
+
+\newcommand{\datarv}{\mathbf{X}}
+\newcommand{\dataarg}[1]{x_{1:#1}}
+\newcommand{\datarvarg}[1]{X_{1:#1}}
+\newcommand{\datapart}[1]{\dataarg{(#1)}}
+\newcommand{\alldata}{\dataarg{\infty}}
+\newcommand{\alldatarv}{\datarvarg{\infty}}
+\newcommand{\datacopy}{Y}
+\newcommand{\datarvcopy}{\mathbf Y}
+\newcommand{\datatrue}{\data_{\truesym}}
+\newcommand{\obs}[1]{x_{#1}}
+\newcommand{\obsrv}[1]{X_{#1}}
+\newcommand{\datameanarg}[1]{\bar\data_{#1}}
+\newcommand{\datarvmeanarg}[1]{\bar\datarv_{#1}}
+% \newcommand{\datameanarg}[1]{\empmean{\dataarg{#1}}}
+
+
+% Posterior and priors
+\newcommand{\basedist}{\lambda}
+\newcommand{\postdist}[1]{\Pi_{#1}}
+\newcommand{\postdistfull}[2]{\Pi(#1 \given #2)}
+\newcommand{\ppostdist}[2]{\Pi_{#1}^{#2}}
+\newcommand{\postdensity}[1]{\pi_{#1}}
+\newcommand{\postdensityfull}[2]{\pi(#1 \given #2)}
+\newcommand{\ppostdensity}[2]{\pi_{#1}^{#2}}
+\newcommand{\priordist}{\postdist{0}}
+\newcommand{\priordensity}{\postdensity{0}}
+
+
+
+%\newcommand{\lik}[2]{f(#1 \given #2)}
+%\newcommand{\loglik}[2]{\mcL(#1 \given #2)}
+%\newcommand{\Eloglik}[1]{\bar\mscL(#1)}
+% log-likelihood
+\newcommand{\likdist}[1]{P_{#1}}
+\newcommand{\likfun}[1]{p_{#1}}
+\newcommand{\lik}[2]{\likfun{#2}(#1)}
+\newcommand{\loglik}[2]{\ell_{#2}(#1)}
+\newcommand{\loglikfun}[1]{\ell_{#1}}
+\newcommand{\Eloglik}[1]{\bar\ell_{#1}}
+\newcommand{\optEloglik}{\bar\ell_{\optsym}}
+\newcommand{\Eloglikdiff}[1]{\Delta_{#1}}
+\newcommand{\gradloglik}[2]{\dot\ell_{#2}(#1)}
+\newcommand{\gradloglikfun}[1]{\dot\ell_{#1}}
+\newcommand{\hessloglik}[2]{\ddot\ell_{#2}(#1)}
+\newcommand{\hessloglikfun}[1]{\ddot\ell_{#1}}
+
+% data distributions 
+\newcommand{\priormarginal}{m_\textrm{prior}}
+\newcommand{\postmarginal}{m_\textrm{post}}
+%\newcommand{\marginallik}[1]{p_{#1}}
+%\newcommand{\pmarginallik}[2]{p(#1)^{#2}}
+
+% parameter
+\newcommand{\opt}{\star}
+\newcommand{\optsym}{\star}
+
+%
+%\newcommand{\paramsample}{\vartheta}
+%\newcommand{\bbparam}{\param^{\bbsym}}
+%\newcommand{\bbparamsample}{\paramsample^{\bbsym}}
+%\newcommand{\bbparamsamplecopy}{\paramsample^{\bbsym\prime}}
+%\newcommand{\bbparamsamplenum}{\paramsample^{\bbsym}_{\numobs}}
+%\newcommand{\optparams}{\paramspace_{o}}
+%\newcommand{\mle}[1]{\widehat\param}
+%
+%% Model selection
+%\newcommand{\modelspace}{\mathfrak{M}}
+%\newcommand{\model}{\mathfrak{m}}
+%\newcommand{\optmodel}{\model_{\optsym}}
+%\newcommand{\modelmarginallik}[2]{\marginallikfull{#1 \given #2}}
+%\newcommand{\modelpriordist}{Q_{0}}
+%% \newcommand{\modelpostdist}[1]{Q_{#1}}
+%\newcommand{\modelpostdistfull}[2]{Q(#1 \given #2)}
+%\newcommand{\priorlogodds}{\rho}
+%\newcommand{\lmldiff}[1]{\Lambda_{#1}}
+%\newcommand{\optmodelparam}[1]{\param_{#1 \optsym}}
+%
+%% Fisher information
+%\newcommand{\Ehessloglik}[1]{J_{#1}}
+%\newcommand{\Vargradloglik}[1]{I_{#1}}
+%
+%\newcommand{\paramcovmat}{C}
+%\newcommand{\paramcov}[2]{\paramcovmat_{#1#2}}
+%
+%
+%\newcommand{\credset}[2]{C_{#1}(#2)}
+%\newcommand{\credsetintersect}[3]{I_{#1}(#2, #3)}
+%\newcommand{\normalcredsetconst}[1]{c_{#1}}
+%
+%% data distributions 
+\newcommand{\datadist}{P_{o}}
+\newcommand{\distDisc}{\mcD_{\mathrm{dist}}}
+\newcommand{\compDisc}{\mcD_{\mathrm{comp}}}
+\newcommand{\compDiscEst}{\widehat{\mcD}_{\mathrm{comp}}}
+%\newcommand{\obsdist}{P_{\truesym}}
+%\newcommand{\empdist}{\Pr_{\numobs}}
+%\newcommand{\datasum}{Z}
+%\newcommand{\datadiff}{W}
+%
+%
+%% BayesBag
+%\newcommand{\bbsym}{*} % BayesBag symbol
+%\newcommand{\bsnumobs}{M}
+%\newcommand{\bbEE}{\EE^{\bbsym}} % expectation wrt to BayesBag
+%\newcommand{\bsindrvsym}{L}
+%\newcommand{\bsindsym}{\ell}
+%\newcommand{\bsind}[1]{\bsindsym_{#1}}
+%\newcommand{\bsindrv}[1]{\bsindrvsym_{#1}}
+%\newcommand{\bsindrvs}[1]{\bsindrvsym_{1:#1}}
+%\newcommand{\bscount}[1]{K_{#1}}
+%\newcommand{\bscounts}{K_{1:\numobs}}
+%\newcommand{\bsobs}[1]{\obs{#1}^{\bbsym}}
+%\newcommand{\bsobsrv}[1]{\obsrv{#1}^{\bbsym}}
+%\newcommand{\bsdata}{\data^{\bbsym}}
+%\newcommand{\bsdatarv}{\datarv^{\bbsym}}
+%\newcommand{\bsdatasample}[1]{\data^{\bbsym}_{(#1)}}
+%\newcommand{\bsdataarg}[1]{\bsdata_{1:#1}}
+%\newcommand{\bsdatarvarg}[1]{\bsdatarv_{1:#1}}
+%\newcommand{\bsdatacopy}[1]{\datacopy^{\bbsym}_{1:#1}}
+%\newcommand{\bbpostdist}[1]{\postdist{#1}^{\bbsym}}
+%\newcommand{\bbpostdistfull}[2]{\Pi^{\bbsym}(#1 \given #2)}
+%\newcommand{\bbpostdensity}[1]{\postdensity{#1}^{\bbsym}}
+%\newcommand{\bbpostdensityfull}[2]{\postdensity{}^{\bbsym}(#1 \given #2)}
+%\newcommand{\bsdatameanarg}[1]{\bar\data^{\bbsym}_{#1}}
+%\newcommand{\bsdatarvmeanarg}[1]{\bar\datarv^{\bbsym}_{#1}}
+%% \newcommand{\bsdatameanarg}[1]{\empmean{\bsdataarg{#1}}}
+%% \newcommand{\bsdatarvmeanarg}[1]{\empmean{\bsdatarvarg{#1}}}
+%%\newcommand{\bsdatameanargrv}[1]{\bar\data_{\bsindrvsym}}
+%\newcommand{\bbempdist}{\Pr_{\numobs}^{\bbsym}}
+%% \newcommand{\bbmodelpostdist}[1]{Q_{#1}^{\bbsym}}
+%\newcommand{\bbmodelpostdistfull}[2]{Q^{\bbsym}(#1 \given #2)}
+%%\newcommand{\indexvar}[1]{\bsindrvsym_{#1}}
+%
+%
+%\newcommand{\bsscale}{c}
+%%\newcommand{\optscale}{\bsscale_{\text{opt}}}
+%%\newcommand{\optscaleest}{\widehat\bsscale_{\text{opt}}}
+%\newcommand{\optMasympt}{\bsnumobs_{\infty,\text{opt}}}
+%\newcommand{\optMasymptest}{\widehat\bsnumobs_{\infty,\text{opt}}}
+%\newcommand{\optMfs}{\bsnumobs_{\text{fs,opt}}}
+%\newcommand{\optMfsest}{\widehat\bsnumobs_{\text{fs,opt}}}
+%\newcommand{\optMest}{\widehat\bsnumobs_{\text{opt}}}
+%\newcommand{\modelmismatch}{\mathcal{I}}
+%\newcommand{\nan}{\textsf{NA}}
+%\newcommand{\concconst}{C_{\numobs}}
+%
+%% Split Predictive Checks
+%
+%
+%\newcommand{\pcobsrv}{X_{\text{obs}}}    % X
+%\newcommand{\pcobsobs}[1]{\obsrv{#1}}
+%\newcommand{\pcnewrv}{X_{\text{ho}}}  % X^rep
+%\newcommand{\pcreprv}{X_{\text{pred}}}  % X^rep
+%\newcommand{\pcrepobs}[1]{\obsrv{#1}_{\text{pred}}}
+%% single SPC
+%\newcommand{\spc}{\text{SPC}}  % SPC index
+%\newcommand{\spcpvalue}[1]{ \p_{\spc}(#1)}
+%\newcommand{\spcprop}{q}
+%\newcommand{\spcobsrv}{\datarv_{\text{obs}}}    % X^obs
+%\newcommand{\spcobsobs}[1]{X_{\text{obs},#1}}
+%\newcommand{\spcnewrv}{\datarv_{\text{ho}}}    % X^new
+%\newcommand{\spcnewobs}[1]{X_{\text{ho}, #1}}
+%\newcommand{\spcreprv}{\datarv_{\text{pred}}}  % X^rep
+%\newcommand{\spcrepobs}[1]{X_{\text{pred},#1}}
+%\newcommand{\spcobssize}{\lceil \spcprop\numobs \rceil}
+%\newcommand{\spcnewsize}{ \numobs - \spcNobs}
+%\newcommand{\spcNobs}{\numobs_{\text{obs}}}
+%\newcommand{\spcNnew}{\numobs_{\text{ho}}}
+%\newcommand{\spcpostmarginal}{\postmarginal^{\spc}}
+%\newcommand{\intBVMapprox}{\widehat{\int}}
+%% divided SPC
+%\newcommand{\dspcK}{k}
+%\newcommand{\dspc}{\text{dSPC}}
+%\newcommand{\dspcdata}[1]{\datarv^{(#1)}}
+%\newcommand{\dspcpval}[1]{\p_{\dspc}(#1)}
+%\newcommand{\dspcobspval}[1]{u_{#1}}
+%\newcommand{\dspcpdist}{\mathbb{P}_\dspcK}
+%\newcommand{\dspcnumobs}{N_\dspcK}
+%\newcommand{\dspcobs}{N_{\dspcK,\text{obs}}}
+%\newcommand{\spcrepobsrv}{\mathbf{\datarv}^{\spc}_{\text{obs}}}
+%\newcommand{\spcrepobsobs}[1]{\datarv^{\spc}_{\text{obs}}}
+%\newcommand{\spcrepnewrv}{\mathbf{\datarv}_{\text{ho}}}
+%
+%
+%\newcommand{\pvalbvmdist}[1]{ \p'_{\spc}(#1)}
+%\newcommand{\pvalbvmdistball}[1]{ \p''_{\spc}(#1)}
+%
+%
+%\newcommand{\pvaltoK}[1]{ \p'_{\spc}(#1)}
+%\newcommand{\spcpvalueapprox}[1]{ \p''_{\spc}(#1)}
+%\newcommand{\spcpvalball}[1]{ \p'''_{\spc}(#1)}
+%\newcommand{\spcrepnewobs}[1]{\datarv_{\spc, #1}^{\text{ho}}}
+%\newcommand{\spcKSpvalue}{ \p_{\text{KS}}(\pcobsrv)}
+%\newcommand{\spcKSstat}{\sup_x|x - \KSempdist(x)|}
+%\newcommand{\spcpvaluearg}[1]{\p{1:#1}}
+%\newcommand{\spcpvalueobs}[1]{\p{#1}}
+%\newcommand{\KSempdist}{\Pr_{\spcreptimes}}
+%
+%\newcommand{\asympmean}[1]{\nu_{#1}}
+%\newcommand{\trueasympmean}{\nu_{\truesym}}
+%\newcommand{\diffasympmean}[1]{\dot{\nu}_{#1}}
+%\newcommand{\asympsd}{\sigma}
+%\newcommand{\trueasympsd}{\asympsd_{\truesym}}
+%\newcommand{\diffasympvar}[1]{\dot{\asympsd}(#1)}
+%\newcommand{\ddiffasympvar}[1]{\ddot{\asympsd}(#1)}
+%\newcommand{\mlevar}{\Sigma}
+%\newcommand{\truemlevar}{\Sigma_{\optsym}}
+%\newcommand{\distBVM}[2]{\widehat{\Pi}(#1\given#2)}
+%\newcommand{\densityBVM}[2]{\widehat{\pi}(#1\given#2)}
+%\newcommand{\paramstar}{\param'}
+%\newcommand{\localparam}[1]{{\psi}_{#1}}
+%\newcommand{\paramseq}[1]{\tilde{\param}_{#1}}
+%\newcommand{\distKS}[1]{F_\mathrm{KS}(#1)}
+%\newcommand{\qdistKS}[1]{K_{#1}}
+%
+%\newcommand{\bigoPindex}[1]{\bigo_{P_{#1}}}
+%\newcommand{\standnormal}{ \mathcal{N}(0, 1)}
+%\newcommand{\littleoPindex}[1]{\littleo_{P_{#1}}}
+%
+%\newcommand{\truesigma}{\sigma_{\truesym}}
+%\newcommand{\liksd}{\sigma}
+%\newcommand{\priorsd}{\tau}
+%\newcommand{\priormean}{\mu}
+%\newcommand{\sdratio}{\kappa}
+%\newcommand{\ess}{\numobs_0}
+%\newcommand{\unadjess}{r}
+%\newcommand{\adjess}{r_{\text{adj}}}
+%\newcommand{\samplemean}[1]{\overline{#1}}
+%
+%% dSPC
+%\newcommand{\pvaldist}{\mathbb{P}_{k}}
+%\newcommand{\pvalempdist}{\widehat{\mathbb{P}}_{k}}
+%
+%% empirical process notations
+%\newcommand{\class}{\mathcal{C}}
+%\newcommand{\fnclass}{\mathscr{F}}
+%\newcommand{\VCclass}{\mathcal{C}}
+%\newcommand{\card}{\text{Card}}
+%\newcommand{\VCnum}[1]{\nu(#1)}
+%\newcommand{\BB}[1]{\mathbb{G}^{(#1)}}
+%\newcommand{\empGn}[2]{\mathbb{G}^P_{#1}#2}
+%\newcommand{\empPn}[1]{\widehat{\mathbb{P}}_{#1}}
+%\newcommand{\unifempGn}[2]{\tilde{\mathbb{G}}_{#1}#2}
+%\newcommand{\indclass}{\mathscr{F}_{\text{ind}}}
+%
+
+%--------------------------------------------------------------------------------------
+% Lp spaces
+%--------------------------------------------------------------------------------------
+\newcommand{\Lp}[1]{L^{#1}}
+\newcommand{\Lpnorm}[2]{\staticnorm{#2}_{\Lp{#1}}}
+\newcommand{\Lpinner}[3]{\inner{#2}{#3}_{\Lp{#1}}}
+\newcommand{\Lparg}[2]{L^{#1}(#2)}
+\newcommand{\Lpnormarg}[3]{\norm{#3}_{\Lparg{#1}{#2}}}
+\newcommand{\Lpinnerarg}[4]{\inner{#3}{#4}_{\Lparg{#1}{#2}}}
+\newcommand{\lpnorm}[2]{\staticnorm{#2}_{#1}}
+\newcommand{\lpinner}[3]{\inner{#2}{#3}_{#1}}
+
+%--------------------------------------------------------------------------------------
+% Metrics
+%--------------------------------------------------------------------------------------
+
+\newcommand{\hellinger}[2]{\mathrm{H}(#1, #2)}
+\newcommand{\sqhellinger}[2]{\mathrm{H}^{2}(#1, #2)}
+\newcommand{\Esqhellinger}{\overline{\mathrm{H}^{2}}}
+\newcommand{\postpredEsqhellinger}[1]{\overline{\mathrm{H}^{2}_{#1}}}
+\newcommand{\bsEsqhellinger}{\overline{\mathrm{H}^{2}_{\bbsym}}}
+\newcommand{\haffinity}[2]{\mathrm{A}(#1, #2)}
+\newcommand{\Ehaffinity}{\overline{\mathrm{A}}}
+\newcommand{\skl}[2]{\mathrm{SKL}(#1, #2)}
+\newcommand{\Eskl}{\overline{\mathrm{SKL}}}
+\newcommand{\dalpha}[3]{d_{#1}(#2 || #3)}
+
+
+% ---------------------------------------------------------------------------------
+% Topology
+%---------------------------------------------------------------------------------------
+\newcommand{\Int}[1]{\operatorname{Int}({#1})}
+
+%--------------------------------------------------------------------------------------
+% Vectors and matrices
+%--------------------------------------------------------------------------------------
+\newcommand{\boldone}{\mbf{1}} % Bold 1
+\newcommand{\onevec}[1]{1_{#1}}
+\newcommand{\ident}{\mbf{I}} % Identity matrix
+\def\v#1{\mbi{#1}} % Vector notation
+\def\norm#1{\left\|{#1}\right\|} % A norm with 1 argument
+\newcommand{\onenorm}[1]{\norm{#1}_1} % L1 norm
+\newcommand{\twonorm}[1]{\norm{#1}_2} % L2 norm
+\newcommand{\infnorm}[1]{\norm{#1}_{\infty}} % Linfty norm
+\newcommand{\opnorm}[1]{\norm{#1}_{op}} % Operator norm
+\newcommand{\fronorm}[1]{\norm{#1}_{F}} % Frobenius norm
+\newcommand{\nucnorm}[1]{\norm{#1}_{*}} % Nuclear norm
+\def\staticnorm#1{\|{#1}\|} % A static norm that does not resize with input
+\newcommand{\statictwonorm}[1]{\staticnorm{#1}_2} % L2 norm
+\newcommand{\inner}[2]{\langle{#1},{#2}\rangle} % Inner product
+\newcommand{\binner}[2]{\left\langle{#1},{#2}\right\rangle} % Inner product with pandable brackets
+\def\what#1{\widehat{#1}}
+
+\def\twovec#1#2{\left[\begin{array}{c}{#1} \\ {#2}\end{array}\right]}
+\def\threevec#1#2#3{\left[\begin{array}{c}{#1} \\ {#2} \\ {#3} \end{array}\right]}
+\def\nvec#1#2#3{\left[\begin{array}{c}{#1} \\ {#2} \\ \vdots \\ {#3}\end{array}\right]} % An n-vector with three arguments
+
+%-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+% Words with special symbols
+%-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+\def\Gronwall{Gr\"onwall\xspace}
+\def\Renyi{R\'enyi\xspace}
+\def\Holder{H\"older\xspace}
+\def\Ito{It\^o\xspace}
+\def\Nystrom{Nystr\"om\xspace}
+\def\Schatten{Sch\"atten\xspace}
+\def\Matern{Mat\'ern\xspace}
+\def\Frechet{Fr\'echet\xspace}
+
+
+\newcommand{\kl}[2]{\mathrm{KL}(#1 \mid #2)}
+\newcommand{\kladaest}[2]{\mathrm{\tilde{KL}}(#1 \mid #2)}
+\newcommand{\klest}[2]{\mathrm{\widehat{KL}}(#1 \mid #2)}
+\newcommand{\klestsub}[4]{\mathrm{\widehat{KL}^{#1}}_{#2}(#3 \mid #4)}
+\newcommand{\klestunif}[2]{\mathrm{\widehat{KL}}_{U}(#1 \mid #2)}
+
+
+
+\newcommand{\data}[1]{x_{#1}}
+\newcommand{\numobs}{N}
+\newcommand{\numcomps}{K}
+\newcommand{\numdims}{D}
+
+\newcommand{\allparam}{\theta}
+\newcommand{\param}{\phi}
+\newcommand{\paramspace}{\Theta}
+
+
+\newcommand{\Neff}{N_{\eff}}
+\newcommand{\freq}{\nu}
+
+\newcommand{\knn}{\tdk}
+
+
+\newcommand{\discr}[2]{\mcD(#1\mid #2)}
+\newcommand{\discrest}[2]{\widehat\mcD(#1\mid #2)}
+\newcommand{\metric}{d}
+\newcommand{\blmetric}{d_\mathrm{BL}}
+\newcommand{\mmd}{\text{MMD}}
+
+
+\renewcommand{\Pr}{\text{pr}}
+\newcommand{\dee}{\mathrm{d}}
+\newcommand{\op}{o_{P}}
+\newcommand{\BLnorm}[1]{\Vert #1 \Vert_{\mathrm{BL}}}
+
+\def\argmax{\operatornamewithlimits{arg\,max}}
+\def\argmin{\operatornamewithlimits{arg\,min}}
+\newcommand{\distNamed}[1]{{\sf{#1}}}
+\newcommand{\distCat}{\distNamed{Categorical}}
+\newcommand{\distNBinom}{\distNamed{NegBin}}
+\newcommand{\distPoiss}{\distNamed{Poiss}}
+\newcommand{\distUnif}{\distNamed{Unif}}
+\newcommand{\distNorm}{\mathcal{N}}
+\newcommand{\distSNorm}{\mathcal{SN}}
+\newcommand{\distMulti}{\distNamed{Multi}}
+\newcommand{\distGamma}{\distNamed{Gamma}}
+
+
+\newcommand{\reals}{\ensuremath{\mathbb{R}}}
+\newcommand{\ints}{\ensuremath{\mathbb{Z}}}
+\newcommand{\posInts}{\ints_+}
+\newcommand{\nats}{\ensuremath{\mathbb{N}}}
+
+\newcommand{\distas}{\sim}
+\newcommand{\distiid}{\stk{\distas}{iid}}
+\newcommand{\distind}{\stk{\distas}{ind}}
+
+\newcommand{\E}{\mathbb{E}}	% expectation
+\renewcommand{\Pr}{\mathbb{P}}	% expectation
+\newcommand{\ind}{\mathds{1}} % indicator function
+\newcommand{\sgn}{\operatorname{sgn}} % sign function
+
+
+% \declaretheorem[name=Theorem,numberwithin=section]{theorem}
+% \declaretheorem[name=Lemma,numberlike=theorem]{lemma}
+% \declaretheorem[name=Proposition,numberlike=theorem]{proposition}
+% \declaretheorem[name=Corollary,numberlike=theorem]{corollary}
+% \declaretheorem[name=Conjecture,numberlike=theorem]{conjecture}
+% \declaretheorem[name=Definition,numberlike=theorem]{definition}
+% \declaretheorem[name=Assumption,numberlike=theorem]{assumption}
+
+% shorthand for automatic parenthesis
+\newcommand{\lrp}[1]{\left(#1\right)}
+\newcommand{\lrb}[1]{\left[#1\right]}
+\newcommand{\lrc}[1]{\left\{#1\right\}}
+\newcommand{\lra}[1]{\left\langle #1\right\rangle}
+% \newcommand{\norm}[1]{\left\lVert #1\right\rVert} % already included in shortex
+\newcommand{\abs}[1]{\left\lvert #1\right\rvert} % already included in shortex
+
+% shorthand for matrices
+\newcommand{\bmat}[1]{\begin{bmatrix}#1\end{bmatrix}}
+\newcommand{\Bmat}[1]{\begin{Bmatrix}#1\end{Bmatrix}}
+\newcommand{\pmat}[1]{\begin{pmatrix}#1\end{pmatrix}}
+
+% variants
+\newcommand{\veps}{\varepsilon}
+\newcommand{\vtheta}{\vartheta}
+\newcommand{\vpi}{\varpi}
+\newcommand{\vrho}{\varrho}
+\newcommand{\vsigma}{\varsigma}
+\newcommand{\vphi}{\varphi}
+\newcommand{\vkappa}{\varkappa}
+
+% parametric distributions
+\newcommand{\Norm}{\mathcal{N}}
+\newcommand{\StudentT}{\mathcal{T}}
+\newcommand{\Wish}{\mathcal{W}}
+\newcommand{\InvWish}{\mathcal{IW}}
+\newcommand{\Lap}{\distNamed{Lap}}
+\newcommand{\ChiSq}{\chi^2}
+\newcommand{\Unif}{\distNamed{Unif}}
+\newcommand{\Gam}{\distNamed{Gam}}
+\newcommand{\Gum}{\distNamed{Gumbel}}
+\newcommand{\GEV}{\distNamed{GEV}}
+\newcommand{\Cat}{\distNamed{Categorical}}
+\newcommand{\InvGam}{\distNamed{InvGam}}
+\newcommand{\Poiss}{\distNamed{Poiss}}
+\newcommand{\NegBin}{\distNamed{NegBin}}
+\newcommand{\Exp}{\distNamed{Exp}}
+\newcommand{\Beta}{\distNamed{Beta}}
+\newcommand{\Dir}{\distNamed{Dir}}
+\newcommand{\Binom}{\distNamed{Binom}}
+\newcommand{\Multi}{\distNamed{Multi}}
+\newcommand{\Bern}{\distNamed{Bern}}
+\newcommand{\Geom}{\distNamed{Geom}}
+\newcommand{\Cauchy}{\distNamed{Cauchy}}
+\newcommand{\VMF}{\distNamed{vMF}}
+
+% Convenient math shorthand
+\newcommand{\doverline}[1]{\overline{\overline{#1}}}
+\newcommand{\indicator}[1]{\mathbb{I}_{\{#1\}}}
+\newcommand{\identity}{\mathbf{I}}
+\newcommand{\transpose}{^{\mathrm{T}}}
+\newcommand{\dagg}{^{\dagger}}
+\newcommand{\trace}{\mathrm{Tr}}
+\newcommand\vm[1]{\bm{\mathrm{#1}}} % vector or matrix
+\newcommand{\suchthat}{\mathrm{s.t.}}
+\newcommand{\inv}{^{-1}}
+\newcommand{\one}{\vm{1}}
+\newcommand{\zero}{\vm{0}}
+\newcommand{\unit}{\vm{e}}
+\newcommand{\mop}[1]{\mathop{\mathrm{#1}}}
+\newcommand*\blank{{\mkern 2mu\cdot\mkern 2mu}}
+
+% unary/functions
+\let\oldP\P
+\renewcommand\P{\relax\ifmmode\mathbb{P}\else\oldP\fi} %make \P be mathbbP in math mode, usual defn as pilcrow in text mode
+% \newcommand{\E}{\mathbb{E}}	% expectation
+\newcommand{\Var}{\operatorname{Var}}	% variance
+\newcommand{\Cov}{\operatorname{Cov}}	% covariance
+\newcommand{\Corr}{\operatorname{Corr}}	% correlation
+\newcommand{\supp}{\operatorname{supp}} %support
+
+% convergence
+\newcommand{\convas}{\overset{a.s.}{\to}}
+\newcommand{\convp}{\overset{p}{\to}}
+\newcommand{\convd}{\overset{d}{\to}}
+\newcommand{\eqd}{\overset{d}{=}}
+\newcommand{\eqas}{\overset{a.s.}{=}}
+
+\DeclareMathOperator{\pr}{pr}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%% Calculus 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\let\oldd\d
+\renewcommand\d{\relax\ifmmode\mathrm{d}\else\oldd\fi} %make \d be mathrm{d} in math mode, usual defn as underdot(?) in text mode
+\newcommand{\pd}{\partial}
+\newcommand{\grad}{\nabla}
+\newcommand{\der}[3][]{\ensuremath{\frac{{\d}^{#1} #2}{\d {#3}^{#1}}}}
+\newcommand{\pder}[3][]{\ensuremath{\frac{{\pd}^{#1} #2}{\pd {#3}^{#1}}}}
+\newcommand{\hes}[3]{\ensuremath{\frac{\pd^2 #1}{\pd #2 \pd #3}}}

@@ -1,0 +1,168 @@
+\RequirePackage{etex}
+\documentclass[9pt,aspectratio=169,xcolor=dvipsnames,
+  unicode,colorlinks,citecolor=blue,urlcolor=black,
+  linkcolor=blue,pdfborder={0 0 0},compress]{beamer}
+\usetheme{SimplePlus}
+\addtobeamertemplate{frametitle}{\vspace*{-0.8em}}{}
+% \usetheme{Boston}
+\useoutertheme[subsection=false]{miniframes}
+\setbeamertemplate{footline}
+{
+  \leavevmode%
+  \hbox{%
+  % Part 1: Title (explicitly left-aligned)
+  \begin{beamercolorbox}[wd=.4\paperwidth,ht=2.25ex,dp=1ex,left,leftskip=1em]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertshorttitle
+  \end{beamercolorbox}%
+  % Part 2: Subsection (centered)
+  \begin{beamercolorbox}[wd=.25\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertsubsectionhead
+  \end{beamercolorbox}%
+  % Part 3: Author (centered)
+  \begin{beamercolorbox}[wd=.295\paperwidth,ht=2.25ex,dp=1ex,right,rightskip=1em]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\insertshortauthor
+  \end{beamercolorbox}%
+  % Part 4: Page Number (explicitly right-aligned)
+  \begin{beamercolorbox}[wd=.05\paperwidth,ht=2.25ex,dp=1ex,right,rightskip=1em]{date in head/foot}%
+    \usebeamerfont{date in head/foot}\insertframenumber{} / \inserttotalframenumber
+  \end{beamercolorbox}}%
+  \vskip0pt%
+}
+% --- Call the new command from within the hook ---
+\newif\iffirstsection
+\firstsectiontrue
+\AtBeginSection[]
+{
+  \iffirstsection
+    \firstsectionfalse % The first time it runs, just set the toggle to false
+  \else
+    \begingroup
+    \begin{frame}<beamer>
+      \frametitle{%
+        \hypersetup{linkcolor=.}% <--- This is the fix
+        \insertsectionhead
+      }
+      \tableofcontents[currentsection]
+    \end{frame}
+    \endgroup
+  \fi
+}
+
+
+\usepackage{pdfcomment}
+\newcommand{\pdfnote}[1]{\marginnote{\pdfcomment[icon=note]{#1}}}
+
+% \usepackage[linenumbers,preprint]{imsart} % conflict with beamer
+% \usepackage[margin=1in]{geometry} % conflict with beamer
+
+\usepackage{amsmath}
+\usepackage{amssymb,amsthm,mathtools}
+\usepackage{mathtools}
+\usepackage{bm}
+% \usepackage[unicode,colorlinks,citecolor=blue,urlcolor=black,linkcolor=blue,pdfborder={0 0 0}]{hyperref}
+\usepackage[capitalize,sort,compress]{cleveref} % nice reference package for automatically choosing names for references
+\usepackage{comment}
+\usepackage{graphicx}
+% \usepackage{enumitem} % conflict with beamer
+\usepackage{framed}
+\usepackage{dcolumn}
+%%% UNCOMMENT WHEN SUBMITTING TO ARXIV %%%
+% \usepackage{chngcntr} % conflict with beamer
+%\usepackage{subcaption}
+\usepackage{dsfont} % doublestroke fonts (for things like reals, nats, complex numbers, etc)
+
+
+\usepackage{url} % nice URL typesetting
+% \usepackage[usenames]{color} % for using colored text
+\usepackage{subfig}
+\usepackage[numbers,sort,compress]{natbib}
+\setbeamertemplate{bibliography item}[text] % beamer support for natbib
+%\usepackage[style=numeric-comp,
+%       minnames=1,
+%       maxnames=99,
+%       maxcitenames=3,
+%       natbib=true,
+%       firstinits=true,
+%       backend=bibtex]{biblatex}
+
+% \usepackage{datetime} % conflict with beamer
+\usepackage[normalem]{ulem}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+
+\usepackage{autonum} % conflict with beamer
+\usepackage{microtype} % microtypesetting improvements for latex
+\usepackage{booktabs} % professional quality tables
+\usepackage{graphicx}
+\usepackage{thmtools}
+
+\usepackage{tikz}
+\usepackage{pgfplots}
+
+\newtheorem{assumption}{Assumption}
+\newtheorem{proposition}{Proposition}
+\newtheorem{remark}{Remark}
+
+% Already provided by beamer
+% \newtheorem{theorem}{Theorem}
+% \newtheorem{lemma}{Lemma}
+% \newtheorem{example}{Example}
+% \newtheorem{definition}{Definition}
+\newenvironment{contexample}{
+   \addtocounter{example}{-1} \begin{example}[continued]}{
+   \end{example}}
+
+\crefname{theorem}{Theorem}{Theorems}
+\crefname{lemma}{Lemma}{Lemmas}
+\crefname{proposition}{Proposition}{Propositions}
+\crefname{corollary}{Corollary}{Corollaries}
+\crefname{conjecture}{Conjecture}{Conjectures}
+\crefname{definition}{Definition}{Definitions}
+\crefname{assumption}{Assumption}{Assumptions}
+\crefname{example}{Example}{Examples}
+\crefname{remark}{Remark}{Remarks}
+\crefname{algocf}{Algorithm}{Algorithms}
+
+
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.9}
+\captionsetup[figure]{font=small,labelfont=small}
+
+\AtBeginDocument{ %necessary to stop clash with autonum package
+\def\[#1\]{\begin{align}#1\end{align}}
+\def\fl[#1\fl]{\begin{flalign}#1\end{flalign}}
+}
+
+\input{shortcuts}
+
+%\setlength{\marginparwidth}{25mm} % remember to comment out this line
+\graphicspath{{./figures/}}
+\setcounter{tocdepth}{2}
+%\suppresscomments
+\title[Interpretable \& Robust Discovery of Latent Processes]{Beyond Predictive Accuracy}
+\subtitle{Methods for Interpretable and Robust Discovery of Latent Processes in Complex Systems}
+\author[N.\ Nguyen]{Nguyen Nguyen \and Ioannis Ch. Paschalidis \and Jonathan H. Huggins}
+\institute{Division of Systems Engineering \\ \textbf{Boston University}}
+\date{\today}
+
+\begin{document}
+
+
+% title frame
+\begin{frame}
+  \titlepage % \maketitle is an alias for \titlepage in beamer
+\end{frame}%\tableofcontents
+
+%\doublespacing
+\input{content}
+
+\begin{frame}[allowframebreaks]{References}
+  \bibliographystyle{plainnat}
+
+  \bibliography{paper-ref}
+\end{frame}
+
+\newpage
+\appendix
+% \input{appendix}
+
+\end{document}

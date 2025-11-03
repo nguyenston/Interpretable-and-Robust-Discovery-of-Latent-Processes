@@ -1,0 +1,459 @@
+% !TEX root =  presentation_arxiv.tex
+%
+% table of content
+\section{Introduction}
+\begin{frame}{Introduction}
+  Type of latent processes in real-world applicatons:
+  \pause
+  \begin{itemize}
+    \item Mutational signatures (tumor mutational signature analysis) 
+      \citep{Levitin_DeNovo_Gene_Signature_Identification_2019,Kinker_Pan_Cancer_2020,Seplyarskiy_PopulationSequencingData_2021}
+    \item Material types (remote sensing)
+      \citep{Fevotte_NonlinearHyperspectralUnmixing_2015,Rajabi_SpectralUnmixingHyperspectral_2015}
+    \item Decision policies (HRL/HIL)
+      \citep{SUTTON1999181, Barto2003}
+  \end{itemize}
+  \pause
+  \begin{alertblock}{Problem statement}
+    Current machine learning techniques excel at prediction, but bad at
+    consistent and interpretable identification of these underlying latent structures that govern
+    observable phenomena:
+    \begin{itemize}
+      \item Rely on local search $\implies$ local convergence, sensitivity to initialization
+      \item Require the number of processes apriori $\implies$ commonly used techniques weak to complications
+    \end{itemize}
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Outline of contribution}
+  \tableofcontents
+\end{frame}
+
+\section{Method of moments for HIL}
+
+\subsection{Hierarchical Reinforcement Learning}
+\begin{frame}{Hierarchical Reinforcement Learning}
+    \begin{columns}[b]
+        \column{0.6\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=\textwidth]{figures/monezuma_revenge_atari_game.pdf}
+                \caption{Four-room grid world}
+                \label{fig:4_room_grid_world}
+            \end{figure}
+        \column{0.4\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=\textwidth]{figures/layers_of_policies.pdf}
+                \caption{Multiple layers of policies}
+                \label{fig:policy_layers}
+            \end{figure}
+    \end{columns}
+\end{frame}
+
+\subsection{HIL models and frameworks}
+\begin{frame}{Options framework and Hierarchical Imitation Learning}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.8\textwidth, page=1]{figures/options_bayesian_net.pdf}
+        \caption{Bayesian graph of the options framework}
+        \label{fig:options_chain}
+    \end{figure}
+\end{frame}
+
+\begin{frame}{Hidden Markov Model}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.5\textwidth, page=1]{figures/hmm_bayesian_net.pdf}
+        \caption{Bayesian graph of HMM}
+        \label{fig:HM_chain}
+    \end{figure}
+    \pause
+    Existing method for HMM (namely the EM based Baum-Welch algorithm) has been adapted to work with the options framework \citep{zhiyu20,Giammarino_2021}.
+    \begin{alertblock}{}
+        What if we also adapt another class of methods?
+    \end{alertblock}
+\end{frame}
+
+\subsection{Method of moments}
+\begin{frame}{Method of moments}
+    Challenges of EM based methods:
+    \begin{itemize}
+        \item Local convergence
+        \item Iterative method with expensive steps
+        \item Performance depends on initialization
+    \end{itemize}
+    \begin{block}{}
+        Method of moments are able to address each of these problems.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Method of moments}
+  \center{\LARGE{What are moments?}}
+    \begin{columns}[b]
+        \column{0.563\textwidth}
+          \begin{figure}
+              \centering
+              \includegraphics[width=\textwidth, page=2]{figures/options_bayesian_net.pdf}
+              \caption{Bayesian graph of the options framework}
+          \end{figure}
+        \column{0.437\textwidth}
+          \begin{figure}
+              \centering
+              \includegraphics[width=\textwidth, page=2]{figures/hmm_bayesian_net.pdf}
+              \caption{Bayesian graph of HMM}
+          \end{figure}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Method of moments for HMM}
+    \begin{Definition}
+      \begin{enumerate}
+          \item Hidden parameters: 
+          \begin{enumerate}
+              \item $\bm{P}[i,j] = P\lrp{X_{t+1}=j\vert X_t=i}$
+              \item $\bm{Q}[i,j] = P\lrp{Y_t=j\vert X_t=i}$
+          \end{enumerate}
+          \item Observable moments:
+          \begin{enumerate}
+              \item $\bm{M}_y[i,j] = P\lrp{Y_1=i,Y_2=y,Y_3=j}$
+              \item $\bm{M}[i,j] = P\lrp{Y_1=i,Y_3=j}$
+          \end{enumerate}
+      \end{enumerate}
+    \end{Definition}
+    \pause
+    \begin{Theorem}
+      The following product admits the factorization \citep{hsu08}:
+        \[
+            \bm{M}_y\inv\bm{M} = 
+            (\bm{P}\bm{Q})\inv\mathrm{diag}(\bm{Q}\unit_y)\bm{P}\bm{Q}
+        \]
+    \end{Theorem}
+    \pause
+    \begin{alertblock}{Note}
+        This equation is the main concept behind the algorithm. Finding $\bm{P}$ after having found $\bm{Q}$ is straight forward.
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Method of moments for HIL}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.75\textwidth, page=2]{figures/options_bayesian_net.pdf}
+    \end{figure}
+    \begin{block}{Formulation}
+        The triple $(O_t,S_t,A_t)$ forms a discrete-time Markov chain with $O_t$, $S_t$, and $A_t$ defined over the finite spaces $\mathcal{O}$, $\mathcal{S}$, and $\mathcal{A}$, respectively.
+        We denote the cardinality of these spaces as 
+        $\vert\mathcal{O}\vert=\omega$, $\vert\mathcal{S}\vert=\zeta$, and $\vert\mathcal{A}\vert=\alpha$.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Method of moments for HIL - Defining parameters}
+
+    \begin{Definition}
+        \begin{flalign}
+        \text{Let}
+        &&\bm{\Pi}^{lo}_s[o,a]&= \pi_{lo}(A_t=a\vert O_t=o,S_t=s),&&\\
+        &&\bm{\Pi}^{hi}_s[o,o']&= \pi_{hi}(O_{t+1} = o'\vert O_t = o,S_{t+1}=s),&&\\
+        &&\bm{\Phi}^A_a[s,s']&=\Phi(S_{t+1} = s'\vert S_t = s, A_t=a).&&
+      \end{flalign}
+    \end{Definition}
+    \pause
+    \begin{block}{Block diagonal forms}
+        \begin{flalign}
+          \text{Let\qquad\qquad\qquad\quad}&&
+          \bm{\Pi}^{lo}\lrb{s\zeta+o,s'\zeta+a} &= \pi_{lo}(A_1=a,S_1=s'\vert O_1=o,S_1=s),&&\\
+          &&\bm{\Pi}^{hi}\lrb{s\zeta+o,s'\zeta+o'} &= \pi_{hi}(O_2=o',S_1=s'\vert O_1=o,S_2=s).&&
+        \end{flalign}
+        \begin{flalign}
+          \text{These have the form: }&&
+          \bm{\Pi}^{lo}=\bmat{\bm{\Pi}^{lo}_1&&\\&\ddots&\\&&\bm{\Pi}^{lo}_\zeta}
+          \text{ and }
+          \bm{\Pi}^{hi}=\bmat{\bm{\Pi}^{hi}_1&&\\&\ddots&\\&&\bm{\Pi}^{hi}_\zeta}&&.
+        \end{flalign}
+    \end{block}
+\end{frame}
+
+\begin{frame}{Method of moments for HIL - Defining moments}
+        
+    \begin{Definition}
+        \begin{flalign}
+          \text{Let}
+          &&\bm{M}_a\lrb{s_2\zeta+s_1,s_3\alpha+a_3}
+          &=P(S_2=s_2,S_1=s_1,A_2=a,S_3=s_3,A_3=a_3),&&\\
+          &&\bm{K}_s[s_1,a_2]&=P(S_1=s_1,S_2=s,A_2=a_2).&&
+      \end{flalign}
+    \end{Definition}
+    \pause
+    \begin{block}{Goal}
+        Construct a diagonalizable expression out of these moments.
+    \end{block}
+    \pause
+    \begin{alertblock}{Problems}
+      \begin{itemize}
+        \item Transition dynamics $\bm{\Phi}^A_a$ introduces complications
+        \item  $\alpha\neq\omega\implies\bm{\Pi}^{lo}$ is non-square $\implies$ can't invert
+      \end{itemize}
+    \end{alertblock}
+\end{frame}
+
+% \begin{frame}{Method of moments for HIL - Additional definitions}
+%     Let
+%         \[
+%           \bm{\Xi}_{s'}[s,o] &= P(S_t=s,O_t=o,S_{t+1}=s'),\\
+%           \bm{\Xi}[s'\zeta+s,s''\zeta+o] &= P(S_t=s,O_t=o,S_{t+1}=s'=s'').
+%         \]
+%         We can express $\bm{\Xi}$ as:
+%         \[\bm{\Xi}=\bmat{\bm{\Xi}_1&&\\&\ddots&\\&&\bm{\Xi}_\zeta}.\]
+%     \begin{alertblock}{Note}
+%         Only necessary for proof and theory. Should not be relevant during implementation.
+%     \end{alertblock}
+% \end{frame}
+%
+% \begin{frame}{Method of moments for HIL - Assumptions}
+%     \begin{block}{Rank assumptions}
+%         \begin{enumerate}
+%             \item $\bm{\Pi}^{lo}$ has full row rank
+%             \item $\bm{\Pi}^{hi}$ has full rank
+%             \item $\bm{\Xi}$ has full column rank
+%         \end{enumerate}
+%     \end{block}
+%     \pause
+%     \begin{block}{Noisy transition assumption}
+%         For any $s,s'\in\mathcal{S}$, if there exists $a\in\mathcal{A}$ such that $\bm{\Phi}^A_a[s,s']>0$, then $\bm{\Phi}^A_{a'}[s,s']>0,\forall a'\in\mathcal{A}.$
+%     \end{block}
+%     \pause
+%     \begin{block}{Stationarity assumption}
+%         The process $(O_t,S_t)$ starts with the stationary distribution, that is $\bm{\pi}^1_s[o]=\bm{\pi}^\infty_s[o]$ where $\bm{\pi}^t_s\in\mathbb{R}^\omega$ with $\bm{\pi}^t_s[o]=P(O_t=o,s_t=s)$ for $s \in \mathcal{S}$.
+%     \end{block}
+% \end{frame}
+
+
+
+\begin{frame}{Method of moments for HIL - Projection lemma}
+    Let $\bm{V}_s\in\mathbb{R}^{\alpha\times\omega}$ for $s \in \mathcal{S}$ be a matrix of right singular vectors corresponding to the $\omega$ largest singular values of $\bm{K}_s$, and define
+    \[
+        \bm{V} = \bmat{\bm{V}_1&&\\&\ddots&\\&&\bm{V}_\zeta}.
+    \]
+    \pause
+    \begin{block}{Projection lemma}
+        The product matrix
+        \[
+            \bm{\Pi}^{lo}\bm{V} = \bmat{\bm{\Pi}^{lo}_1\bm{V}_1&&\\&\ddots&\\&&\bm{\Pi}^{lo}_\zeta\bm{V}_\zeta}
+        \]
+        is invertible.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Spectral method of moments for HIL - Surrogate moments}
+    Let the normalizer matrices $\bm{N}_a \in \mathbb{R}^{\zeta \times \zeta}$ 
+    for $a \in \mathcal{A}$ 
+    and kernel matrix $\bm{\Psi} \in \mathbb{R}^{\zeta \times \zeta}$ with
+    \[
+        \bm{N}_a[s_2,s_3]&=\left\{\begin{aligned}
+            &\frac{1}{\bm{\Phi}^A_a[s_2,s_3]},~&\text{if}\ \bm{\Phi}^A_a[s_2,s_3]>0,\\
+            &0,\quad&\text{otherwise,}
+        \end{aligned}\right.
+        \quad
+        \bm{\Psi}[s_2,s_3]&=\left\{\begin{aligned}
+            &\psi_{s_2s_3},~&\text{if}\ \bm{\Phi}^A_a[s_2,s_3]>0\ \forall a\in\mathcal{A},\\
+            &0,\quad&\text{otherwise},
+        \end{aligned}\right.
+    \]
+    where $\psi_{s_2s_3}$ are constants of choice such that $\bm{\Psi}$ is full rank.
+    \pause
+    \begin{block}{Surrogate moments}
+        We can remove the influence of $\bm{\Phi}^A_a$ by working with the following surrogates instead:
+        \[
+            \bm{\hat{M}}_a = (\bm{\Psi}\otimes\one_{\zeta\times\alpha})\circ (\bm{N}_a\otimes\one_{\zeta\times\alpha})\circ \bm{M}_a,
+        \]
+        for $a \in \mathcal{A}$ and
+        \[
+          \bm{\hat{M}} = \sum_{a\in\mathcal{A}}\bm{\hat{M}}_a
+        \]
+    \end{block}
+\end{frame}
+
+\begin{frame}{Spectral method of moment for HIL - Main theorem}
+    \begin{Theorem}
+        The following product admits the factorization:
+        \[\label{eq:diagonalize}
+            \bm{V}\transpose\bm{\hat{M}}^+\bm{\hat{M}}_a\bm{V} = \bm{B}\inv\bm{\Lambda}_a\bm{B},
+        \]
+        where
+        \[\label{eq:Lambda_definition}
+            \bm{\Lambda}_a = \bmat{\mathrm{diag}(\bm{\Pi}^{lo}_1\unit_a)&&\\
+                      &\ddots&\\
+                      &&\mathrm{diag}(\bm{\Pi}^{lo}_{\zeta}\unit_a)}.
+        \]
+        \[
+            \bm{B}=\lrp{\bm{\Psi}\otimes \identity_\omega}
+            \bm{\Pi}^{hi}\bm{\Pi}^{lo}\bm{V}
+        \]
+    \end{Theorem}
+    \pause
+    \begin{alertblock}{Note on ordering}
+        The eigen-decomposition will yield diagonals of the form
+        $\bm{\mathcal{P}}\bm{\Lambda}_a\bm{\mathcal{P}}\transpose$.
+        With some further processing, we can achieve $(\identity_\zeta\otimes\bm{\hat{\mathcal{P}}})\bm{\Lambda}_a(\identity_\zeta\otimes\bm{\hat{\mathcal{P}}}\transpose)$. This corresponds to the relabeling of the options.
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Spectral method of moments for HIL - Recover high-level policy}
+    From the low level policies $\bm{\hat{\mathcal{P}}}\bm{\Pi}^{lo}_s$, the high level policies can be computed.
+    \begin{block}{Theorem}
+        \[
+            \bm{\hat{\mathcal{P}}}\bm{\Pi}^{hi}_{s'}\bm{\hat{\mathcal{P}}}\transpose=
+                \sum_s \bm{w}_{s'}[s]\lrp{\bm{\hat{\mathcal{P}}}\bm{\Pi}^{lo}_s
+                \bm{K}_s^+\bm{\hat{K}}_{ss'}
+                {\bm{\Pi}^{lo}_{s'}}^+\bm{\hat{\mathcal{P}}}\transpose},
+        \]
+        where:
+        \begin{itemize}
+            \item $\bm{\hat{K}}_{ss'}$ is a $\zeta\times\alpha$ submatrix of $\bm{\hat{M}}$ defined by
+            \[\label{eq:hat_K_definition}
+                \bm{\hat{K}}_{ss'}[s'',a]=\bm{\hat{M}}[s\zeta+s'',s'\alpha+a].
+            \]
+            \item $\bm{w}_{s'}$ are length $\zeta$ weight vectors of choice subject to
+            \[\label{eq:pihi_weight_constraint}
+                \bm{w}_i\transpose\bm{\Psi} \unit_i\transpose=1,\ \forall i\in\mathcal{S}.
+            \]
+        \end{itemize}
+    \end{block}
+\end{frame}
+
+\subsection{Simulation}
+\begin{frame}{Spectral method of moments for HIL - Simulation}
+    Let there be a finite state machine with four states and the following parameters:
+    \[
+        \bm{\Pi}^{lo}_1=\bmat{0.6&0.4\\0.1&0.9},\quad
+        \bm{\Pi}^{lo}_2=\bmat{0.7&0.3\\0.15&0.85},\\
+        \bm{\Pi}^{lo}_3=\bmat{0.8&0.2\\0.3&0.7},\quad
+        \bm{\Pi}^{lo}_4=\bmat{0.9&0.1\\0.35&0.65}.%\numberthis
+    \]
+    \[
+        \bm{\Pi}^{hi}_1=\bmat{0.67&0.33\\0.16&0.84},\quad
+        \bm{\Pi}^{hi}_2=\bmat{0.88&0.12\\0.16&0.84},\\
+        \bm{\Pi}^{hi}_3=\bmat{0.84&0.16\\0.12&0.88},\quad
+        \bm{\Pi}^{hi}_4=\bmat{0.84&0.16\\0.33&0.67}.%\numberthis
+    \]
+    \[
+        \bm{\Phi}^A_1=\bmat{0.7&0.1&0.1&0.1\\
+            0.4&0.4&0.1&0.1\\0.3&0.3&0.3&0.1\\
+            0.25&0.25&0.25&0.25},\quad
+        \bm{\Phi}^A_2=\bmat{0.25&0.25&0.25&0.25\\
+            0.1&0.3&0.3&0.3\\0.1&0.1&0.4&0.4\\
+            0.1&0.1&0.1&0.7}.%\numberthis
+    \]
+\end{frame}
+
+\begin{frame}{Spectral method of moments for HIL - Simulation}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.5\textwidth]{figures/HIL_moments_error.pdf}
+        \label{fig:error}
+    \end{figure}
+    The error is measured by:
+    \[
+        \mathrm{ERROR}=\sqrt{\norm{\bm{\Pi}^{lo}-\overline{\bm{\Pi}}^{lo}}^2_2
+            +\norm{\bm{\Pi}^{hi}-\overline{\bm{\Pi}}^{hi}}^2_2},
+    \]
+    where $\overline{\bm{\Pi}}^{lo},\overline{\bm{\Pi}}^{hi}$ are the predicted values of $\bm{\Pi}^{lo},\bm{\Pi}^{hi}$.
+\end{frame}
+
+\begin{frame}{Spectral method of moments for HIL - Simulation}
+    \begin{figure}
+    \centering
+        \includegraphics[width=0.5\textwidth]{figures/HIL_EM_error.pdf}
+    \label{fig:EM_error}
+\end{figure}
+    The error is measured by:
+    \[
+        \mathrm{ERROR}=\sqrt{\norm{\bm{\Pi}^{lo}-\overline{\bm{\Pi}}^{lo}}^2_2
+            +\norm{\bm{\Pi}^{hi}-\overline{\bm{\Pi}}^{hi}}^2_2},
+    \]
+    where $\overline{\bm{\Pi}}^{lo},\overline{\bm{\Pi}}^{hi}$ are the predicted values of $\bm{\Pi}^{lo},\bm{\Pi}^{hi}$.
+\end{frame}
+
+\section{Accumulated Cutoff Discrepancy Criterion}
+
+\subsection{Challenges in model selection}
+\begin{frame}{Determining the number of latent processes}
+  Type of latent processes in real-world applicatons:
+  \begin{itemize}
+    \item Mutational signatures (tumor mutational signature analysis)
+    \item Material types (remote sensing)
+    \item decision policies (HRL/HIL)
+  \end{itemize}
+  \pause
+  \begin{alertblock}{}
+    $\implies$ Many current techniques requires the number of processes in advance
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Misspecification-induced overfitting}
+  \begin{Examples}
+    Mixture model of Gaussians, one of the components is skewwed. Using $N=10\,000$ observations.
+  \end{Examples}
+    \begin{columns}[b]
+        \column{0.5\textwidth}
+          \begin{figure}
+              \centering
+              \includegraphics[width=\textwidth]{figures/BIC_mixture.pdf}
+              \caption{Overfitting}
+          \end{figure}
+        \column{0.5\textwidth}
+          \begin{figure}
+              \centering
+              \includegraphics[width=\textwidth]{figures/ACDC_mixture.pdf}
+              \caption{Desired behavior}
+          \end{figure}
+    \end{columns}
+\end{frame}
+
+\subsection{Modeling Framework}
+\begin{frame}{Modeling Framework}
+  \begin{figure}[tp]
+    \centering
+    \includegraphics[width=.6\textwidth]{model}
+    \caption{Graphical representation of the general form for model $\model{K}$ for a single observation $\data{n}$.
+      Circles denote random variables while squares denote deterministic variables.
+      A gray background indicates global parameters while a black background indicates an observed quantity.}
+    \label{fig:model}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Modeling Framework}
+  \begin{exampleblock}{Example 1: Mixture Modeling}
+    We can recover a general mixture model by taking $H_\eta^{(\numcomps)} = \distCat(\eta)$, 
+    so $z_{nk} \in \{0,1\}$ and $\sum_{k=1}^K z_{nk} = 1$.
+    Given a mixture component distribution family $\mcF = \{ F_{\phi} \mid \phi \in \Phi \}$,
+    define $f$ such that, for  $\varepsilon \distas G$, it holds that
+      $f(0, \phi, \varepsilon) = 0$ and $f(1, \phi, \varepsilon) \distas F_\phi$. 
+    Finally, take $g^{(K)}$ to be the summation operator.
+    Hence, if $z_{nk} = 1$, then $x_n = y_{nk} \distas F_{\phi_k}$.
+  \end{exampleblock}
+  \pause
+  \only<2>{\begin{exampleblock}{Example 2: Probabilistic Matrix Factorization}
+    For probabilistic matrix factorization (PMF), $x_n \in \reals^{D}$.
+    Let $\mcZ \subseteq \reals$ and $\Phi \subseteq \reals^{D}$.
+    We assume that $\mcF = \{ F_{\mu} \mid \mu \in \reals^{D} \}$ is a location family 
+    of distributions satisfying $\int x F_\mu(\dee x) = \mu$ for all $\mu \in \reals^{D}$.
+    Let $f$ satisfy $f(z, \phi, \varepsilon) \distas F_{z \phi}$ if  $\varepsilon \distas G$.
+    For example, in nonnegative matrix factorization, $F_{\mu} = \Poiss(\mu)$ 
+    while in classical factor analysis $F_{\mu} = \Norm(\mu, \sigma^{2})$,
+    where $\sigma^{2}$ can also be learned.
+    Finally, take $g^{(K)}$ to be the summation operator.
+  \end{exampleblock}}
+  \only<3>{\begin{alertblock}{Example 2: Probabilistic Matrix Factorization $\impliedby$ Focus}
+    For probabilistic matrix factorization (PMF), $x_n \in \reals^{D}$.
+    Let $\mcZ \subseteq \reals$ and $\Phi \subseteq \reals^{D}$.
+    We assume that $\mcF = \{ F_{\mu} \mid \mu \in \reals^{D} \}$ is a location family 
+    of distributions satisfying $\int x F_\mu(\dee x) = \mu$ for all $\mu \in \reals^{D}$.
+    Let $f$ satisfy $f(z, \phi, \varepsilon) \distas F_{z \phi}$ if  $\varepsilon \distas G$.
+    For example, in nonnegative matrix factorization, $F_{\mu} = \Poiss(\mu)$ 
+    while in classical factor analysis $F_{\mu} = \Norm(\mu, \sigma^{2})$,
+    where $\sigma^{2}$ can also be learned.
+    Finally, take $g^{(K)}$ to be the summation operator.
+  \end{alertblock}}
+\end{frame}
+
