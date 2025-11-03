@@ -361,6 +361,7 @@
 \end{frame}
 
 \begin{frame}{Spectral method of moments for HIL - Simulation}
+    \begin{center}{$N=10^{5}$}\end{center}
     \begin{figure}
     \centering
         \includegraphics[width=0.5\textwidth]{figures/HIL_EM_error.pdf}
@@ -410,6 +411,15 @@
     \end{columns}
 \end{frame}
 
+\subsection{Component-level Discrepancy}
+\begin{frame}{Component-level Discrepancy}
+  \begin{figure}
+      \centering
+      \includegraphics[width=0.7\textwidth]{figures/ACDC_mixture_compwise_loss.pdf}
+      \caption{Component-wise loss}
+  \end{figure}
+\end{frame}
+
 \subsection{Modeling Framework}
 \begin{frame}{Modeling Framework}
   \begin{figure}[tp]
@@ -433,7 +443,7 @@
     Hence, if $z_{nk} = 1$, then $x_n = y_{nk} \distas F_{\phi_k}$.
   \end{exampleblock}
   \pause
-  \only<2>{\begin{exampleblock}{Example 2: Probabilistic Matrix Factorization}
+  \only<1,2>{\begin{exampleblock}{Example 2: Probabilistic Matrix Factorization}
     For probabilistic matrix factorization (PMF), $x_n \in \reals^{D}$.
     Let $\mcZ \subseteq \reals$ and $\Phi \subseteq \reals^{D}$.
     We assume that $\mcF = \{ F_{\mu} \mid \mu \in \reals^{D} \}$ is a location family 
@@ -444,7 +454,8 @@
     where $\sigma^{2}$ can also be learned.
     Finally, take $g^{(K)}$ to be the summation operator.
   \end{exampleblock}}
-  \only<3>{\begin{alertblock}{Example 2: Probabilistic Matrix Factorization $\impliedby$ Focus}
+  \only<3>{\begin{alertblock}{Example 2: Probabilistic Matrix Factorization 
+      $\impliedby$ Simulation Focus}
     For probabilistic matrix factorization (PMF), $x_n \in \reals^{D}$.
     Let $\mcZ \subseteq \reals$ and $\Phi \subseteq \reals^{D}$.
     We assume that $\mcF = \{ F_{\mu} \mid \mu \in \reals^{D} \}$ is a location family 
