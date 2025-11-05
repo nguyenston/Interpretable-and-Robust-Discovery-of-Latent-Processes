@@ -304,10 +304,10 @@ are well spread. In other words, we find $\bm{\eta}$ such that the values $\unit
 
 The eigen-decomposition will yield an eigenbasis up to a permutation $\bm{\mathcal{P}}\in\mathbb{R}^{\omega\times\zeta}$ of the pair $(o,s)\in\mathcal{O}\times\mathcal{S}$. To put it differently, the diagonal matrix obtained from diagonalizing $\bm{V}\transpose\bm{\hat{M}}^+\bm{\hat{M}}_a\bm{V}$ using this basis will be of the form
 $\bm{\mathcal{P}}\bm{\Lambda}_a\bm{\mathcal{P}}\transpose$.
-With some further processing, an order up to a permutation $\bm{\hat{\mathcal{P}}}\in\mathbb{R}^\omega$ of $o\in\mathcal{O}$ can be recovered, meaning the diagonal matrix obtained will be of the form $(\identity_\zeta\otimes\bm{\hat{\mathcal{P}}})\bm{\Lambda}_a(\identity_\zeta\otimes\bm{\hat{\mathcal{P}}}\transpose)$. This ordering corresponds to the relabeling of the options. Because this recovery process, while necessary, does not represent the main contribution of this work, it will be elaborated in the Appendix.
+With some further processing (see \cref{sec:order-recovery}), an order up to a permutation $\bm{\hat{\mathcal{P}}}\in\mathbb{R}^\omega$ of $o\in\mathcal{O}$ can be recovered, meaning the diagonal matrix obtained will be of the form $(\identity_\zeta\otimes\bm{\hat{\mathcal{P}}})\bm{\Lambda}_a(\identity_\zeta\otimes\bm{\hat{\mathcal{P}}}\transpose)$. This ordering corresponds to the relabeling of the options. Because this recovery process, while necessary, does not represent the main contribution of this work, it will be elaborated in the Appendix.
 
 After obtaining the low-level policy matrices $\bm{\hat{\mathcal{P}}}\bm{\Pi}^{lo}_s$, the high-level policy matrices can be computed by the following theorem, up to the permutation $\bm{\hat{\mathcal{P}}}$ of the options.
-\begin{theorem}
+\begin{theorem}\label{thm:find_pi_hi}
 \[\label{eq:pihi_recovery}
     \bm{\hat{\mathcal{P}}}\bm{\Pi}^{hi}_{s'}\bm{\hat{\mathcal{P}}}\transpose=
         \sum_s \bm{w}_{s'}[s]\lrp{\bm{\hat{\mathcal{P}}}\bm{\Pi}^{lo}_s
@@ -326,33 +326,6 @@ where:
     \]
 \end{itemize}
 \end{theorem}
-\begin{proof}
-According to Definition \eqref{eq:hat_K_definition} and Equation \eqref{eq:overline_K_derive}, $\bm{K}_s$ and $\bm{\hat{K}}_{ss'}$ can be written as following:
-\[
-    \bm{K}_s = \bm{\Xi}_s\bm{\Pi}^{hi}_s\bm{\Pi}^{lo}_s,
-\]
-\[
-    \bm{\hat{K}}_{ss'} = \bm{\Psi}[s,s']\lrp{\bm{\Xi}_s\bm{\Pi}^{hi}_s\bm{\Pi}^{hi}_{s'}\bm{\Pi}^{lo}_{s'}}.
-\]
-Therefore,
-\[
-    \bm{\Pi}^{lo}_s{\bm{K}_s}^+\bm{\hat{K}}_{ss'}{\bm{\Pi}^{lo}_{s'}}^+
-    =\ &\bm{\Psi}[s,s']\lrp{\bm{\Pi}^{lo}_s{\bm{\Pi}^{lo}_s}^+{\bm{\Pi}^{hi}_s}\inv
-        {\bm{\Xi}_s}^+\bm{\Xi}_s\bm{\Pi}^{hi}_s\bm{\Pi}^{hi}_{s'}\bm{\Pi}^{lo}_{s'}{\bm{\Pi}^{lo}_{s'}}^+}\\
-    =\ &\bm{\Psi}[s,s']\bm{\Pi}^{hi}_{s'}.%\numberthis
-\]
-With that, we contract the left hand side of Equation \eqref{eq:pihi_recovery}
-\[
-    &\sum_s \bm{w}_{s'}[s]\lrp{\bm{\hat{\mathcal{P}}}\bm{\Pi}^{lo}_s\bm{K}_s^+\bm{\hat{K}}_{ss'}
-        {\bm{\Pi}^{lo}_{s'}}^+\bm{\hat{\mathcal{P}}}\transpose}\\
-    =&\sum_s \bm{w}_{s'}[s]\bm{\Psi}[s,s']\lrp{\bm{\hat{\mathcal{P}}}\bm{\Pi}^{hi}_{s'}
-        \bm{\hat{\mathcal{P}}}\transpose}\\
-    =&\bm{\hat{\mathcal{P}}}\bm{\Pi}^{hi}_{s'}{\bm{\hat{\mathcal{P}}}}\transpose.
-    %\numberthis
-\]
-The last equality holds because we chose $\bm{w}_{s'}$ such that $\sum_s \bm{w}_{s'}[s]\bm{\Psi}[s,s']=1$. Analysis of the choice of $\bm{w}_{s'}$ will be reserved for future work.
-% \hspace*{\fill} \qed
-\end{proof}
 
 \subsection{Proposed Method of Moments for HIL}
 Given the observed sequence $\{(s_t,a_t)\}_{t = 1}^T$, our method of moments to learn the policies $\pi_{lo}$ and $\pi_{hi}$ is:
@@ -767,7 +740,8 @@ To interpret \cref{def:robust-consistency} and the role of the function $\kappa$
 it is helpful to compare robust model selection consistency to classical model selection consistency.
 \Cref{fig:consistency-illustration} provides a cartoon illustration of the differences. 
 Classical model consistency typically requires that  
-(1) $P_o \in \model{K_o}$ and (2) $P_{o} \notin \model{K}$ for $K < K_o$ \PROBLEM{add citations}.
+(1) $P_o \in \model{K_o}$ and (2) $P_{o} \notin \model{K}$ for $K < K_o$.
+% \PROBLEM{add citations}
 Robust consistency weakens the first condition by allowing for a worst-case discrepancy $\rho(P_{o}, K_{o}) \ne 0$,
 rather than needing $\rho(P_{o}, K_{o}) = 0$.
 However, robust consistency strengthens the second by requiring a gap between $P_o$ 
@@ -846,7 +820,7 @@ We provide a number of methods for determining $\rho$ in \cref{sec:choosing-rho}
 
 \begin{figure}[tp]
 	\centering
-	\includegraphics[width=.8\textwidth,trim=0in 1.9in 0in 0in,clip]{model}
+	\includegraphics[width=0.8\textwidth]{model}
 	\caption{Graphical representation of the general form for model $\model{K}$ for a single observation $\data{n}$.
 		Circles denote random variables while squares denote deterministic variables.
 		A gray background indicates global parameters while a black background indicates an observed quantity.}
@@ -961,11 +935,11 @@ Hence, an estimate of discrepancy for the $k$th component is given by
 
 In some scenarios, it is necessary to replace the divergence with an estimator because 
 $\discr{\widehat G_k^{(K)}}{G}$ is undefined (e.g., the KL divergence) or not efficiently computable (e.g., the Wasserstein distance).
-\PROBLEM{NOTE: Maybe skim out on this part?}
-In \cref{sec:kl-estimation}, we discuss how best to estimate the KL divergence in practice and provide supporting
-consistency theory by modifying the two-sample KL divergence estimation theory developed in \citet{Wang:2009} to the one-sample estimation setting applicable to \methodname. 
-In \cref{sec:case-study-details}, we discuss using the entropy-regularized Wasserstein distance (the Sinkhorn distance) 
-as a stable, efficiently computable alternative to the Wasserstein distance that scales to high dimensions. 
+% \PROBLEM{NOTE: Maybe skim out on this part?}
+% In \cref{sec:kl-estimation}, we discuss how best to estimate the KL divergence in practice and provide supporting
+% consistency theory by modifying the two-sample KL divergence estimation theory developed in \citet{Wang:2009} to the one-sample estimation setting applicable to \methodname. 
+% In \cref{sec:case-study-details}, we discuss using the entropy-regularized Wasserstein distance (the Sinkhorn distance) 
+% as a stable, efficiently computable alternative to the Wasserstein distance that scales to high dimensions. 
 
 % \begin{example}[Generalized Bilinear Models] \label{ex:gbms}
 %     To recover a generalized bilinear model, let $z_{nk}=(w_{nk}, a_{nk}, v_{nk}) \in \reals^3$ and $\phi_{k}=(b_{k},u_{k})$, where $b_{k},u_{k}\in \reals^{D}$. 
@@ -1621,7 +1595,7 @@ This approach is similar in spirit to the one introduced for heuristically selec
 % 	The observed data and fitted model distribution for $K = 3$ are shown in \cref{fig:poismm}(right).
 % \end{example}
 
-\paragraph{Automation.}
+\paragraph{Automation.}\PROBLEM{Deemphasize}
 Building on the same heuristic intuition, we can automate the selection of $\rho$ by defining a minimum width $\Delta_{\min}$ for which an interval can be recognized as the stability region. Specifically,
 % we define this stability interval by determining the range of $\rho$ over which the penalized loss for $K$ remains optimal. The lower bound is the first $\rho$ value where an $K$-specific loss first becomes the minimum among all losses, and the upper bound is the $\rho$ value where the loss is surpassed by the loss for a different $K$. By imposing a threshold on the length of such interval, we can automatically select the $K$ value corresponding to the first loss function satisfying this criterion.
 we keep track of the smallest $\rho$ value, $\rho_\mathrm{start}$, for which a $K$-specific penalized loss becomes minimal among all other $K$-specific losses.
@@ -1630,7 +1604,7 @@ The difference between $\Delta = \rho_\mathrm{end} - \rho_\mathrm{start}$ define
 If $\Delta \ge \Delta_{\min}$ (i.e., $\Delta$ has the predefined minimum width), it is recognized as a stability interval, the corresponding value of $K$ is chosen to be $\widehat K$. Otherwise, $\rho_\mathrm{end}$ becomes $\rho_\mathrm{start}$
 and repeat the procedure to compute the new $\rho_\mathrm{end}$ and $\Delta$, check if $\Delta \ge \Delta_{\min}$, and so forth.
 The value of $\Delta_{\min}$ should be set based on preliminary manual experiments to estimate a suitable stability region width for automated selection in larger batches. This approach allows users to adjust the interval threshold to balance the tradeoff between avoiding underfitting ($\Delta_{\min}$ sufficiently small) and ensuring appropriately conservative and stable model selection ($\Delta_{\min}$ sufficiently large).
-We demonstrate the utility of this approach in \cref{sec:case-study}. %, where it is applied to complex scRNA-seq data.
+% We demonstrate the utility of this approach in \cref{sec:case-study}. %, where it is applied to complex scRNA-seq data.
 %For example, as in the two scenarios in the motivating example, we can plot the penalized loss against $\rho$ in \cref{fig:sn-penloss-s1,fig:sn-penloss-s2}.
 %For both cases, the first widest region appears when $\widehat{\numcomps}=2$ and as shown in \cref{fig:motivate-comparison}, our method picks up the correct number of components.
 %We propose to select the number of components that corresponds to the first widest and stable region. 
@@ -1824,8 +1798,9 @@ Unlike the standard posterior, which assumes the data were generated from the as
 %\fTBD{Thinking about removing this sentence.}When such deviation is measured by relative entropy and an exponential prior is placed on the allowed deviation threshold, they show that the coarsened posterior is equal to the standard posterior to an appropriate power between zero and one. 
 However, using the coarsened posterior approach has a potentially high computational cost because
 it requires running Markov chain Monte Carlo dozens of times to heuristically determine a suitable robustness threshold \citep{Miller:2019,Xue:2024}.
-In addition, our experiments show that, while coarsening offers good robustness in many scenarios, it does not have have any formal correctness guarantees
-and can fail in simple situations (see \cref{sec:coarsening-limitations}). \PROBLEM{TODO(Meng): please update this appendix to be self-contained, given the changes to the experiments in the main text}
+In addition, while coarsening offers good robustness in many scenarios, it does not have have any formal correctness guarantees
+and can fail in simple situations .
+% (see \cref{sec:coarsening-limitations}). \PROBLEM{TODO(Meng): please update this appendix to be self-contained, given the changes to the experiments in the main text}
 
 \section{Application to PMF}
 \label{sec:experiments}
@@ -1862,7 +1837,7 @@ However, in specific scenarios other choices for $G$ and $f$ might be preferred 
 For example, in the Gaussian case, we could take $G = \Norm({0}, I)$ and $f(z, \phi, \veps) = z\phi + \sigma \veps$. 
 
 In addition to BIC, we compare \methodname to \emph{parallel analysis} (PA) \citep{Horn_ParallelAnalysis_1965,Buja_RemarksParallelAnalysis_1992}, which is a 
-commonly used method for model selection for probabilistic matrix factorization \PROBLEM{TODO(JH): add PA methodology reference (Done, can you check?)}. 
+commonly used method for model selection for probabilistic matrix factorization.
 To account for permutation invariance of the parameters, BIC is computed as
 \[
 BIC\left(x_{1:N},z^{(K)}_{1:K,1:N},\phi^{(K)}_{1:K}\right) = K\log(N) - 2\log\left(p\left(x_{1:N}~\middle|~ z^{(K)}_{1:K,1:N},\phi^{(K)}_{1:K}\right)\right)+2\log(K!).
