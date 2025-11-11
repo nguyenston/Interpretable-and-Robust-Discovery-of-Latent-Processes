@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE ipe SYSTEM "ipe.dtd">
 <ipe version="70218" creator="Ipe 7.2.29">
-<info created="D:20251102220319" modified="D:20251103212129"/>
+<info created="D:20251102220319" modified="D:20251104211542"/>
 <ipestyle name="basic">
 <symbol name="arrow/arc(spx)">
 <path stroke="sym-stroke" fill="sym-stroke" pen="sym-pen">
@@ -315,7 +315,11 @@ h
 </ipestyle>
 <page>
 <layer name="alpha"/>
+<layer name="eta->H->z"/>
+<layer name="beta"/>
 <view layers="alpha" active="alpha"/>
+<view layers="alpha eta->H->z" active="alpha"/>
+<view layers="alpha beta" active="beta"/>
 <path layer="alpha" stroke="black" pen="heavier" arrow="normal/normal">
 251.314 448 m
 256 448 l
@@ -330,8 +334,8 @@ h
 264 468.686 m
 264 408 l
 </path>
-<path stroke="white" pen="2" arrow="normal/normal">
-340.686 424 m
+<path stroke="white" pen="3" arrow="normal/normal">
+348 424 m
 216 424 l
 </path>
 <path matrix="1 0 0 0.75 0.00026953 96" stroke="black" pen="heavier">
@@ -358,14 +362,6 @@ h
 <path stroke="black" fill="lightgray" pen="heavier">
 11.3137 0 0 11.3137 128 448 e
 </path>
-<path stroke="black" pen="heavier" arrow="normal/normal">
-133.06 437.881 m
-145.395 408 l
-</path>
-<path stroke="black" pen="heavier" arrow="normal/normal">
-170.94 437.881 m
-158.605 408 l
-</path>
 <path matrix="1 0 0 1 112 0" stroke="black" pen="heavier">
 11.3137 0 0 11.3137 176 448 e
 </path>
@@ -376,61 +372,20 @@ h
 <text transformations="translations" pos="176 448" stroke="black" type="label" width="14.04" height="4.294" depth="1.49" halign="center" valign="center" style="math">\varepsilon_{n1}</text>
 <text matrix="1 0 0 1 112 0" transformations="translations" pos="176 448" stroke="black" type="label" width="17.252" height="4.294" depth="1.49" halign="center" valign="center" style="math">\varepsilon_{nK}</text>
 <text matrix="1 0 0 1 112 0" transformations="translations" pos="128 448" stroke="black" type="label" width="13.617" height="6.926" depth="1.93" halign="center" valign="center" style="math">\phi_K</text>
-<path matrix="1 0 0 1 0 -48" stroke="black" pen="heavier">
-11.3137 0 0 11.3137 152 528 e
-</path>
-<path matrix="1 0 0 1 -32 -48" stroke="black" pen="heavier">
-11.3137 0 0 11.3137 296 528 e
-</path>
 <path stroke="black" pen="heavier" arrow="normal/normal">
 152 468.686 m
 152 408 l
 </path>
-<text matrix="1 0 0 1 -32 0" transformations="translations" pos="336 480" stroke="black" type="label" width="26.15" height="10.406" depth="2.52" halign="center" valign="center" style="math">H^{(K)}_{\eta,w_n}</text>
 <text transformations="translations" pos="152 480" stroke="black" type="label" width="14.027" height="4.294" depth="1.49" halign="center" valign="center" style="math">z_{n1}</text>
 <text matrix="1 0 0 1 112 0" transformations="translations" pos="152 480" stroke="black" type="label" width="17.239" height="4.294" depth="1.49" halign="center" valign="center" style="math">z_{nK}</text>
-<text matrix="1 0 0 1 -16 80" transformations="translations" pos="224 400" stroke="black" type="label" width="11.623" height="1.052" depth="0" halign="center" valign="center" style="math">\dots</text>
-<path matrix="1 0 0 1 16 8" stroke="black" fill="lightgray" pen="heavier">
-11.3137 0 0 11.3137 352 480 e
-</path>
-<path stroke="black" fill="black" pen="heavier" arrow="normal/normal">
-356.686 488 m
-328 488 l
-</path>
-<path matrix="1 0 0 1 272 -32" stroke="black" fill="black" pen="heavier">
-11.3137 0 0 11.3137 96 480 e
-</path>
-<text matrix="1 0 0 1 272 -32" transformations="translations" pos="96 480" stroke="white" type="label" width="12.555" height="4.294" depth="1.49" halign="center" valign="center" style="math">w_n</text>
-<path matrix="1 0 0 1 0 -48" stroke="black" pen="heavier">
-136 544 m
-128 544
-128 536 c
-128 520 m
-128 512
-136 512 c
-328 536 m
-328 544
-320 544 c
-328 520 m
-328 512
-320 512 c
-128 536 m
-128 520 l
-136 512 m
-319.999 512 l
-328 520 m
-328 536 l
-319.999 544 m
-136 544 l
-</path>
 <path stroke="black" pen="heavier" arrow="normal/normal">
 280 424 m
 280 408 l
 </path>
 <path stroke="black" pen="heavier">
-360 448 m
-344 448 l
-344 424 l
+320 448 m
+308 448 l
+308 424 l
 216 424 l
 </path>
 <text matrix="1 0 0 1 -16 24" transformations="translations" pos="224 400" stroke="black" type="label" width="11.623" height="1.052" depth="0" halign="center" valign="center" style="math">\dots</text>
@@ -439,13 +394,7 @@ h
 168 424 l
 168 408 l
 </path>
-<text matrix="1 0 0 1 16 8" transformations="translations" pos="352 480" stroke="black" type="label" width="5.304" height="4.297" depth="1.93" halign="center" valign="center" style="math">\eta</text>
-<path stroke="black" pen="heavier" arrow="normal/normal">
-344 448 m
-344 472 l
-328 472 l
-</path>
-<use name="mark/disk(sx)" pos="344 448" size="normal" stroke="black"/>
+<use matrix="1 0 0 1 -36 0" name="mark/disk(sx)" pos="344 448" size="normal" stroke="black"/>
 <use matrix="1 0 0 1 -8 0" name="mark/disk(sx)" pos="288 424" size="normal" stroke="black"/>
 <path matrix="1.5 0 0 1 -104 0" stroke="black" fill="black" pen="heavier">
 192 360 m
@@ -464,5 +413,97 @@ h
 253 384 m
 223 360 l
 </path>
+<path matrix="1 0 0 1 -112 0" stroke="black" pen="heavier" arrow="normal/normal">
+251.314 448 m
+256 448 l
+256 408 l
+</path>
+<path matrix="1 0 0 1 -112 0" stroke="black" pen="heavier" arrow="normal/normal">
+276.686 448 m
+272 448 l
+272 408 l
+</path>
+<path matrix="1 0 0 1 0 -48" stroke="black" pen="heavier">
+11.3137 0 0 11.3137 152 528 e
+</path>
+<path matrix="1 0 0 1 -32 -48" stroke="black" pen="heavier">
+11.3137 0 0 11.3137 296 528 e
+</path>
+<text matrix="1 0 0 1 -16 80" transformations="translations" pos="224 400" stroke="black" type="label" width="11.623" height="1.052" depth="0" halign="center" valign="center" style="math">\dots</text>
+<path matrix="1 0 0 1 -24 8" stroke="black" fill="lightgray" pen="heavier">
+11.3137 0 0 11.3137 352 480 e
+</path>
+<path matrix="1 0 0 1 -40 0" stroke="black" fill="black" pen="heavier" arrow="normal/normal">
+356.686 488 m
+328 488 l
+</path>
+<path matrix="1 0 0 1 232 -32" stroke="black" fill="black" pen="heavier">
+11.3137 0 0 11.3137 96 480 e
+</path>
+<path stroke="black" pen="heavier" arrow="normal/normal">
+316.686 448 m
+308 448 l
+308 472 l
+288 472 l
+</path>
+<path stroke="black">
+136 496 m
+128 496
+128 488 c
+128 472 l
+128 464
+136 464 c
+280 464 l
+288 464
+288 472 c
+288 488 l
+288 496
+280 496 c
+h
+</path>
+<text matrix="1 0 0 1 -24 8" transformations="translations" pos="352 480" stroke="black" type="label" width="5.304" height="4.297" depth="1.93" halign="center" valign="center" style="math">\eta</text>
+<text matrix="1 0 0 1 232 -32" transformations="translations" pos="96 480" stroke="white" type="label" width="12.555" height="4.294" depth="1.49" halign="center" valign="center" style="math">w_n</text>
+<text layer="eta->H->z" transformations="translations" pos="152 480" stroke="black" type="label" width="14.027" height="4.294" depth="1.49" halign="center" valign="center" style="math">z_{n1}</text>
+<text matrix="1 0 0 1 112 0" transformations="translations" pos="152 480" stroke="black" type="label" width="17.239" height="4.294" depth="1.49" halign="center" valign="center" style="math">z_{nK}</text>
+<path matrix="1 0 0 1 0 -48" stroke="red" pen="heavier">
+11.3137 0 0 11.3137 152 528 e
+</path>
+<path matrix="1 0 0 1 -32 -48" stroke="red" pen="heavier">
+11.3137 0 0 11.3137 296 528 e
+</path>
+<text matrix="1 0 0 1 -16 80" transformations="translations" pos="224 400" stroke="red" type="label" width="11.623" height="1.052" depth="0" halign="center" valign="center" style="math">\dots</text>
+<path matrix="1 0 0 1 -24 8" stroke="red" fill="lightgray" pen="heavier">
+11.3137 0 0 11.3137 352 480 e
+</path>
+<path matrix="1 0 0 1 -40 0" stroke="red" fill="black" pen="heavier" arrow="normal/normal">
+356.686 488 m
+328 488 l
+</path>
+<path matrix="1 0 0 1 232 -32" stroke="red" fill="black" pen="heavier">
+11.3137 0 0 11.3137 96 480 e
+</path>
+<path stroke="red" pen="heavier" arrow="normal/normal">
+316.686 448 m
+308 448 l
+308 472 l
+288 472 l
+</path>
+<path stroke="red">
+136 496 m
+128 496
+128 488 c
+128 472 l
+128 464
+136 464 c
+280 464 l
+288 464
+288 472 c
+288 488 l
+288 496
+280 496 c
+h
+</path>
+<text matrix="1 0 0 1 -24 8" transformations="translations" pos="352 480" stroke="black" type="label" width="5.304" height="4.297" depth="1.93" halign="center" valign="center" style="math">\eta</text>
+<text matrix="1 0 0 1 232 -32" transformations="translations" pos="96 480" stroke="white" type="label" width="12.555" height="4.294" depth="1.49" halign="center" valign="center" style="math">w_n</text>
 </page>
 </ipe>

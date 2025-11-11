@@ -353,13 +353,13 @@ We have $\mathrm{diag}(\bm{d}_o^\oslash\bm{d}_o\transpose\one_{\zeta\omega})\bm{
 \label{sec:theory}
 
 
-We now show that, under reasonable assumptions, \methodname is robustly consistent.
-%Then, in light of our results, we discuss some specific choices of discrepancy measure.
-We first cover the mixture modeling case, then probabilistic matrix factorization.
+We now show that, under reasonable assumptions, \methodname is robustly consistent for probabilistic matrix factorization.
+Due to the complex dependence structures in probabilistic matrix factorization, we limit 
+our result when $\mcD$ is the KL divergence, as stated informally in \cref{thm:pmf-robust-consistency}. 
 %assumptions are similar but require more notation to state.
 % The details of the probabilistic matrix factorization case are covered in \cref{sec:PMF-consistency-proof}.
 
-\subsection{General Theory for Mixture Modeling}
+\subsection{Theory for Probabilistic Matrix Factorization}
 
 %We now show that our model selection procedure consistently estimates $K_{o}$ under reasonable assumptions.
 %Let $\mcX$ and $\paramspace$ be spaces for observations and parameters, respectively. Assume family of distributions $\mathcal{F} = \{f_{\param}: \param \in \paramspace\}$ where $f_{\param}$ are absolutely continuous with respect to some base measure $\lambda$ on $\paramspace$.
@@ -368,7 +368,7 @@ We first cover the mixture modeling case, then probabilistic matrix factorizatio
 %Our assumptions are mild. 
 We will develop a general theory, then discuss how \cref{thm:pmf-robust-consistency} follows 
 as a corollary.
-Proofs of all mixture model-related results are in \cref{sec:PMF-consistency-proof}. 
+% Proofs of all mixture model-related results are in \cref{sec:PMF-consistency-proof}. 
 First, we consider the requirements for the distribution-level discrepancy $\distDisc(\cdot, \cdot)$
 (assumed to be a metric), the discrepancy $\discr{\cdot}{\cdot}$ used to construct the component-level
 discrepancy, and the discrepancy estimator $\discrest{\cdot}{\cdot}$
@@ -417,17 +417,18 @@ the Kolmogorov metric, maximum mean discrepancies with sufficiently regular boun
 %For example, define integral probability metrics as 
 %$\gamma_{\mathcal{H}}(P,Q) = \sup\{\vert \int_S f dP - \int_S f dQ \vert: f \in \mathcal{H} \}$, where $P$ and $Q$ are probability measures defined on space $S$ and $\mathcal{H}$ is a class of real-valued bounded measurable functions on $S$. 
 For example, it is easy to show that all integral probability metrics -- which includes the bounded Lipschitz
-metric, maximum mean discrepancy, and 1-Wasserstein distance -- are jointly convex (see \cref{lem:ipm-joint-convex}).
+metric, maximum mean discrepancy, and 1-Wasserstein distance -- are jointly convex.
 \cref{assump:metric-discr-conditions}(c) is a natural requirement that the limiting divergence can be estimated consistently.
 Such estimators are well-studied for many common discrepancies.
 %We discuss consistent estimation of the Kullback--Leibler divergence in \cref{sec:kl-estimation}.
 \cref{assump:metric-discr-conditions}(d) will typically hold as long as the map $\phi \mapsto F_{\phi}$ is
 well-behaved.
-For example, for the Kullback--Leibler divergence estimators described in \cref{sec:kl-estimation}
+For example, for the Kullback--Leibler divergence estimators
 and standard maximum mean discrepancy estimators \citep{Gretton:2012,Krause:2023},
 when $F_{\phi}$ admits a density $f_{\phi}$, it suffices for the map $\phi \mapsto f_{\phi}(x)$
 to be continuous for $P_{o}$-almost every $x$.
-\cref{assump:metric-discr-conditions}(e) is not overly restrictive and we discuss some relevant examples in \cref{sec:divergence-choice} below.
+\cref{assump:metric-discr-conditions}(e) is not overly restrictive.
+% and we discuss some relevant examples in \cref{sec:divergence-choice} below.
 %. See \citet{Gibbs:2002} for a extensive overview
 %of the relationships between common metrics and divergences.
 \cref{assump:metric-discr-conditions}(f) trivially holds for bounded metrics such as the bounded Lipschitz metric and integral probability measures with uniformly bounded test functions.
@@ -438,34 +439,43 @@ in the sense that, for each fixed number of components $\numcomps \le \numcomps_
 We do not make any explicit assumptions that such parameters are, in any sense, ``optimal.''
 % quantifies the regularity of the inference algorithm and provides guarantees on contracting the convergence of empirical distribution to its limiting distribution.
 
-\begin{assumption}\label{assump:inference-regularity}
-	For each $\numcomps \in \{1,\dots, \numcomps_{o}\}$, there exists $\theta_{\star}^{(K)} \in \paramSpace{K}$ such that
-	$\widehat\theta^{(K)} \to \theta_{\star}^{(K)}$ in probability as $N \rightarrow \infty$,
-	after possibly reordering of components.
+
+% \begin{assumption}\label{assump:inference-regularity}
+% 	For each $\numcomps \in \{1,\dots, \numcomps_{o}\}$, there exists $\theta_{\star}^{(K)} \in \paramSpace{K}$ such that
+% 	$\widehat\theta^{(K)} \to \theta_{\star}^{(K)}$ in probability as $N \rightarrow \infty$,
+% 	after possibly reordering of components.
+% \end{assumption}
+
+
+For a given $K$, denote the empirical distribution of estimated coefficients by $\widehat{H}^{(K,N)} = N\inv\sum^{N}_{n=1}\delta_{\widehat{z}^{(K)}_{n}}$.
+\begin{assumption}\label{assump:consistency}
+	For each $K \in \{1,\dots,K_{o}\}$, there exists ${\phi}^{(K)}_{\star} \in\Phi^{(K)}$ and distribution $H^{(K)}_{\star}$ such that ${\widehat{\phi}}^{(K,N)} \convp {\phi}^{(K)}_{\star}$ and $\widehat{H}^{(K,N)}\convd H^{(K)}_{\star}$ as $N\to \infty$, after possible reordering of components.
 \end{assumption}
 
-\begin{remark}[Discussion of \cref{assump:inference-regularity}]
-\Cref{assump:inference-regularity} holds for most reasonable algorithms, including expectation--maximization, point estimates based on the posterior distribution,
-and variational inference \citep{Balakrishnan:2017,Walker:2001,Wang:2019}.
-Note that we assume that consistency holds for parameters in the equivalence class induced by component reordering, although we keep
-this equivalence implicit.
-\Cref{assump:inference-regularity} implies that the empirical data distribution of the $k$th component,
-$\widehat{F}^{(K)}_k$, % = |X_{k}(z^{(K)})|^{-1}\sum_{x \in X_{k}(z^{(K)})} \delta_{x}$,
-converges to a limiting distribution
+This should holds for most applications under mild conditions
+\citep{Zhao_ConvergenceAnalysisMU_2017,Devarajan_NMFdualdivergence_2019,Fu_IdentifiabilityNMF_2018,Anderson_AsymptoticFA_1988,Anderson_AsymptoticPCA_1963}. 
+% \begin{remark}[Discussion of \cref{assump:inference-regularity}]
+% \Cref{assump:inference-regularity} holds for most reasonable algorithms, including expectation--maximization, point estimates based on the posterior distribution,
+% and variational inference \citep{Balakrishnan:2017,Walker:2001,Wang:2019}.
+% Note that we assume that consistency holds for parameters in the equivalence class induced by component reordering, although we keep
+% this equivalence implicit.
+% \Cref{assump:inference-regularity} implies that the empirical data distribution of the $k$th component,
+% $\widehat{F}^{(K)}_k$, % = |X_{k}(z^{(K)})|^{-1}\sum_{x \in X_{k}(z^{(K)})} \delta_{x}$,
+% converges to a limiting distribution
 % $\widetilde{P}^{(K)}_k$ that depends on $P_{o}$ and the limiting 
 %parameters $\allparam_{\star}^{(K)}$:
 %For fixed $\numcomps$ and each $k \in \{1,\dots,\numcomps\}$, denote the empirical weights and component distributions 
 %by, respectively, $\eta^{(K)}_{\star k} = |X_{k}(z^{(K)}_{1:N})|/\numobs$
 %and . 
 %Define $\widetilde{F}^{(K)}_k$ as the limiting distribution of $\widehat{F}^{(K)}_k$ as
-\[
-	\widetilde{F}^{(K)}_{k}(\dee x) & = \frac{p_{\star}^{(K)}(k\mid x)P_o(\dee x) }{\int p_{\star}^{(K)}(k\mid y)P_o(\dee y)}, \label{eq:phat-def}
-\]
-where $p_{\star}^{(K)}(k \mid x) = \eta^{(K)}_{\star k}f_{\star k}^{(K)}(x)/p^{(K)}_{\star}(x)$ is the
-conditional component probability under the limiting model distribution
- and $f_{\star k}^{(K)}$ denotes the density of $F_{\param^{(K)}_{\star k}}$.
+% \[
+% 	\widetilde{F}^{(K)}_{k}(\dee x) & = \frac{p_{\star}^{(K)}(k\mid x)P_o(\dee x) }{\int p_{\star}^{(K)}(k\mid y)P_o(\dee y)}, \label{eq:phat-def}
+% \]
+% where $p_{\star}^{(K)}(k \mid x) = \eta^{(K)}_{\star k}f_{\star k}^{(K)}(x)/p^{(K)}_{\star}(x)$ is the
+% conditional component probability under the limiting model distribution
+%  and $f_{\star k}^{(K)}$ denotes the density of $F_{\param^{(K)}_{\star k}}$.
 %The limiting distribution $\widetilde{P}^{(K)}_k$ depends on the optimal parameter from the inference algorithm. 
-\end{remark}
+%\end{remark}
 
 %Denote the model optimal weights and distributions as $\eta_k^\star$ and $F^{\star}_{k}  (k=1, \ldots, \numcomps)$. 
 
@@ -515,33 +525,20 @@ and the relationship between $\mcD$ and $d$ (which is described by $\phi$).
 %$ = \widehat{\numcomps} = \argmin_{\numcomps} \mathcal{R}^{\rho,\lambda}(\widehat\allparam^{(\numcomps)}; z^{(\numcomps)}, \data{1:\numobs})$ denote the structurally aware robust model choice.
 
 % the number of components selected by structurally aware robust inference.
-We can now state our main result about the robust consistency of \methodname for mixture modeling. 
-\begin{theorem} \label{thm:main}
-	For mixture modeling, if \cref{assump:metric-discr-conditions,assump:inference-regularity} hold, then 
-    \methodname is $\kappa$-robustly consistent for $\kappa(\rho, K) = \widetilde{\kappa}(\rho)$.
-    %$\Pr\{\widehat{\numcomps}_{\numobs}(\rho) = K_{o}\} \to 1$ for $N \to \infty$.
-	%the consistency of number of components holds for structurally aware model selection, i.e., 
-	%Then for $\rho > \rho^{\star}$
-	%	\begin{enumerate}[(1)]
-	%		\item for $\numcomps = \numcomps_o$,  $ \mcR^{\rho}_{\numobs}(\param_{\star}^{(\numcomps)};\data{}) \rightarrow 0$ in probability as $\numobs \rightarrow \infty$. 
-	%		\label{thm:maxloglik-with-trueK}
-	%		\item for $\numcomps < \numcomps_o$, $\mcR^{\rho}_{\numobs}(\param_{\star}^{(\numcomps)};\data{})\rightarrow \infty$ in probability as $\numobs \rightarrow \infty$.
-	%	\end{enumerate}
-	%$$\widehat{\numcomps}_{\numobs}(\rho) \rightarrow \numcomps_{o} \ \text{in probability as} \ \numobs \to \infty.$$
-\end{theorem}
-\begin{proof}[Proof idea] To prove \cref{thm:main} we establish two facts.
-	First, we show that the loss satisfies
-	\[
-		\Pr\{\mcR^{\rho}(\allparam^{(\numcomps_{o})}; z^{(\numcomps_{o})}, \data{1:\numobs}) = 0 \}   \overset{N \to \infty}{\longrightarrow}  1.
-	\]
-	Second, we verify that for $\numcomps < \numcomps_o$,
-	$
-		\mcR^{\rho}(\allparam^{(\numcomps)}; z^{(\numcomps)}, \data{1:\numobs}) \to \infty
-	$
-	in probability for $N \to \infty$.
-	Therefore, for $\numcomps > \numcomps_o$, asymptotically
-	$\mcR^{\rho}(\allparam^{(\numcomps)}; z^{(\numcomps)}, \data{1:\numobs})  \ge \mcR^{\rho}(\allparam^{(\numcomps_{o})}; z^{(\numcomps_{o})}, \data{1:\numobs})$, so the minimum is asymptotically attained at $\widehat{\numcomps}=\numcomps_o$.
-\end{proof}
+% We can now state our main result about the robust consistency of \methodname for mixture modeling. 
+% \begin{proof}[Proof idea] To prove \cref{thm:main} we establish two facts.
+% 	First, we show that the loss satisfies
+% 	\[
+% 		\Pr\{\mcR^{\rho}(\allparam^{(\numcomps_{o})}; z^{(\numcomps_{o})}, \data{1:\numobs}) = 0 \}   \overset{N \to \infty}{\longrightarrow}  1.
+% 	\]
+% 	Second, we verify that for $\numcomps < \numcomps_o$,
+% 	$
+% 		\mcR^{\rho}(\allparam^{(\numcomps)}; z^{(\numcomps)}, \data{1:\numobs}) \to \infty
+% 	$
+% 	in probability for $N \to \infty$.
+% 	Therefore, for $\numcomps > \numcomps_o$, asymptotically
+% 	$\mcR^{\rho}(\allparam^{(\numcomps)}; z^{(\numcomps)}, \data{1:\numobs})  \ge \mcR^{\rho}(\allparam^{(\numcomps_{o})}; z^{(\numcomps_{o})}, \data{1:\numobs})$, so the minimum is asymptotically attained at $\widehat{\numcomps}=\numcomps_o$.
+% \end{proof}
 
 % Under generally analogous conditions, a similar result holds for probabilistic matrix factorization.
 % We defer the statements and discussion of the assumptions to \cref{sec:PMF-consistency-proof}. %, which also includes the proof of \cref{thm:main-pmf}.
@@ -658,10 +655,8 @@ We address these questions next in \cref{sec:divergence-choice,subsec:theory-rho
 % \end{proposition}
 
 
-\subsection{Theory for Probabilistic Matrix Factorization}
+% \subsection{Theory for Probabilistic Matrix Factorization}
 
-Due to the complex dependence structures in probabilistic matrix factorization, we limit 
-our result when $\mcD$ is the KL divergence, as stated informally in \cref{thm:pmf-robust-consistency}. 
 %We will show consistency properties of the method on PMF models using the KL divergence for the discrepancy. 
 %However, due to the more complex nature of PMF, we limit our proof to the case of $\mathcal{D}$ being the KL-divergence.
 % Note: identical to assumption 1
@@ -676,13 +671,6 @@ our result when $\mcD$ is the KL divergence, as stated informally in \cref{thm:p
 % 		\item The discrepancy bounds the metric: there exists a continuous, non-decreasing function $\kappa:\reals\to\reals$ such that $\distDisc(P,Q)\leq\kappa\lrp{\mathcal{D}(P\mid Q)}$ for all distributions $P,Q$ and $\kappa(0)=0$
 % 	\end{enumerate}
 % \end{assumption}
-For a given $K$, denote the empirical distribution of estimated coefficients by $\widehat{H}^{(K,N)} = N\inv\sum^{N}_{n=1}\delta_{\widehat{z}^{(K)}_{n}}$.
-\begin{assumption}\label{assump:consistency}
-	For each $K \in \{1,\dots,K_{o}\}$, there exists ${\phi}^{(K)}_{\star} \in\Phi^{(K)}$ and distribution $H^{(K)}_{\star}$ such that ${\widehat{\phi}}^{(K,N)} \convp {\phi}^{(K)}_{\star}$ and $\widehat{H}^{(K,N)}\convd H^{(K)}_{\star}$ as $N\to \infty$, after possible reordering of components.
-\end{assumption}
-
-\cref{assump:consistency} is analogous to \cref{assump:inference-regularity} in the mixture model case. This should also holds for most applications under mild conditions
-\citep{Zhao_ConvergenceAnalysisMU_2017,Devarajan_NMFdualdivergence_2019,Fu_IdentifiabilityNMF_2018,Anderson_AsymptoticFA_1988,Anderson_AsymptoticPCA_1963}. 
 %As a reminder, the assumption holds for cases in the equivalence class induced by component reordering, and that we keep this equivalence implicit in the proof.
 
 Let $\frac{\d{y}}{\d{\veps}}(\blank,{\phi},z)$ be the Jacobian matrix of the mapping ${\veps}\mapsto f\lrp{z,{\phi},{\veps}}$,
@@ -1132,9 +1120,7 @@ Let
 We show that 
 (1) if $K=K_{o}$, then $\mathcal{R}^{\rho}(\widehat{G}^{(K,N)}_{1:K}) \to 0$ in probability, and 
 (2) if $K<K_{o}$, then $\mathcal{R}^{\rho}(\widehat{G}^{(K,N)}_{1:K}) \to\infty$ in probability. 
-The conclusion follows immediately from these two results, as 
-in the proof of \cref{thm:main}. 
-
+The conclusion follows immediately from these two results.
 \paragraph{Proof of part (1).} 
 If $K=K_{o}$, then it follows from \cref{assump:metric-discr-conditions}(c,d) and \cref{assump:consistency} that $\widehat{\mathcal{D}}\lrp{\widehat{G}^{(K_{o},N)}_{k},G}\to\mathcal{D}\lrp{G^{(K_{o})}_{\star}, G}$ in probability.
 Hence, it follows that there exists $\varepsilon>0$ such that
@@ -1369,6 +1355,7 @@ $C(y)$ decays exponentially as $y \to \infty$ and hence $\int C(y)\d y <\infty$.
 
 
 
+\begin{comment}
 \section{Technical Lemma}
 
 
@@ -1425,6 +1412,7 @@ The following lemma states that integral probability metrics (as defined in Eq.\
 % \end{proof}
 
 
+\end{comment}
 
 \begin{comment}
 \section{Connection to Likelihood-based Inference} \label{sec:connection-to-likelihood}
@@ -1922,6 +1910,7 @@ Dataset 7 is challenging and even the ground truth does not produce a large F-me
 
 
 
+\begin{comment}
 \section{Skew-normal Mixture Simulation Study}
 \label{sec:simulation-gauss}
 
@@ -2011,6 +2000,7 @@ is able to properly trade off a worse density estimate for better model selectio
 
 
 
+\end{comment}
 \section{Conditional Sampling for PMF Models}
 
 \subsection{Poisson NMF}

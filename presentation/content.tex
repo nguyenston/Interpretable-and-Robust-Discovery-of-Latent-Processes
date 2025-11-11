@@ -3,6 +3,20 @@
 % table of content
 \section{Introduction}
 \begin{frame}{Introduction}
+  \only<1-2>{\pdfnote{
+      Many important real-world applications in healthcare, autonomous systems and scientific discovery are fundamentally
+      driven by unobserved, latent proceses.
+      For example, these processes can be <walk through examples>.
+  }}
+  \only<3>{
+    \pdfnote{
+      Problem is, many methods developed for these applications, while excel at prediction, is not as good
+      at reliably identify these underlying latent structures and in a way that makes human sense.
+      A large portion of them rely on local search (like Expectation-Maximization) and is therefore prone to local convergence
+      Most of them require the number of processes as a hyperparameter, common approaches such as BIC has been proven
+      to not fair well against real-life complications like sparse, incomplete, and noisy data, or model misspecification
+    }
+  }
   Type of latent processes in real-world applicatons:
   \pause
   \begin{itemize}
@@ -26,21 +40,26 @@
 \end{frame}
 
 \begin{frame}{Outline of contribution}
+  \pdfnote{
+    With that in mind, this prospectus will cover two methods that aim to address these challenges
+    <go through methods>. Method of moments for HIL, asymptotically consistent, offers global convergence under mid
+    assumptions and with only one pass over the data. Accumulated Cutoff Discrepancy Criterion (ACDC) <joke name Huggins>
+    model selection framework (it tells you how many processes there should be) that is applicable to a variety of problems,
+    even when the model doesn't match perfectly with the true data generating process. I will be walking through the two methods
+    and present the experiments, then we will talk about future directions.
+  }
   \tableofcontents
 \end{frame}
 
 \section{Method of moments for HIL}
 
 \subsection{Hierarchical Reinforcement Learning}
+  \pdfnote{
+    HRL is an approach that seeks to make RL more scalable and interpretable.
+    <walk through flow chart, explain the high and low level><walk through example>
+  }
 \begin{frame}{Hierarchical Reinforcement Learning}
     \begin{columns}[b]
-        \column{0.6\textwidth}
-            \begin{figure}
-                \centering
-                \includegraphics[width=\textwidth]{figures/monezuma_revenge_atari_game.pdf}
-                \caption{Four-room grid world}
-                \label{fig:4_room_grid_world}
-            \end{figure}
         \column{0.4\textwidth}
             \begin{figure}
                 \centering
@@ -48,11 +67,24 @@
                 \caption{Multiple layers of policies}
                 \label{fig:policy_layers}
             \end{figure}
+        \column{0.6\textwidth}
+            \begin{figure}
+                \centering
+                \includegraphics[width=\textwidth]{figures/monezuma_revenge_atari_game.pdf}
+                \caption{Monezuma's Revenge}
+                \label{fig:4_room_grid_world}
+            \end{figure}
     \end{columns}
 \end{frame}
 
 \subsection{HIL models and frameworks}
 \begin{frame}{Options framework and Hierarchical Imitation Learning}
+    \pdfnote{
+      In cases where expert demonstration is available, the learning process can be accelerated by imitating the expert first,
+      this is called HIL. This method will be focusing on learning the following model called the options framework.
+      <explains the bayesian graph>
+    }
+
     \begin{figure}
         \centering
         \includegraphics[width=0.8\textwidth, page=1]{figures/options_bayesian_net.pdf}
@@ -415,24 +447,100 @@
 \begin{frame}{Component-level Discrepancy}
   \begin{figure}
       \centering
-      \includegraphics[width=0.7\textwidth]{figures/ACDC_mixture_compwise_loss.pdf}
-      \caption{Component-wise loss}
+      \includegraphics[width=0.6\textwidth]{figures/ACDC_mixture_compwise_loss.pdf}
+      % \caption{Component-wise loss}
   \end{figure}
+  \pause
+  \begin{block}{Robust model selection loss}
+    \vspace{-1.0\baselineskip}
+    \[ \label{eq:robust-loss}
+      \mathcal{R}^\rho(x_{1:n}, K) = \sum_{k=1}^K \max(0, \compDiscEst^{(K,k)} - \rho),
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Component-level Discrepancy}
+
+\begin{flalign}
+  \text{Mixture model class:}&&
+  \textstyle \left\{ P_\theta = \sum_{k=1}^K \eta_k F_{\phi_k} : \theta = (\eta, \phi_1,\dots,\phi_K) \in \Theta^{(\numcomps)}\right\}.&&
+  \phantom{\text{Mixture model cla}}
+\end{flalign}
+  \begin{algorithm}[H]
+  \SetAlgoLined
+  \KwIn{data $x_{1:N}$, maximum number of components allowed $K_{\max}$, and penalty parameter $\lambda$}
+  \KwOut{Optimal estimated parameters $\hat{\theta}(\hat{K})$}
+  \caption{ACDC for mixture model}
+  \label{alg:model_selection}
+
+  \For{$K = 1$ to $K_{\max}$}{
+      Estimate model parameters $\hat{\theta}(K)$ based on $x_{1:N}$.
+      Sample latent variables $z_{1:N}$ from the posterior distribution $p(z_{1:N} \mid \hat{\theta}(K); x_{1:N})$.
+  }
+
+  Determine an appropriate structural parameter $\rho$, if necessary.
+  Compute the optimal number of components $\hat{K}$ by minimizing the penalized risk function:
+    $
+      \hat{K} = \arg \min_{K \in \{1, \dots, K_{\max}\}} R^{\lambda} (\hat{\theta}(K); x_{1:N}, z_{1:N}).
+    $
+  \Return $\hat{\theta}(\hat{K})$.
+
+  \end{algorithm}
 \end{frame}
 
 \subsection{Modeling Framework}
-\begin{frame}{Modeling Framework}
-  \begin{figure}[tp]
-    \centering
-    \includegraphics[width=.55\textwidth]{model}
-    \caption{Graphical representation of the general form for model $\model{K}$ for a single observation $\data{n}$.
-      Circles denote random variables while squares denote deterministic variables.
-      A gray background indicates global parameters while a black background indicates an observed quantity.}
-    \label{fig:model}
-  \end{figure}
+\begin{frame}{Modeling Framework - Generalization of Mixture Modeling}
+  \begin{columns}
+      \column{0.4\textwidth}
+      Consider the following generalized model
+      \[
+        \only<2->{z_n \mid \eta, w_n &\distind H^{(K)}_{\eta,w_n},\\}
+        \only<1>{\vphantom{z_n \mid \eta, w_n \distind H^{(K)}_{\eta,w_n},}\\}
+        \only<3->{\varepsilon_{nk} &\distiid G,\\}
+        \only<1-2>{\vphantom{\varepsilon_{nk} \distiid G,}\\}
+        \only<4->{y_{nk}&=f(w_{n}, z_{nk}, \phi_k, \varepsilon_{nk}) ,\\}
+        \only<1-3>{\vphantom{y_{nk}=f(w_{n}, z_{nk}, \phi_k, \varepsilon_{nk}),}\\}
+        \only<5->{x_n &= g^{(K)}(y_{n1}, \dots, y_{nK}).}
+        \only<1-4>{\vphantom{x_n = g^{(K)}(y_{n1}, \dots, y_{nK}).}}
+      \]
+      \column{0.6\textwidth}
+      \only<1>{
+        \begin{figure}[tp]
+          \centering
+          \includegraphics[width=\textwidth,page=1]{model}
+          % \caption{Graphical representation of the general form for model $\model{K}$ for a single observation $\data{n}$.
+          %   Circles denote random variables while squares denote deterministic variables.
+          %   A gray background indicates global parameters while a black background indicates an observed quantity.}
+        \end{figure}
+      }
+      \only<2>{
+        \begin{figure}[tp]
+          \centering
+          \includegraphics[width=\textwidth,page=2]{model}
+        \end{figure}
+      }
+      \only<3>{
+        \begin{figure}[tp]
+          \centering
+          \includegraphics[width=\textwidth,page=3]{model}
+        \end{figure}
+      }
+      \only<4>{
+        \begin{figure}[tp]
+          \centering
+          \includegraphics[width=\textwidth,page=4]{model}
+        \end{figure}
+      }
+      \only<5>{
+        \begin{figure}[tp]
+          \centering
+          \includegraphics[width=\textwidth,page=5]{model}
+        \end{figure}
+      }
+  \end{columns}
 \end{frame}
 
-\begin{frame}{Modeling Framework}
+\begin{frame}{Modeling Framework - Examples}
   \begin{exampleblock}{Example 1: Mixture Modeling}
     We can recover a general mixture model by taking $H_\eta^{(\numcomps)} = \distCat(\eta)$, 
     so $z_{nk} \in \{0,1\}$ and $\sum_{k=1}^K z_{nk} = 1$.
@@ -468,3 +576,138 @@
   \end{alertblock}}
 \end{frame}
 
+\subsection{Generalized ACDC}
+\begin{frame}{Generalized ACDC}
+  \[
+    z_n \mid \eta, w_n &\distind H^{(K)}_{\eta,w_n},\\
+    \only<1>{\varepsilon_{nk} &\distiid G,\\}
+    \only<2->{{\color{red}\varepsilon_{nk}} &\ {\color{red}\distiid G,}\\}
+    y_{nk}&=f(w_{n}, z_{nk}, \phi_k, \varepsilon_{nk}) ,\\
+    x_n &= g^{(K)}(y_{n1}, \dots, y_{nK}).
+  \]
+  \pause
+  \pause
+  \begin{block}{Reverse samling}
+    \vspace{-1\baselineskip}
+    \[
+      \widehat G_{nk}^{(K)} = \mcL(\varepsilon_{nk} \mid x_n, w_n, \widehat\theta^{(K)}),\qquad
+      \widehat G_k^{(K)} = \frac{1}{N} \sum_{n=1}^N \widehat G_{nk}^{(K)},
+    \]
+    \vspace{-1.5\baselineskip}
+    \[
+      \compDiscEst^{(K,k)} &= \discr{\widehat G_k^{(K)}}{G},\\
+      \mathcal{R}^\rho(x_{1:n}, K) &= \sum_{k=1}^K \max(0, \compDiscEst^{(K,k)} - \rho).
+    \]
+  \end{block}
+\end{frame}
+
+\begin{frame}{Generalized ACDC - Choosing $\rho$}
+  Ways to Choosing $\rho$:
+  \begin{columns}[b]
+      \column{0.45\textwidth}
+        \begin{figure}
+          \centering
+          \includegraphics[width=0.9\textwidth]{figures/GvHD-train.pdf}
+          \caption{Domain knowledge}
+          % \caption{Selecting an optimal value of $\rho$ using the first 6 flow cytometry datasets.
+          % 	The solid lines show $\rho$ vs.\ F-measure for datasets 1--6.
+          % 	The black dashed line indicates averaged F-measure over the training datasets.
+          % 	The vertical black line shows the value $\rho = 1.16$ that maximizes the averaged F-measure.}
+          \label{fig:flowcyt-train}
+        \end{figure}
+      \column{0.55\textwidth}
+        \begin{figure}
+          \centering
+          \includegraphics[width=0.9\textwidth]{figures/GvHD9-all-loss-plot-legend.pdf}
+          \caption{Widely applicable heuristic}
+        \end{figure}
+  \end{columns}
+\end{frame}
+
+\subsection{Simulation}
+
+\begin{frame}{Hyperspectral unmixing}
+  \begin{figure}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/urban_gt_5endmembers.pdf}
+    \caption{Unlabeled (left) and labeled (right) versions of the urban dataset}
+  \end{figure}
+\end{frame}
+
+\begin{frame}{Hyperspectral unmixing}
+  \begin{columns}[t]
+      \column{0.5\textwidth}
+        \begin{figure}
+          \centering
+          \adjincludegraphics[width=\textwidth, Clip={0.00\width} {0.525\height} {0.00\width} {0.00\height}, clip]{figures/composite-cd-urban-l2h=m1e80-shuffle-simplexh-sig=rmse-by_1e4_LInf_sparsity.pdf}
+          % \caption{Unlabeled (left) and labeled (right) versions of the urban dataset}
+        \end{figure}
+      \column{0.5\textwidth}
+        \begin{figure}
+          \centering
+          \adjincludegraphics[width=\textwidth, Clip={0.00\width} {0.0\height} {0.00\width} {0.475\height}, clip]{figures/composite-cd-urban-l2h=m1e80-shuffle-simplexh-sig=rmse-by_1e4_LInf_sparsity.pdf}
+          % \caption{Unlabeled (left) and labeled (right) versions of the urban dataset}
+        \end{figure}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Hyperspectral unmixing}
+  \begin{columns}[t]
+      \column{0.5\textwidth}
+        \begin{figure}
+          \centering
+          \includegraphics[width=\textwidth]{figures/urban_K=3.pdf}
+          \caption{$K=3$}
+        \end{figure}
+      \column{0.5\textwidth}
+        \begin{figure}
+          \centering
+          \includegraphics[width=\textwidth]{figures/urban_K=4.pdf}
+          \caption{$K=4$}
+        \end{figure}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Hyperspectral unmixing}
+  \begin{columns}[t]
+      \column{0.5\textwidth}
+        \begin{figure}
+          \centering
+          \includegraphics[width=\textwidth]{figures/urban_K=5.pdf}
+          \caption{$K=5$}
+        \end{figure}
+      \column{0.5\textwidth}
+        \begin{figure}
+          \centering
+          \includegraphics[width=\textwidth]{figures/urban_K=6.pdf}
+          \caption{$K=6$}
+        \end{figure}
+  \end{columns}
+\end{frame}
+
+\section{Discussions and Future Works}
+
+\begin{frame}{Discussions and Future Works}
+  Contributions:
+  \begin{itemize}
+    \item Method of moments for HIL: non-iterative algorithm for the options framework, 
+      leveraging low-order observable moments to provides global and asymptotically consistent parameter estimation.
+    \item ACDC: model selection method that introduces a ”cutoff discrepancy” at the component level, applicable to a wide variety of models and robust to model misspecification.
+  \end{itemize}
+  \pause
+  Future directions:
+  \begin{itemize}
+    \item Relaxing rank assumptions
+    \item More rigorous choice of $\rho$
+    \pause
+    \item ACDC is a very flexible framework:
+    \begin{itemize}
+      \item Apply to HMM for animal movement prediction
+      \item Apply to Causal Representation Learning and Variational Auto Encoders
+    \end{itemize}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{}
+
+\end{frame}

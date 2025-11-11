@@ -54,7 +54,7 @@ This work addresses the problem by presenting two primary contributions:
     It provides robust model selection consistency under intuitive assumptions for broad model classes.
 \end{enumerate}
 Collectively, these contributions aim to provide valuable alternative and complementary methods for applying machine learning 
-in high-stakes situations. Continue on, \cref{chap:Spectral_HIL} will provide details to 
+in high-stakes situations. \cref{chap:Spectral_HIL} will provide details to 
 the spectral HIL method, including relevant background and related works. 
 \cref{chap:ACDC} will similarly provide the background and details to the ACDC, 
 with particular focus on its application to the class of probabilistic matrix factorization (PMF) models. 
@@ -107,7 +107,7 @@ The Moore–Penrose inverse of a matrix $\bm A$ will be denoted $\bm A^+$ and it
 \section{Problem Formulation}
 \label{sec:problem}
 
-In this section, we introduce the HRL with \citep{Bauer:2007}options framework \citep{SUTTON1999181,Barto2003} and formulate the associated HIL problem.
+In this section, we introduce the HRL with \citep{Bauer:2007} options framework \citep{SUTTON1999181,Barto2003} and formulate the associated HIL problem.
 
 \subsection{HRL with Options Framework}
 The HRL with options framework corresponds to the Bayesian network shown in Fig.~\ref{fig:Bayes_net} where $O_t$, $S_t$, and $A_t$ denote the option, the state, and the action at time $t \geq 1$, respectively.
@@ -467,7 +467,6 @@ For comparison purposes, Fig.\ \ref{fig:EM_error} depicts a few EM runs with ran
 \section{Chapter summary}
 We developed a novel method of moments for Hierarchical Imitation Learning (HIL) that offers global convergence under mild regulatory conditions.
 Our method of moments for HIL is based on similar methods for HMMs and other latent variable models, and avoids the local convergence issues inherent in previous Expectation-Maximization (EM) approaches to HIL.
-Future work could include further relaxation of the conditions under which the method holds and examining its extension to situations in which the options form a semi-Markov (rather than a Markov) process.
 
 \chapter{Accumulated Cutoff Discrepancy Criterion}\label{chap:ACDC}
 
@@ -674,7 +673,7 @@ We discuss applications to other models in \cref{sec:framework,sec:pmf-applicati
 
 \subsection{Robust Model Selection Consistency} \label{sec:robust-consistency}
 
-Generalizing the mixture model setting, consider a sequence of models $\model{1}, \model{2}, \dots, \model{K}, \dots$, where $K$ captures how many distinct latent components are generating the observed data.
+In order to generalize from the mixture modeling setting, consider a sequence of models $\model{1}, \model{2}, \dots, \model{K}, \dots$, where $K$ captures how many distinct latent components are generating the observed data.
 Assume that $\model{K} = \{ P_{\theta} \mid \theta \in \paramSpace{K} \}$, where $\paramSpace{K}$ is the parameter space
 and $P_{\theta} \in \mcP(\mathbb{X})$, the space of probability measures on the observation space $\mathbb{X}$. 
 The objective is to identify the true number of processes $K_o$.
@@ -786,7 +785,7 @@ It would be natural to ask that $\kappa(\rho, K) = \rho$, although this may not 
 \subsection{A Plug-in Procedure}
 \label{sec:method}
 
-Inspired by \cref{def:robust-consistency}, we propose a simple plug-in procedure for model selection,.
+Inspired by \cref{def:robust-consistency}, we propose a simple plug-in procedure for model selection.
 Assuming $\rho_o = \rho(P_o, K_o)$ were known, we would want to find the smallest value of $K$ such that 
 for all $k \in \{1,\dots,K\}$, we have $\compDisc^{(K)}(\theta_\star, k, P_{o}) \le \rho_o$ for $\theta_\star \in \Theta_{\star}^{(K_{o})}(P_{o})$.
 However, since $P_{o}$ and $\Theta_{\star}^{(K_{o})}(P_{o})$ are unavailable, we propose to instead 
@@ -1544,7 +1543,7 @@ for one or more such datasets with ground-truth labels
 can be determined by maximizing a problem-appropriate accuracy metric such as F-measure.
 Because $\rho$ quantifies the divergence between the true process distributions and the model estimates,
 we expect the values found using this approach will generalize to new datasets that are reasonably similar.
-We illustrate this approach in \cref{sec:flow-cytometry}.
+% We illustrate this approach in \cref{sec:flow-cytometry}.
 Alternatively, if real data with ground truth $K_o$ is unavailable, plausible simulated data could 
 be used to calibrate $\rho$ instead \citep{Xue:2024}.
 %This approach is employed in flow cytometry data, discussed in \cref{sec:experiments}.
@@ -1595,7 +1594,7 @@ This approach is similar in spirit to the one introduced for heuristically selec
 % 	The observed data and fitted model distribution for $K = 3$ are shown in \cref{fig:poismm}(right).
 % \end{example}
 
-\paragraph{Automation.}\PROBLEM{Deemphasize}
+\paragraph{Automation.}
 Building on the same heuristic intuition, we can automate the selection of $\rho$ by defining a minimum width $\Delta_{\min}$ for which an interval can be recognized as the stability region. Specifically,
 % we define this stability interval by determining the range of $\rho$ over which the penalized loss for $K$ remains optimal. The lower bound is the first $\rho$ value where an $K$-specific loss first becomes the minimum among all losses, and the upper bound is the $\rho$ value where the loss is surpassed by the loss for a different $K$. By imposing a threshold on the length of such interval, we can automatically select the $K$ value corresponding to the first loss function satisfying this criterion.
 we keep track of the smallest $\rho$ value, $\rho_\mathrm{start}$, for which a $K$-specific penalized loss becomes minimal among all other $K$-specific losses.
@@ -1821,8 +1820,7 @@ model selection does not resolve the overfitting problem.
 
 \subsection{Probabilistic Matrix Factorization} \label{sec:pmf-applications}
 
-As a second application, we consider probabilistic matrix factorization.
-As with mixture modeling, \methodname is robustly consistent. 
+\methodname is robustly consistent for PMF. 
 \begin{theorem} \label{thm:pmf-robust-consistency}
 \methodname using $\compDiscEst^{(K,k)}$ defined in \cref{eq:general-Dcomp} is $\kappa$-robustly consistent for probabilistic matrix factorization if the underlying component discrepancy $\mcD$ is the KL divergence,  $\distDisc = d_\mathrm{BL}$, and $\kappa(\rho, K) = \sqrt{K\rho/2}$. 
 \end{theorem}
@@ -2023,7 +2021,7 @@ using the soft adjusted Rand index \citep[sARI;][]{Flynt_sARI_2019}.
 \Cref{fig:urban_results} shows that \methodname selects $\widehat{K} = K_{o} = 5$,
 which also maximizes the sARI. %, also indicating that $K=5$ yields material abundance closest to ground truth.
 BIC overfits, selecting $\widehat{K} = 7$, while PA underfits, selecting $\widehat{K} = 3$.
-\Cref{fig:hyprunmix_gt}(b)--(e) provides a qualitative understanding of the result.
+\cref{fig:hyprunmix_gt}(b)--(e) provides a qualitative understanding of the result.
 %providing intuition to the performance gaps seen in \cref{fig:urban_results_rho_k}.
 The small gap between $K=3$ and $K=4$ can be explained through the addition of the ``grass'' material that is
 very similar to the already included ``tree'' material. 
@@ -2198,28 +2196,14 @@ and is clearly an artifact of overfitting.
 % two carefully engineered pipelines designed specially for clustering single-cell genomic data.
 
 
-\section{Discussion} \label{sec:discussion}
+\section{Chapter summary} \label{sec:discussion}
 
-In this paper, we have developed a general theoretical and methodological framework for ensuring 
+In this chapter, we have developed a general theoretical and methodological framework for ensuring 
 mechanistic interpretability when selecting the number of latent components in a latent variable model. 
 As two applications, we showed that our \methodname method is robustly consistent and empirically 
 effective for mixture models and probababilistic matrix factorization. 
 These results open the door to a number of directions for future work.
 
-In applications where related labeled datasets are not available, we are only able to provide a heuristic method for calibrating the degree of misspecification, as quantified by $\rho$.
-Ideally, we would like to have a more rigorous criteria.
-However, given the nonparametric nature of misspecification, we suspect that a fully general solution does not exist; for example, the coarsened posterior similarly requires a heuristic calibration step.
-One alternative to explore in the future is the simulation-based calibration method from \citet{Xue:2024}, which was developed for the coarsened posterior but could easily be used with \methodname as well.
-However, generally speaking, a user must have \emph{some} prior knowledge about the degree of model misspecification -- and believe that the misspecification will be reasonably small as measured by the chosen discrepancy $\mcD$.
-Moreover, if the degree of misspecification is very large, we should not expect any robust model selection procedure to
-work well (cf.\ $P_{o}^{E}$ in \cref{fig:consistency-illustration}).
-
-It would be valuable to further develop our robust consistency theory; for example  
-similar results could be proved for other common model classes. 
-It would also be useful to characterize how quickly $\Pr(\widehat{K} = K_o)$ converges to 1 
-and to quantify the variability of $\widehat{K}$.
-Another interesting direction for future work is to apply \methodname to other model classes such as supervised factor analysis and extend it to apply to models outside of the framework we developed in
-\cref{sec:framework} -- for example, (nonlinear) variational autoencoders \citep{Kingma2014,Kingma2019VAEs} and semiparametric matrix factorization models \citep{Anandkumar2014uc,rohe2023vintage-7f4}.
 
 % Finally, \methodname does not provide any uncertainty quantification.
 % A Bayesian version of our method that provides a distribution over $K$ would be useful,
@@ -2237,12 +2221,52 @@ Another interesting direction for future work is to apply \methodname to other m
 %     \item 
 % \end{itemize}}
 
-\section*{Acknowledgments}
-Thanks to Yixin Wang for invaluable discussions and detailed feedback on an earlier version of this manuscript.
-J.~Li and J.~H.~Huggins were partially supported by the National Institute of General Medical Sciences of the National Institutes of Health (NIH)
-as part of the Joint NSF/NIGMS Mathematical Biology Program under grant 1R01GM144963-01
-and by the National Science Foundation (NSF) under grant IIS-2340586.
-N.~Nguyen and I.C.~Paschalidis were partially supported by the National Science Foundation (NSF) under grants IIS-1914792, CCF-2200052, ECCS-2317079, and DEB-2433726, the Department of Energy (DOE) under grant DE-AC02-05CH11231, the Office of Naval Research (ONR) under grant N00014-19-1-2571, and Merck Research.
-The content is solely the responsibility of the authors and does not necessarily represent the official views of the NIH, NSF, DOE, ONR or Merck.
+% \section*{Acknowledgments}
+% Thanks to Yixin Wang for invaluable discussions and detailed feedback on an earlier version of this manuscript.
+% J.~Li and J.~H.~Huggins were partially supported by the National Institute of General Medical Sciences of the National Institutes of Health (NIH)
+% as part of the Joint NSF/NIGMS Mathematical Biology Program under grant 1R01GM144963-01
+% and by the National Science Foundation (NSF) under grant IIS-2340586.
+% N.~Nguyen and I.C.~Paschalidis were partially supported by the National Science Foundation (NSF) under grants IIS-1914792, CCF-2200052, ECCS-2317079, and DEB-2433726, the Department of Energy (DOE) under grant DE-AC02-05CH11231, the Office of Naval Research (ONR) under grant N00014-19-1-2571, and Merck Research.
+% The content is solely the responsibility of the authors and does not necessarily represent the official views of the NIH, NSF, DOE, ONR or Merck.
 
 \chapter{Discussion and Future Work}\label{chap:discussion}
+\section{Summary of Contributions}
+This thesis develops methodologies that shift the focus of machine learning from predictive accuracy toward the robust and interpretable discovery of latent structures. Two primary contributions are presented to address this challenge:
+
+\begin{enumerate}
+  \item A Spectral Method of Moments for Hierarchical Imitation Learning (HIL): This work introduces a novel, non-iterative algorithm for learning hierarchical policies from expert demonstrations where high-level options are latent. By leveraging low-order observable moments, this method provides global and asymptotically consistent parameter estimation, directly overcoming the limitations of local optima and initialization sensitivity inherent in standard EM approaches.
+  \item The Accumulated Cutoff Discrepancy Criterion (ACDC): This work validates and applies ACDC, a general model selection framework, for robustly identifying the true number of latent processes ($K_o$) under model misspecification. The primary focus of this thesis was on the application and validation of ACDC within the domain of PMF/NMF. By introducing a "cutoff discrepancy" ($\rho$), ACDC avoids overfitting to statistical noise and model artifacts, a common failure mode for traditional criteria like BIC/AIC that are optimized for prediction.
+\end{enumerate}
+
+Collectively, these contributions provide tools and options for addressing the full process of robust discovery, from determining "how many" processes exist (ACDC) to defining "what they are" (Spectral HIL).
+
+\section{Limitations and Future Works}
+While the proposed methods offer significant advantages, they also present clear limitations and corresponding avenues for future research. These are discussed separately for each contribution. 
+
+For the method of moments, its global convergence guarantees rely on mild regulatory conditions, such as full rank and identifiability.
+Future work should include a thorough investigation of the method's performance and sensitivity when these assumptions are nearly or partially violated, which may occur in noisy, real-world data. 
+Additionally, we can also examine its extension to situations in which the options form a semi-Markov (rather than a Markov) process.
+
+As for ACDC, in applications where related labeled datasets are not available, we are only able to provide a heuristic method for calibrating the degree of misspecification, as quantified by $\rho$.
+Ideally, we would like to have a more rigorous criteria.
+However, given the nonparametric nature of misspecification, we suspect that a fully general solution does not exist; for example, the coarsened posterior similarly requires a heuristic calibration step.
+One alternative to explore in the future is the simulation-based calibration method from \citet{Xue:2024}, which was developed for the coarsened posterior but could easily be used with \methodname as well.
+However, generally speaking, a user must have \emph{some} prior knowledge about the degree of model misspecification -- and believe that the misspecification will be reasonably small as measured by the chosen discrepancy $\mcD$.
+Moreover, if the degree of misspecification is very large, we should not expect any robust model selection procedure to
+work well (cf.\ $P_{o}^{E}$ in \cref{fig:consistency-illustration}).
+
+It would be valuable to further develop our robust consistency theory; for example  
+similar results could be proved for other common model classes. 
+It would also be useful to characterize how quickly $\Pr(\widehat{K} = K_o)$ converges to 1 
+and to quantify the variability of $\widehat{K}$.
+
+A high-impact direction is the application of ACDC to HMM state selection. 
+\cite{pohleSelectingNumberStates2017a} identify the failure of BIC/AIC for HMMs as a "notorious problem," 
+demonstrating that these criteria consistently overestimate $K$ to "mop up" any unmodeled structure 
+(e.g., outliers, temporal variation, or non-Markovian dynamics). As they only offer a "pragmatic" 
+solution based on heuristics and expert knowledge, ACDC presents an opportunity to develop a formal, 
+statistical criterion that is robust to these misspecifications in HMMs.
+Another interesting direction for future work is to apply \methodname to other model classes such as supervised factor analysis and extend it to apply to models outside of the framework we developed in
+\cref{sec:framework} -- for example, (nonlinear) variational autoencoders \citep{Kingma2014,Kingma2019VAEs} and semiparametric matrix factorization models \citep{Anandkumar2014uc,rohe2023vintage-7f4}.
+This aligns with the emerging field of Causal Representation Learning (CRL), which seeks to learn interpretable causal factors from high-dimensional data \citep{moranInterpretableDeepGenerative2025}. ACDC could provide a crucial tool for robustly selecting the true number of latent causal factors in a VAE, a problem that \cite{moranInterpretableDeepGenerative2025} identify as a key open statistical question.
+

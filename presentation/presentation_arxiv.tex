@@ -50,7 +50,7 @@
   \fi
 }
 
-
+\usepackage{adjustbox}
 \usepackage{pdfcomment}
 \newcommand{\pdfnote}[1]{\marginnote{\pdfcomment[icon=note]{#1}}}
 
@@ -90,6 +90,9 @@
 % \usepackage{datetime} % conflict with beamer
 \usepackage[normalem]{ulem}
 \usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\SetKwInput{KwInput}{Input}
+\SetKw{KwOutput}{Output}
+\SetKw{Return}{return}
 
 \usepackage{autonum} % conflict with beamer
 \usepackage{microtype} % microtypesetting improvements for latex
@@ -151,6 +154,11 @@
 
 % title frame
 \begin{frame}
+  \pdfnote{
+    <Say hello>, thank you all for coming to to my defense today. 
+    And today I will be walking you through what I've been working on, which are 
+    methods for interpretable and robust discovery of latent processes in complex systems.
+  }
   \titlepage % \maketitle is an alias for \titlepage in beamer
 \end{frame}%\tableofcontents
 
